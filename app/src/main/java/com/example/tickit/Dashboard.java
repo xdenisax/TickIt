@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,9 +20,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Dashboard extends AppCompatActivity {
-
+    DatabaseReference myRef;
     GoogleSignInClient mGoogleSignInClient;
     TextView nameTextView;
     TextView emailTextView;
@@ -47,15 +54,38 @@ public class Dashboard extends AppCompatActivity {
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(Dashboard.this);
         if(account !=null){
-            String name = account.getDisplayName();
-            String email = account.getEmail();
-            String id = account.getId();
-            Uri picture = account.getPhotoUrl();
+            final String name = account.getDisplayName();
+            final String email = account.getEmail();
+            final String id = account.getId();
+            final Uri picture = account.getPhotoUrl();
 
-            nameTextView.setText(name);
-            emailTextView.setText(email);
-            idTextView.setText(id);
-            Glide.with(this).load(picture).into(userPictureImageView);
+            User newUser = new User(name, email);
+
+
+
+            myRef = FirebaseDatabase.getInstance().getReference("Users");
+//            myRef.child(id).setValue(newUser); //adauga noi useri in bd
+
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if(dataSnapshot.child(id).exists()){
+                        Log.d("exists", id + "exists");
+                        nameTextView.setText(name);
+                        emailTextView.setText(email);
+                        idTextView.setText(id);
+                        Glide.with(getApplicationContext()).load(picture).into(userPictureImageView);
+                    }else{
+                        Log.d("exists", id + "does not exist");
+                        nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                }
+            });
         }
 
         signOutButton.setOnClickListener(new View.OnClickListener() {
