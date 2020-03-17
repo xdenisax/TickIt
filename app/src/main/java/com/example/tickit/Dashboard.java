@@ -1,7 +1,9 @@
 package com.example.tickit;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,8 +63,6 @@ public class Dashboard extends AppCompatActivity {
 
             User newUser = new User(name, email);
 
-
-
             myRef = FirebaseDatabase.getInstance().getReference("Users");
 //            myRef.child(id).setValue(newUser); //adauga noi useri in bd
 
@@ -81,7 +81,6 @@ public class Dashboard extends AppCompatActivity {
                         nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
                     }
                 }
-
                 @Override
                 public void onCancelled(DatabaseError error) {
                 }
@@ -106,5 +105,24 @@ public class Dashboard extends AppCompatActivity {
                         finish();
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(Dashboard.this);
+        dialog.setTitle("Doresti sa te deconectezi la iesirea din aplicatie?");
+        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                signOut();
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finishAffinity();
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
     }
 }
