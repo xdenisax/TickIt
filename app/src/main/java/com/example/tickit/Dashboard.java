@@ -2,6 +2,7 @@ package com.example.tickit;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.PagerAdapter;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +38,8 @@ public class Dashboard extends AppCompatActivity {
     TextView idTextView;
     Button signOutButton;
     ImageView userPictureImageView;
+
+    private SectionsPageAdapter mSectionsPageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +68,7 @@ public class Dashboard extends AppCompatActivity {
             User newUser = new User(name, email);
 
             myRef = FirebaseDatabase.getInstance().getReference("Users");
-//            myRef.child(id).setValue(newUser); //adauga noi useri in bd
+//          myRef.child(id).setValue(newUser); //adauga noi useri in bd
 
             myRef.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -78,6 +82,7 @@ public class Dashboard extends AppCompatActivity {
                         Glide.with(getApplicationContext()).load(picture).into(userPictureImageView);
                     }else{
                         Log.d("exists", id + "does not exist");
+                        ((TabLayout) findViewById(R.id.tabs)).setVisibility(View.INVISIBLE);
                         nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
                     }
                 }
