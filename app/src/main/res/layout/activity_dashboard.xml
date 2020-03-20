@@ -97,25 +97,38 @@
         android:id="@+id/tabs">
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/membersTab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/membri" />
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/projectsTab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/proiecte" />
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/openedTasksTab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/task_uri_deschise" />
 
         <com.google.android.material.tabs.TabItem
+            android:id="@+id/myTasksTab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/task_urile_mele" />
     </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tabs"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
