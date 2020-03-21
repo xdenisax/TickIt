@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,9 +42,9 @@ public class Dashboard extends Fragment {
     TextView nameTextView;
     TextView emailTextView;
     TextView idTextView;
-    Button signOutButton;
+    ImageButton signOutButton;
     ImageView userPictureImageView;
-    FloatingActionButton profileButton;
+    ImageButton profileButton;
 
 
     public Dashboard() {
@@ -62,9 +63,9 @@ public class Dashboard extends Fragment {
         nameTextView = (TextView) view.findViewById(R.id.userName);
         emailTextView =(TextView) view.findViewById(R.id.userEmail);
         idTextView = (TextView) view.findViewById(R.id.userID);
-        signOutButton = (Button) view.findViewById(R.id.signOutButton);
+        signOutButton = (ImageButton) view.findViewById(R.id.signOutButton);
         userPictureImageView = (ImageView) view.findViewById(R.id.userPicture);
-        profileButton = (FloatingActionButton) view.findViewById(R.id.profileFloatingButton);
+        profileButton = (ImageButton) view.findViewById(R.id.profileButton);
 
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -85,16 +86,18 @@ public class Dashboard extends Fragment {
             myRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-
                     if(dataSnapshot.child(id).exists()){
                         Log.d("exists", id + "exists");
-                        nameTextView.setText(name);
-                        emailTextView.setText(email);
-                        idTextView.setText(id);
-                        Glide.with(getContext()).load(picture).into(profileButton);
-                        Glide.with(getContext()).load(picture).into(userPictureImageView);
+                        nameTextView.setText("Mesaj motivational despre cat de misto e sa fii voluntar");
+//                        nameTextView.setText(name);
+//                        emailTextView.setText(email);
+//                        idTextView.setText(id);
+//                        Glide.with(getContext()).load(picture).into(userPictureImageView);
                     }else{
-                        ((TabLayout) view.findViewById(R.id.tabs)).setVisibility(View.GONE);
+                        if(((TabLayout) view.findViewById(R.id.tabs)) != null){
+                            ((TabLayout) view.findViewById(R.id.tabs)).setVisibility(View.GONE);
+                        }
+                        profileButton.setVisibility(View.GONE);
                         nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
                     }
                 }
