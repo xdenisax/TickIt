@@ -11,13 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class Projects extends Fragment {
-     private static final String ARG_PARAM1 = "param1";
+    public Projects() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_contacts, container, false);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view=inflater.inflate(R.layout.fragment_projects, container, false);
         return view;
     }
 

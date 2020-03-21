@@ -11,13 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class MyTasks extends Fragment {
+    public MyTasks() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_contacts, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view=inflater.inflate(R.layout.fragment_my_tasks, container, false);
 
         return view;
     }
+
 
 }

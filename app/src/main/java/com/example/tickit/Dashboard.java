@@ -1,22 +1,24 @@
 package com.example.tickit;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -25,7 +27,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabItem;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,7 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class Dashboard extends AppCompatActivity {
+public class Dashboard extends Fragment {
     DatabaseReference myRef;
     GoogleSignInClient mGoogleSignInClient;
     TextView nameTextView;
@@ -41,54 +43,34 @@ public class Dashboard extends AppCompatActivity {
     TextView idTextView;
     Button signOutButton;
     ImageView userPictureImageView;
+    FloatingActionButton profileButton;
 
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private TabItem membersTab, projectsTab, openTasksTab, myTasksTab;
-    public PagerAdapter pagerAdapter;
+    public Dashboard() {
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
 
-        nameTextView = (TextView) findViewById(R.id.userName);
-        emailTextView =(TextView) findViewById(R.id.userEmail);
-        idTextView = (TextView) findViewById(R.id.userID);
-        signOutButton = (Button) findViewById(R.id.signOutButton);
-        userPictureImageView = (ImageView) findViewById(R.id.userPicture);
+    }
 
-        tabLayout = (TabLayout)findViewById(R.id.tabs);
-        membersTab = (TabItem) findViewById(R.id.membersTab);
-        projectsTab = (TabItem) findViewById(R.id.projectsTab);
-        openTasksTab =(TabItem) findViewById(R.id.openedTasksTab);
-        myTasksTab = (TabItem) findViewById(R.id.myTasksTab);
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        pagerAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(pagerAdapter);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.fragment_dashboard,container,false);
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if( tab.getPosition() == 0 ||
-                        tab.getPosition() == 1 ||
-                        tab.getPosition() == 2 ||
-                        tab.getPosition() == 3){
-                    pagerAdapter.notifyDataSetChanged();
-                }
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { }
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { }
-        });
+        nameTextView = (TextView) view.findViewById(R.id.userName);
+        emailTextView =(TextView) view.findViewById(R.id.userEmail);
+        idTextView = (TextView) view.findViewById(R.id.userID);
+        signOutButton = (Button) view.findViewById(R.id.signOutButton);
+        userPictureImageView = (ImageView) view.findViewById(R.id.userPicture);
+        profileButton = (FloatingActionButton) view.findViewById(R.id.profileFloatingButton);
 
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(Dashboard.this);
+        mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+
         if(account !=null){
             final String name = account.getDisplayName();
             final String email = account.getEmail();
@@ -109,9 +91,10 @@ public class Dashboard extends AppCompatActivity {
                         nameTextView.setText(name);
                         emailTextView.setText(email);
                         idTextView.setText(id);
-                        Glide.with(getApplicationContext()).load(picture).into(userPictureImageView);
+                        Glide.with(getContext()).load(picture).into(profileButton);
+                        Glide.with(getContext()).load(picture).into(userPictureImageView);
                     }else{
-                        ((TabLayout) findViewById(R.id.tabs)).setVisibility(View.GONE);
+                        ((TabLayout) view.findViewById(R.id.tabs)).setVisibility(View.GONE);
                         nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
                     }
                 }
@@ -126,36 +109,19 @@ public class Dashboard extends AppCompatActivity {
                 signOut();
             }
         });
+        return view;
     }
 
     private void signOut(){
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+        mGoogleSignInClient.signOut().addOnCompleteListener((Activity) getContext(),
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete( Task<Void> task) {
-                        Toast.makeText(getApplicationContext(), "Signed Out Succesfully", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
+                        Toast.makeText(getContext(), "Signed Out Succesfully", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(getContext(), MainActivity.class));
+                        getActivity().finish();
                     }
                 });
     }
 
-    @Override
-    public void onBackPressed() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(Dashboard.this);
-        dialog.setTitle("Doresti sa te deconectezi la iesirea din aplicatie?");
-        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                signOut();
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finishAffinity();
-            }
-        });
-        AlertDialog alertDialog = dialog.create();
-        alertDialog.show();
-    }
 }

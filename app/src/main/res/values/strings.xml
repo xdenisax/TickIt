@@ -8,4 +8,6 @@
     <string name="proiecte">Proiecte</string>
     <string name="task_uri_deschise">Task-uri deschise</string>
     <string name="task_urile_mele">Task-urile mele</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="tablou_de_bord">Tablou de bord</string>
 </resources>

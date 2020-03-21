@@ -11,13 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class OpenTasks extends Fragment {
-
+    public OpenTasks() {
+    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_contacts, container, false);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view=inflater.inflate(R.layout.fragment_open_tasks, container, false);
         return view;
     }
 

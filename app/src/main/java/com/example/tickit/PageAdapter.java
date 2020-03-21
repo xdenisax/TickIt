@@ -4,11 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
-public class PageAdapter extends FragmentPagerAdapter {
+public class PageAdapter extends FragmentStatePagerAdapter {
     int numberOfTabs;
+
     public PageAdapter(@NonNull FragmentManager fm, int behavior) {
-        super(fm, behavior);
+        super(fm);
         this.numberOfTabs=behavior;
     }
 
@@ -17,12 +19,14 @@ public class PageAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                return new Members();
+                return new Dashboard();
             case 1:
-                return new Projects();
+                return new Members();
             case 2:
-                return new OpenTasks();
+                return new Projects();
             case 3:
+                return new OpenTasks();
+            case 4:
                 return new MyTasks();
                 default:
                     return null;
