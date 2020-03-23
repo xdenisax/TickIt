@@ -10,4 +10,11 @@
     <string name="task_urile_mele">Task-urile mele</string>
     <string name="dashboard">Dashboard</string>
     <string name="tablou_de_bord">Tablou de bord</string>
+    <string name="numarul_de_telefon_nu_a_fost_adaugat">Numarul de telefon nu a fost adaugat.</string>
+    <string name="salveaza">Salveaza</string>
+    <string name="renunta">Renunta</string>
+    <string name="model_nr_telefon">Numar de telefon nou</string>
+    <string name="numar_de_telefon_actualiza">Numar de telefon actualizat</string>
+    <string name="numar_de_telefon_nu_a_fost_actualizat">Numarul de telefon nu a fost actualizat</string>
+    <string name="numar_de_telefon_mai_mult_de_10_cifre">Numarul de telefon trebuie sa aiba 10 cifre.</string>
 </resources>

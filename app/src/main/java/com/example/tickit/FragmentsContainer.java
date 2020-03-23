@@ -103,15 +103,5 @@ public class FragmentsContainer extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void signOut(){
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete( Task<Void> task) {
-                        Toast.makeText(getApplicationContext(), "Signed Out Succesfully", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
-                    }
-                });
-    }
+
 }

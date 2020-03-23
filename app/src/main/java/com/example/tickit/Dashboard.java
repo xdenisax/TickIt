@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -45,79 +46,48 @@ public class Dashboard extends Fragment {
     ImageButton signOutButton;
     ImageView userPictureImageView;
     ImageButton profileButton;
-
-
-    public Dashboard() {
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
+    GoogleSignInOptions gso;
+    public Dashboard() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_dashboard,container,false);
 
-        nameTextView = (TextView) view.findViewById(R.id.userName);
-        emailTextView =(TextView) view.findViewById(R.id.userEmail);
-        idTextView = (TextView) view.findViewById(R.id.userID);
-        signOutButton = (ImageButton) view.findViewById(R.id.signOutButton);
-        userPictureImageView = (ImageView) view.findViewById(R.id.userPicture);
-        profileButton = (ImageButton) view.findViewById(R.id.profileButton);
 
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
 
-        if(account !=null){
-            final String name = account.getDisplayName();
-            final String email = account.getEmail();
-            final String id = account.getId();
-            final Uri picture = account.getPhotoUrl();
+        Intent intentFromMainActivity = getActivity().getIntent();
+        final User loggedInUser = (User) intentFromMainActivity.getParcelableExtra("userLoggedInFromMainActivity");
 
-            User newUser = new User(name, email);
+        profileButtonPressed(loggedInUser, profileButton, view);
+        signOutButtonPressed(signOutButton, view);
 
-            myRef = FirebaseDatabase.getInstance().getReference("Users");
-//          myRef.child(id).setValue(newUser); //adauga noi useri in bd
+        return view;
+    }
 
-            myRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.child(id).exists()){
-                        Log.d("exists", id + "exists");
-                        nameTextView.setText("Mesaj motivational despre cat de misto e sa fii voluntar");
-//                        nameTextView.setText(name);
-//                        emailTextView.setText(email);
-//                        idTextView.setText(id);
-//                        Glide.with(getContext()).load(picture).into(userPictureImageView);
-                    }else{
-                        if(((TabLayout) view.findViewById(R.id.tabs)) != null){
-                            ((TabLayout) view.findViewById(R.id.tabs)).setVisibility(View.GONE);
-                        }
-                        profileButton.setVisibility(View.GONE);
-                        nameTextView.setText("Acest cont Gmail nu este asociat unui membru SiSC, prin urmare functionalitatile nu sunt disponibile.");
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                }
-            });
-        }
+    private void signOutButtonPressed(ImageButton signOutButton, View view) {
+        signOutButton = (ImageButton) view.findViewById(R.id.signOutButton);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signOut();
             }
         });
-        return view;
+    }
+
+    private void profileButtonPressed(final User loggedInUser, ImageButton profileButton, View view) {
+        profileButton = (ImageButton) view.findViewById(R.id.profileButton);
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(),Profile.class).putExtra("userLoggedInFromDashboard",loggedInUser));
+            }
+        });
     }
 
     private void signOut(){
-        mGoogleSignInClient.signOut().addOnCompleteListener((Activity) getContext(),
-                new OnCompleteListener<Void>() {
+        mGoogleSignInClient.signOut().addOnCompleteListener((Activity) getContext(), new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete( Task<Void> task) {
                         Toast.makeText(getContext(), "Signed Out Succesfully", Toast.LENGTH_LONG).show();
