@@ -28,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -36,6 +37,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class Dashboard extends Fragment {
     DatabaseReference myRef;
@@ -47,23 +52,61 @@ public class Dashboard extends Fragment {
     ImageView userPictureImageView;
     ImageButton profileButton;
     GoogleSignInOptions gso;
+    FirebaseFirestore db;
     public Dashboard() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_dashboard,container,false);
 
-
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
-        Intent intentFromMainActivity = getActivity().getIntent();
-        final User loggedInUser = (User) intentFromMainActivity.getParcelableExtra("userLoggedInFromMainActivity");
+        Intent intent = getActivity().getIntent();
+        User loggedInUser= getUser(intent);
 
         profileButtonPressed(loggedInUser, profileButton, view);
         signOutButtonPressed(signOutButton, view);
 
         return view;
+    }
+
+    private User getUser(Intent intent) {
+        final User user = new User();
+        final String userID= getUserIDIntentCheck(intent);
+
+        db= FirebaseFirestore.getInstance();
+        final DocumentReference docRef = db.collection("users").document(userID);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                      user.setFirstName(document.getString("firstName"));
+                      user.setLastName(document.getString("lastName"));
+                      user.setDepartament(document.getString("department"));
+                      user.setEmail(userID);
+                      user.setPhoneNumber(document.getString("phoneNumber"));
+                      user.setProfilePicture(document.getString("profilePicture"));
+                    }
+                } else {
+                    Log.d("Firestore", "get failed with ", task.getException());
+                }
+            }
+        });
+
+        return user;
+    }
+
+    private String getUserIDIntentCheck(Intent intent) {
+        String userID="";
+        if(intent.getStringExtra("userLoggedInFromMainActivity") != null) {
+            userID = intent.getStringExtra("userLoggedInFromMainActivity");
+        }else if(intent.getStringExtra("userIDFromProfile") != null) {
+            userID = intent.getStringExtra("userIDFromProfile");
+        }
+        return userID;
     }
 
     private void signOutButtonPressed(ImageButton signOutButton, View view) {

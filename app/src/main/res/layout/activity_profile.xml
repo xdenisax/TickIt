@@ -7,6 +7,33 @@
     android:background="@color/darkblue"
     tools:context=".Profile">
 
+
+<!--    <ImageView-->
+<!--        android:id="@+id/imageSplitter"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:scaleType="fitStart"-->
+<!--        android:src="@drawable/profile_picture_backgroundpng"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/nameTextView"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+    <ImageView
+        android:id="@+id/profilePicture"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toTopOf="@+id/nameTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backButtonProfileActivity" />
+
     <ImageButton
         android:id="@+id/backButtonProfileActivity"
         android:layout_width="wrap_content"
@@ -16,6 +43,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/circle_background_medium"
+        android:foreground="@drawable/ripple_effect_button"
         android:src="@drawable/back_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,36 +51,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
-
-
-    <ImageView
-        android:id="@+id/profilePicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toTopOf="@+id/nameTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-<!--    <ImageView-->
-        android:id="@+id/imageSplitter"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/over_profile_picture"
-        android:src="@drawable/over_profile_picture"
-        app:layout_constraintBottom_toTopOf="@+id/nameTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/nameTextView"
@@ -62,14 +60,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:fontFamily="@font/colombia"
         android:text="Nume"
+        android:textColor="@color/vivid_cyan"
+        android:textSize="45sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:fontFamily="@font/colombia"
-        android:textSize="45sp"
-        android:textColor="@color/vivid_cyan" />
+        app:layout_constraintVertical_bias="0.6" />
 
 
     <TextView
@@ -113,11 +112,12 @@
         android:id="@+id/editPhoneNumberProfileActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/circle_background_small"
+        android:foreground="@drawable/ripple_effect_button"
         android:src="@drawable/edit_small"
         app:layout_constraintBottom_toBottomOf="@+id/phoneNumberTextView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -125,18 +125,18 @@
         app:layout_constraintStart_toEndOf="@+id/phoneNumberTextView"
         app:layout_constraintTop_toTopOf="@+id/phoneNumberTextView" />
 
-    <TextView
-        android:id="@+id/istoric"
+    <Button
+        android:id="@+id/button"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
-        android:fontFamily="@font/colombia"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vulputate dignissim suspendisse in est ante in. Integer vitae justo eget magna. Feugiat in fermentum posuere urna nec tincidunt praesent semper. Arcu dictum varius duis at consectetur lorem. Augue mauris augue neque gravida in fermentum et sollicitudin. Arcu ac tortor dignissim convallis aenean et tortor at risus. Rutrum quisque non tellus orci. Amet justo donec enim diam vulputate. Viverra maecenas accumsan lacus vel facilisis volutpat est velit egestas. Euismod quis viverra nibh cras. Convallis aenean et tortor at risus viverra."
-        android:textColor="@color/dirty_white"
-        android:textSize="20sp"
+        android:background="@drawable/square_background"
+        android:foreground="@drawable/ripple_effect_button"
+        android:text="@string/istoric"
+        android:textColor="@color/vivid_cyan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

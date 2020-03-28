@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Profile extends AppCompatActivity {
 
@@ -33,9 +35,8 @@ public class Profile extends AppCompatActivity {
 
         user = getIntent().getParcelableExtra("userLoggedInFromDashboard");
         fillWithInfo(user);
-        backButtonPressed(backButton);
+        backButtonPressed(backButton,user);
         editPhoneNumberButtonPressed(editPhoneNumberButton);
-
     }
 
     @Override
@@ -44,6 +45,8 @@ public class Profile extends AppCompatActivity {
         if(requestCode == PHONE_NUMBER_EDIT){
             if(resultCode == Activity.RESULT_OK){
                 user.setPhoneNumber( data.getStringExtra("phoneNumberModified"));
+                FirebaseFirestore database= FirebaseFirestore.getInstance();
+                database.collection("users").document(user.getEmail()).update("phoneNumber", user.getPhoneNumber());
                 fillWithInfo(user);
                 Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_actualiza,Toast.LENGTH_LONG).show();
 
@@ -64,12 +67,13 @@ public class Profile extends AppCompatActivity {
         });
     }
 
-    private void backButtonPressed(ImageButton backButton) {
+    private void backButtonPressed(ImageButton backButton, final User user) {
         backButton = (ImageButton) findViewById(R.id.backButtonProfileActivity);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class));
+
+                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class).putExtra("userIDFromProfile",user.getEmail()));
             }
         });
     }
@@ -78,7 +82,7 @@ public class Profile extends AppCompatActivity {
         name= (TextView) findViewById(R.id.nameTextView);
         phoneNumber= (TextView) findViewById(R.id.phoneNumberTextView);
         email = (TextView) findViewById(R.id.emailTextView);
-        profilePicture = (ImageView) findViewById(R.id.profilePicture);
+        profilePicture= (ImageView) findViewById(R.id.profilePicture);
 
         name.setText( user.getFirstName()+ " " +user.getLastName());
         email.setText(user.getEmail());
@@ -87,6 +91,8 @@ public class Profile extends AppCompatActivity {
         }else{
             phoneNumber.setText(user.getPhoneNumber());
         }
-        Glide.with(getApplicationContext()).load(Uri.parse(user.getProfilePicture())).into(profilePicture);
+        if(user.getProfilePicture()!=null){
+            Glide.with(getApplicationContext()).load(Uri.parse(user.getProfilePicture())).apply(RequestOptions.circleCropTransform()).into(profilePicture);
+        }
     }
 }

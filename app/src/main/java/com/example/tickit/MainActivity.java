@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
-    DatabaseReference myRef;
     FirebaseFirestore database;
 
     @Override
@@ -86,9 +85,9 @@ public class MainActivity extends AppCompatActivity {
     private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account){
         final User loggedInUser;
         if(account.getPhotoUrl()!=null){
-            loggedInUser = new User(account.getId(), account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString());
+            loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null);
         }else{
-            loggedInUser = new User(account.getId(), account.getFamilyName(), account.getGivenName(), null, account.getEmail(), null);
+            loggedInUser = new User( account.getFamilyName(), account.getGivenName(), null, account.getEmail(), null, null);
         }
         database= FirebaseFirestore.getInstance();
         database.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
                     if(isUserSiSCMember(task, loggedInUser)){
                         Intent toClassIntent = new Intent(getApplicationContext(), activity);
-                        toClassIntent.putExtra("userLoggedInFromMainActivity",loggedInUser);
+                        toClassIntent.putExtra("userLoggedInFromMainActivity",loggedInUser.getEmail());
                         startActivity(toClassIntent);
                     }
                     else{
@@ -112,11 +111,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void updateInfoIfNewUser(QueryDocumentSnapshot document, User loggedInUser) {
+       if(document.getString("firstName")==null ){
+           database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
+           database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());
+           database.collection("users").document(document.getId()).update("phoneNumber",loggedInUser.getPhoneNumber());
+           database.collection("users").document(document.getId()).update("profilePicture",loggedInUser.getProfilePicture());
+           Log.d("usercheck",database.collection("users").document(document.getId()).toString() );
+       }else{
+           loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
+       }
+    }
+
     private boolean isUserSiSCMember(Task<QuerySnapshot> task, User loggedInUser) {
         boolean isMember=false;
         for (QueryDocumentSnapshot document : task.getResult()) {
             if(loggedInUser.getEmail().equals(document.getId())) {
                 isMember = true;
+                updateInfoIfNewUser(document, loggedInUser);
             }
         }
         return isMember;

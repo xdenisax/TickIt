@@ -4,27 +4,25 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.net.URI;
 
 public class User implements Parcelable {
-    String id;
     String firstName;
     String lastName;
     String phoneNumber;
     String email;
     String profilePicture;
+    String departament;
 
-    public User(String id, String firstName, String lastName, String phoneNumber, String email, String profilePicture) {
-        this.id = id;
+    public User( String firstName, String lastName, String phoneNumber, String email, String profilePicture, String departament) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.profilePicture = profilePicture;
+        this.departament=departament;
     }
 
     protected User(Parcel in) {
-        id = in.readString();
         firstName = in.readString();
         lastName = in.readString();
         phoneNumber = in.readString();
@@ -44,12 +42,8 @@ public class User implements Parcelable {
         }
     };
 
-    public String getId() {
-        return id;
-    }
+    public User() {
 
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getFirstName() {
@@ -92,15 +86,22 @@ public class User implements Parcelable {
         this.profilePicture = profilePicture;
     }
 
+    public String getDepartament() {
+        return departament;
+    }
+
+    public void setDepartament(String departament) {
+        this.departament = departament;
+    }
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", email='" + email + '\'' +
                 ", profilePicture=" + profilePicture +
+                ", departament=" + departament +
                 '}';
     }
 
@@ -111,11 +112,11 @@ public class User implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
         dest.writeString(firstName);
         dest.writeString(lastName);
         dest.writeString(phoneNumber);
         dest.writeString(email);
         dest.writeString(profilePicture);
+        dest.writeString(departament);
     }
 }

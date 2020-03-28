@@ -10,5 +10,7 @@
     <color name="vivid_cyan">#2fe6de</color>
     <color name="gray">#aeb7b3</color>
     <color name="transparentdarkblue">#802FE6DE</color>
+    <color name="transparent_vivid_cyan">#2fe6deDE</color>
+
 
 </resources>
