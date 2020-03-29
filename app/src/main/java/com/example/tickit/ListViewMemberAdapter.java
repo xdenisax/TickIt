@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> {
         ImageView profilImageView = (ImageView) view.findViewById(R.id.userPicture);
         TextView numeTextView =(TextView) view.findViewById(R.id.numeTextView);
 
-        Glide.with(getContext()).load(user.getProfilePicture()).into(profilImageView);
+        Glide.with(getContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilImageView);
         numeTextView.setText(user.getLastName() + " " + user.getFirstName());
 
         Log.d("database", "sdafSG" + user.toString());

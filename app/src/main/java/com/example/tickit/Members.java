@@ -40,33 +40,30 @@ public class Members extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_contacts, container, false);
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            //UserDatabaseRequests.getAllUsersMiddleWare();
             users = new ArrayList<>();
             users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
             users.add(new User("Denisa1", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
             users.add(new User("Denisa2", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
             users.add(new User("Denisa3", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
             users.add(new User("Denisa4", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-//            Log.d("database", users.toString());
-            listview = (ListView) view.findViewById(R.id.membriListView);
-            adapter = new ListViewMemberAdapter(getActivity(), R.layout.member_card, users);
-            listview.setAdapter(adapter);
 
-//            db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                @Override
-//                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//                    if (!queryDocumentSnapshots.isEmpty()) {
-//                        List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-//                        for (DocumentSnapshot d : list) {
-//                            User user = d.toObject(User.class);
-//                            users.add(user);
-//                        }
-//                        Log.d("database", "cred"+ users.toString());
-//                        adapter = new ListViewMemberAdapter(getContext(), R.layout.member_card, users);
-//                        listview.setAdapter(adapter);
-//                    }
-//                }
-//            });
+            listview = (ListView) view.findViewById(R.id.membriListView);
+
+            db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot d : list) {
+                            User user = d.toObject(User.class);
+                            users.add(user);
+                        }
+                        Log.d("database", "cred"+ users.toString());
+                        adapter = new ListViewMemberAdapter(getContext(), R.layout.member_card, users);
+                        listview.setAdapter(adapter);
+                    }
+                }
+            });
 
 
         return view;
