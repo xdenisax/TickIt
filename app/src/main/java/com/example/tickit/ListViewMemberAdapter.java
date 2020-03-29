@@ -1,6 +1,7 @@
 package com.example.tickit;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> {
     int resourceID;
     public ListViewMemberAdapter(Context context, int resource, @NonNull ArrayList<User> objects) {
         super(context, resource, objects);
-        this.resourceID=resource;
+        resourceID=resource;
     }
 
     @NonNull
@@ -35,6 +36,7 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> {
         Glide.with(getContext()).load(user.getProfilePicture()).into(profilImageView);
         numeTextView.setText(user.getLastName() + " " + user.getFirstName());
 
+        Log.d("database", "sdafSG" + user.toString());
         return view;
     }
 }

@@ -31,51 +31,43 @@ import java.util.List;
 public class Members extends Fragment {
     ListView listview;
     FirebaseFirestore db;
-    ArrayList<User> users ;
+    ArrayList<User> users;
+    ListViewMemberAdapter adapter;
     public Members() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_contacts, container, false);
-        users = new ArrayList<>();
-        db= FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot documentSnapshots) {
-                if (documentSnapshots.isEmpty()) {
-                    Log.d("database", "onSuccess: LIST EMPTY");
-                } else {
-                    List<User> userList = documentSnapshots.toObjects(User.class);
-                    users.addAll(userList);
-                }
-            }
-        });
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                users.add(new User(document.getString("firstName"),
-                                        document.getString("laseName"),
-                                        document.getString("phoneNumber"),
-                                        document.getId(),
-                                        document.getString("profilePicture"),
-                                        document.getString("department")));
-                                Log.d("database", users.toString());
-                            }
-                        } else {
-                            Log.d("database", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            //UserDatabaseRequests.getAllUsersMiddleWare();
+            users = new ArrayList<>();
+            users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+            users.add(new User("Denisa1", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+            users.add(new User("Denisa2", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+            users.add(new User("Denisa3", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+            users.add(new User("Denisa4", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+//            Log.d("database", users.toString());
+            listview = (ListView) view.findViewById(R.id.membriListView);
+            adapter = new ListViewMemberAdapter(getActivity(), R.layout.member_card, users);
+            listview.setAdapter(adapter);
 
+//            db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                @Override
+//                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                    if (!queryDocumentSnapshots.isEmpty()) {
+//                        List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+//                        for (DocumentSnapshot d : list) {
+//                            User user = d.toObject(User.class);
+//                            users.add(user);
+//                        }
+//                        Log.d("database", "cred"+ users.toString());
+//                        adapter = new ListViewMemberAdapter(getContext(), R.layout.member_card, users);
+//                        listview.setAdapter(adapter);
+//                    }
+//                }
+//            });
 
-        ListViewMemberAdapter adapter = new ListViewMemberAdapter(getContext(), R.layout.member_card, users);
-        listview = (ListView) view.findViewById(R.id.membriListView);
-        listview.setAdapter(adapter);
 
         return view;
     }

@@ -42,7 +42,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class Dashboard extends Fragment {
+public class Dashboard extends Fragment  {
     DatabaseReference myRef;
     GoogleSignInClient mGoogleSignInClient;
     TextView nameTextView;
@@ -63,50 +63,12 @@ public class Dashboard extends Fragment {
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
         Intent intent = getActivity().getIntent();
-        User loggedInUser= getUser(intent);
+        User loggedInUser= UserDatabaseRequests.getUser(intent);
 
         profileButtonPressed(loggedInUser, profileButton, view);
         signOutButtonPressed(signOutButton, view);
 
         return view;
-    }
-
-    private User getUser(Intent intent) {
-        final User user = new User();
-        final String userID= getUserIDIntentCheck(intent);
-
-        db= FirebaseFirestore.getInstance();
-        final DocumentReference docRef = db.collection("users").document(userID);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                      user.setFirstName(document.getString("firstName"));
-                      user.setLastName(document.getString("lastName"));
-                      user.setDepartament(document.getString("department"));
-                      user.setEmail(userID);
-                      user.setPhoneNumber(document.getString("phoneNumber"));
-                      user.setProfilePicture(document.getString("profilePicture"));
-                    }
-                } else {
-                    Log.d("Firestore", "get failed with ", task.getException());
-                }
-            }
-        });
-
-        return user;
-    }
-
-    private String getUserIDIntentCheck(Intent intent) {
-        String userID="";
-        if(intent.getStringExtra("userLoggedInFromMainActivity") != null) {
-            userID = intent.getStringExtra("userLoggedInFromMainActivity");
-        }else if(intent.getStringExtra("userIDFromProfile") != null) {
-            userID = intent.getStringExtra("userIDFromProfile");
-        }
-        return userID;
     }
 
     private void signOutButtonPressed(ImageButton signOutButton, View view) {
