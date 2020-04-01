@@ -43,6 +43,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class Dashboard extends Fragment  {
+    int REQUEST_CODE_DASHBOARD = 3;
     DatabaseReference myRef;
     GoogleSignInClient mGoogleSignInClient;
     TextView nameTextView;
@@ -86,7 +87,9 @@ public class Dashboard extends Fragment  {
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(),Profile.class).putExtra("userLoggedInFromDashboard",loggedInUser));
+                startActivityForResult(
+                        new Intent(getContext(), Profile.class).putExtra("userLoggedInFromDashboard",loggedInUser),
+                        getContext().getResources().getInteger(R.integer.REQUEST_CODE_DASHBOARD));
             }
         });
     }

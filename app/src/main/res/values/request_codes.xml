@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="REQUEST_CODE_PHONE_NUMBER_EDIT" >1</integer>
+    <integer name="REQUEST_CODE_DASHBOARD" >2</integer>
+    <integer name="REQUEST_CODE_MEMBERS_LIST" >3</integer>
+</resources>

@@ -1,6 +1,7 @@
 package com.example.tickit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,12 +43,11 @@ public class Members extends Fragment {
         View view=inflater.inflate(R.layout.fragment_contacts, container, false);
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             users = new ArrayList<>();
-            users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-            users.add(new User("Denisa1", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-            users.add(new User("Denisa2", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-            users.add(new User("Denisa3", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-            users.add(new User("Denisa4", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
-
+//            users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+//            users.add(new User("Denisa1", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+//            users.add(new User("Denisa2", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+//            users.add(new User("Denisa3", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
+//            users.add(new User("Denisa4", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"))
             listview = (ListView) view.findViewById(R.id.membriListView);
 
             db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -56,6 +57,7 @@ public class Members extends Fragment {
                         List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                         for (DocumentSnapshot d : list) {
                             User user = d.toObject(User.class);
+                            user.setEmail(d.getId());
                             users.add(user);
                         }
                         Log.d("database", "cred"+ users.toString());
@@ -65,6 +67,13 @@ public class Members extends Fragment {
                 }
             });
 
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    startActivityForResult(new Intent(getContext(),Profile.class).putExtra("userFromMembersList", users.get(position)),
+                            getContext().getResources().getInteger(R.integer.REQUEST_CODE_MEMBERS_LIST));
+                }
+            });
 
         return view;
     }

@@ -50,7 +50,6 @@ public class EditPopUp extends Activity {
                     }else{
                         Toast.makeText(EditPopUp.this, R.string.numar_de_telefon_mai_mult_de_10_cifre, Toast.LENGTH_LONG).show();
                     }
-
                 }else{
                     setResult(Activity.RESULT_CANCELED,new Intent());
                     finish();
