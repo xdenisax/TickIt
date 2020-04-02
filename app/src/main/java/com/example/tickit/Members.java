@@ -35,12 +35,15 @@ public class Members extends Fragment {
     FirebaseFirestore db;
     ArrayList<User> users;
     ListViewMemberAdapter adapter;
+    User loggedInUser;
     public Members() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_contacts, container, false);
+        loggedInUser=MainActivity.getLoggedInUser();
+
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             users = new ArrayList<>();
 //            users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
@@ -58,7 +61,9 @@ public class Members extends Fragment {
                         for (DocumentSnapshot d : list) {
                             User user = d.toObject(User.class);
                             user.setEmail(d.getId());
-                            users.add(user);
+                            if(!user.getEmail().equals(loggedInUser.getEmail())){
+                                users.add(user);
+                            }
                         }
                         Log.d("database", "cred"+ users.toString());
                         adapter = new ListViewMemberAdapter(getContext(), R.layout.member_card, users);

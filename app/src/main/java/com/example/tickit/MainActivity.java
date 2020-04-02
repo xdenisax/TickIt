@@ -23,6 +23,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
     FirebaseFirestore database;
+    private static User loggedInUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
                 signIn();
             }
         });
+
+        getUser(getIntent());
     }
 
     @Override
@@ -83,12 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account){
-        final User loggedInUser;
-        if(account.getPhotoUrl()!=null){
-            loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null);
-        }else{
-            loggedInUser = new User( account.getFamilyName(), account.getGivenName(), null, account.getEmail(), null, null);
-        }
+        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null);
         database= FirebaseFirestore.getInstance();
         database.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -111,18 +111,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateInfoIfNewUser(QueryDocumentSnapshot document, User loggedInUser) {
-       if(document.getString("firstName")==null ){
-           database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
-           database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());
-           database.collection("users").document(document.getId()).update("phoneNumber",loggedInUser.getPhoneNumber());
-           database.collection("users").document(document.getId()).update("profilePicture",loggedInUser.getProfilePicture());
-           Log.d("usercheck",database.collection("users").document(document.getId()).toString() );
-       }else{
-           loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
-       }
-    }
-
     private boolean isUserSiSCMember(Task<QuerySnapshot> task, User loggedInUser) {
         boolean isMember=false;
         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -134,6 +122,63 @@ public class MainActivity extends AppCompatActivity {
         return isMember;
     }
 
+    private void updateInfoIfNewUser(QueryDocumentSnapshot document, User loggedInUser) {
+        if(document.getString("firstName")==null ){
+            database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
+            database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());
+            database.collection("users").document(document.getId()).update("phoneNumber",loggedInUser.getPhoneNumber());
+            database.collection("users").document(document.getId()).update("profilePicture",loggedInUser.getProfilePicture());
+        }else{
+            loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
+            loggedInUser.setDepartament(document.getString("department"));
+        }
+    }
+
+    private  FirebaseFirestore initializeDatabase() {
+        return  FirebaseFirestore.getInstance();
+    }
+
+    private void initializeUser(User user, DocumentSnapshot document) {
+        user.setFirstName(document.getString("firstName"));
+        user.setLastName(document.getString("lastName"));
+        user.setDepartament(document.getString("department"));
+        user.setEmail(document.getId());
+        user.setPhoneNumber(document.getString("phoneNumber"));
+        user.setProfilePicture(document.getString("profilePicture"));
+    }
+
+    public void getUser(Intent intent) {
+        final String userID= intent.getStringExtra("userLoggedInFromMainActivity");
+        if(userID != null) {
+            FirebaseFirestore db= initializeDatabase();
+            final DocumentReference docRef = db.collection("users").document(userID);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            initializeUser(loggedInUser, document);
+                        }
+                    } else {
+                        Log.d("Firestore", "get failed with ", task.getException());
+                    }
+                }
+            });
+        }else {
+            Log.d("FragmentContainer", "Tried to retrieve user from different intent than mainActivity one.");
+        }
+
+    }
+
+    public static User getLoggedInUser() {
+        return loggedInUser;
+    }
+
+    public static void setLoggedInUser(User loggedUser) {
+        loggedInUser = loggedUser;
+    }
+
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -143,9 +188,6 @@ public class MainActivity extends AppCompatActivity {
         mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete( Task<Void> task) {
-                        //Toast.makeText(getApplicationContext(), "Signed Out Succesfully", Toast.LENGTH_LONG).show();
-                        //startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        //finish();
                     }
                 });
     }

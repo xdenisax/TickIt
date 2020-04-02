@@ -64,7 +64,8 @@ public class Dashboard extends Fragment  {
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
         Intent intent = getActivity().getIntent();
-        User loggedInUser= UserDatabaseRequests.getUser(intent);
+        User loggedInUser=MainActivity.getLoggedInUser() ;
+        Log.d("fragmentContainer", "dash"+loggedInUser);
 
         profileButtonPressed(loggedInUser, profileButton, view);
         signOutButtonPressed(signOutButton, view);
@@ -87,9 +88,7 @@ public class Dashboard extends Fragment  {
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(
-                        new Intent(getContext(), Profile.class).putExtra("userLoggedInFromDashboard",loggedInUser),
-                        getContext().getResources().getInteger(R.integer.REQUEST_CODE_DASHBOARD));
+                startActivity(new Intent(getContext(), Profile.class));
             }
         });
     }

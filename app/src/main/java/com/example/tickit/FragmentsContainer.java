@@ -1,5 +1,6 @@
 package com.example.tickit;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.PagerAdapter;
@@ -31,6 +32,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class FragmentsContainer extends AppCompatActivity {
 
@@ -76,14 +80,6 @@ public class FragmentsContainer extends AppCompatActivity {
         });
     }
 
-    private void setTabText(TabLayout tabLayout) {
-        tabLayout.getTabAt(0).setText("Tablou de bord");
-        tabLayout.getTabAt(1).setText("Membri");
-        tabLayout.getTabAt(2).setText("Proiecte");
-        tabLayout.getTabAt(3).setText("Task-uri deschise");
-        tabLayout.getTabAt(4).setText("Task-urile mele");
-    }
-
     @Override
     public void onBackPressed() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(FragmentsContainer.this);
@@ -101,6 +97,14 @@ public class FragmentsContainer extends AppCompatActivity {
         });
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
+    }
+
+    private void setTabText(TabLayout tabLayout) {
+        tabLayout.getTabAt(0).setText("Tablou de bord");
+        tabLayout.getTabAt(1).setText("Membri");
+        tabLayout.getTabAt(2).setText("Proiecte");
+        tabLayout.getTabAt(3).setText("Task-uri deschise");
+        tabLayout.getTabAt(4).setText("Task-urile mele");
     }
 
 

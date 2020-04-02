@@ -35,22 +35,25 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        Intent intent = getIntent();
-        manageIntent(intent);
-        backButtonPressed(backButton,user);
+        user = MainActivity.getLoggedInUser();
+        fillWithInfo(user, true);
+        manageIntent(getIntent());
+        backButtonPressed(backButton);
         editPhoneNumberButtonPressed(editPhoneNumberButton);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == R.integer.REQUEST_CODE_PHONE_NUMBER_EDIT){
+        if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
                 user.setPhoneNumber( data.getStringExtra("phoneNumberModified"));
+                Log.d("fragmentContainer", "profile"+user);
+                MainActivity.setLoggedInUser(user);
                 FirebaseFirestore database= FirebaseFirestore.getInstance();
                 database.collection("users").document(user.getEmail()).update("phoneNumber", user.getPhoneNumber());
                 fillWithInfo(user, true);
-                Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_actualiza,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_actualiza + data.getStringExtra("phoneNumberModified"),Toast.LENGTH_LONG).show();
             }
             if(resultCode == Activity.RESULT_CANCELED){
                 Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_nu_a_fost_actualizat,Toast.LENGTH_LONG).show();
@@ -59,10 +62,6 @@ public class Profile extends AppCompatActivity {
     }
 
     private void manageIntent(Intent intent) {
-        if(intent.getParcelableExtra("userLoggedInFromDashboard")!= null){
-            fillWithInfo((User) intent.getParcelableExtra("userLoggedInFromDashboard"),true);
-            user = (User) intent.getParcelableExtra("userLoggedInFromDashboard");
-        }
         if(intent.getParcelableExtra("userFromMembersList")!= null) {
             fillWithInfo((User) intent.getParcelableExtra("userFromMembersList"),false);
             user = (User) intent.getParcelableExtra("userFromMembersList");
@@ -125,17 +124,17 @@ public class Profile extends AppCompatActivity {
         editPhoneNumberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(getApplicationContext(), EditPopUp.class), getApplicationContext().getResources().getInteger(R.integer.REQUEST_CODE_PHONE_NUMBER_EDIT));
+                startActivityForResult(new Intent(getApplicationContext(), EditPopUp.class),1);
             }
         });
     }
 
-    private void backButtonPressed(ImageButton backButton, final User user) {
+    private void backButtonPressed(ImageButton backButton) {
         backButton = (ImageButton) findViewById(R.id.backButtonProfileActivity);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class).putExtra("userIDFromProfile",user.getEmail()));
+                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class));
             }
         });
     }

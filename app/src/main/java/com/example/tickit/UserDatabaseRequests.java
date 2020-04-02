@@ -54,22 +54,7 @@ public abstract class UserDatabaseRequests  {
     private static FirebaseFirestore initializeDatabase() {
         return  FirebaseFirestore.getInstance();
     }
-//    private static int userCount() {
-//        FirebaseFirestore db = initializeDatabase();
-//        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            for (DocumentSnapshot document : task.getResult()) {
-//                                count++;
-//                            }
-//                        } else {
-//                            Log.d("database", "Error getting documents: ", task.getException());
-//                        }
-//                    }
-//                });
-//        return count;
-//    }
+
     private static void initializeUser(User user, DocumentSnapshot document) {
         user.setFirstName(document.getString("firstName"));
         user.setLastName(document.getString("lastName"));
@@ -78,11 +63,12 @@ public abstract class UserDatabaseRequests  {
         user.setPhoneNumber(document.getString("phoneNumber"));
         user.setProfilePicture(document.getString("profilePicture"));
     }
+
     public static User getUser(Intent intent) {
         final User user = new User();
         final String userID= getUserIDIntentCheck(intent);
 
-        FirebaseFirestore db= FirebaseFirestore.getInstance();
+        FirebaseFirestore db= initializeDatabase();
         final DocumentReference docRef = db.collection("users").document(userID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -98,8 +84,10 @@ public abstract class UserDatabaseRequests  {
             }
         });
 
+        Log.d("fragmentContainer",user.toString());
         return user;
     }
+
     public static String getUserIDIntentCheck(Intent intent) {
         String userID="";
         if(intent.getStringExtra("userLoggedInFromMainActivity") != null) {
