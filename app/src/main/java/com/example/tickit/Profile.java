@@ -40,6 +40,7 @@ public class Profile extends AppCompatActivity {
         manageIntent(getIntent());
         backButtonPressed(backButton);
         editPhoneNumberButtonPressed(editPhoneNumberButton);
+        Toast.makeText(getApplicationContext(),user.getMandates().toString(),Toast.LENGTH_LONG).show();
     }
 
     @Override

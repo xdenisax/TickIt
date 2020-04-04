@@ -16,8 +16,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.Timestamp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +30,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
+
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +45,9 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
     FirebaseFirestore database;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static User loggedInUser;
+    private ArrayList<Mandate> loggedInUsersMandates = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account){
-        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null);
+        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null,null);
         database= FirebaseFirestore.getInstance();
         database.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -131,7 +141,33 @@ public class MainActivity extends AppCompatActivity {
         }else{
             loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
             loggedInUser.setDepartament(document.getString("department"));
+            getMandates(document,loggedInUser);
+            loggedInUser.setMandates(loggedInUsersMandates);
         }
+    }
+
+    private void getMandates(QueryDocumentSnapshot document, final User loggedInUser) {
+        FirebaseFirestore db = initializeDatabase();
+        db.collection("users").document(document.getId()).collection("mandates").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    Mandate mandate = initializeMandate(document);
+                    loggedInUsersMandates.add(mandate);
+                }
+            }
+        });
+    }
+
+    private Mandate initializeMandate(QueryDocumentSnapshot document) {
+        Mandate mandate= new Mandate();
+        Date startDate = ((Timestamp) document.get("start_date")).toDate();
+        Date endDate = ((Timestamp) document.get("stop_date")).toDate();
+        mandate.setEndDate(dateFormat.format(endDate));
+        mandate.setStartDate(dateFormat.format(startDate));
+        mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
+        mandate.setPosition(document.getString("position"));
+        return mandate;
     }
 
     private  FirebaseFirestore initializeDatabase() {

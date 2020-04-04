@@ -4,22 +4,29 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 
 public class User implements Parcelable {
-    String firstName;
-    String lastName;
-    String phoneNumber;
-    String email;
-    String profilePicture;
-    String departament;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String email;
+    private String profilePicture;
+    private String departament;
+    private ArrayList<Mandate> mandates = new ArrayList<>();
 
-    public User( String firstName, String lastName, String phoneNumber, String email, String profilePicture, String departament) {
+    public User(String firstName, String lastName, String phoneNumber, String email, String profilePicture, String departament, ArrayList<Mandate> mandates) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.profilePicture = profilePicture;
-        this.departament=departament;
+        this.departament = departament;
+        this.mandates = mandates;
+    }
+
+    public User() {
     }
 
     protected User(Parcel in) {
@@ -28,6 +35,8 @@ public class User implements Parcelable {
         phoneNumber = in.readString();
         email = in.readString();
         profilePicture = in.readString();
+        departament = in.readString();
+        in.readTypedList(this.mandates,Mandate.CREATOR);
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -42,8 +51,12 @@ public class User implements Parcelable {
         }
     };
 
-    public User() {
+    public ArrayList<Mandate> getMandates() {
+        return mandates;
+    }
 
+    public void setMandates(ArrayList<Mandate> mandates) {
+        this.mandates = mandates;
     }
 
     public String getFirstName() {
@@ -93,15 +106,17 @@ public class User implements Parcelable {
     public void setDepartament(String departament) {
         this.departament = departament;
     }
+
     @Override
     public String toString() {
         return "User{" +
-                ", firstName='" + firstName + '\'' +
+                "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", email='" + email + '\'' +
-                ", profilePicture=" + profilePicture +
-                ", departament=" + departament +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", departament='" + departament + '\'' +
+                ", mandates=" + mandates +
                 '}';
     }
 
@@ -118,5 +133,6 @@ public class User implements Parcelable {
         dest.writeString(email);
         dest.writeString(profilePicture);
         dest.writeString(departament);
+        dest.writeTypedList(mandates);
     }
 }
