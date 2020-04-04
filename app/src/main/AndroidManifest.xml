@@ -12,17 +12,20 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Profile"></activity>
+        <activity android:name=".HistoryPopUp"
+            android:theme="@style/AppTheme.PopUpTheme">
+        </activity>
+        <activity android:name=".Profile" />
         <activity android:name=".FragmentsContainer" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditPopUp"
-            android:theme="@style/AppTheme.PopUpTheme"></activity>
+        <activity
+            android:name=".EditPopUp"
+            android:theme="@style/AppTheme.PopUpTheme" />
     </application>
 
 </manifest>

@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,6 +22,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 public class Profile extends AppCompatActivity {
     int REQUEST_CODE_MEMBERS_LIST = 1;
 
@@ -28,6 +32,7 @@ public class Profile extends AppCompatActivity {
     TextView email;
     ImageView profilePicture;
     ImageButton backButton, editPhoneNumberButton;
+    Button historyButton;
     User user;
 
     @Override
@@ -40,7 +45,6 @@ public class Profile extends AppCompatActivity {
         manageIntent(getIntent());
         backButtonPressed(backButton);
         editPhoneNumberButtonPressed(editPhoneNumberButton);
-        Toast.makeText(getApplicationContext(),user.getMandates().toString(),Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -77,6 +81,7 @@ public class Profile extends AppCompatActivity {
 
         name.setText( user.getFirstName()+ " " +user.getLastName());
         email.setText(user.getEmail());
+        historyButtonPressed(user);
         if(user.getPhoneNumber() == null){
             phoneNumber.setText("Telefon neactualizat.");
         }else{
@@ -140,5 +145,15 @@ public class Profile extends AppCompatActivity {
         });
     }
 
+    private void historyButtonPressed(final User user) {
+        historyButton = (Button) findViewById(R.id.memberHistoryButton);
+        historyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile",user.getMandates()));
+            }
+        });
+
+    }
 
 }

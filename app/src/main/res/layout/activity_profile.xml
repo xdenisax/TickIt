@@ -101,7 +101,7 @@
         android:textColor="@color/dirty_white"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="@+id/memberHistoryButton"
         app:layout_constraintHorizontal_bias="0.62"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/emailTextView"
@@ -126,7 +126,7 @@
         app:layout_constraintTop_toTopOf="@+id/phoneNumberTextView" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/memberHistoryButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="45dp"

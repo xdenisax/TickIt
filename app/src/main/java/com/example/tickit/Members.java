@@ -15,19 +15,21 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Members extends Fragment {
@@ -36,6 +38,8 @@ public class Members extends Fragment {
     ArrayList<User> users;
     ListViewMemberAdapter adapter;
     User loggedInUser;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private ArrayList<Mandate> userMandates = new ArrayList<>();
     public Members() {
     }
 
@@ -44,16 +48,16 @@ public class Members extends Fragment {
         View view=inflater.inflate(R.layout.fragment_contacts, container, false);
         loggedInUser=MainActivity.getLoggedInUser();
 
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            users = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        users = new ArrayList<>();
 //            users.add(new User("Denisa", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
 //            users.add(new User("Denisa1", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
 //            users.add(new User("Denisa2", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
 //            users.add(new User("Denisa3", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"));
 //            users.add(new User("Denisa4", "Calota","0720151958", "calota.denisa14@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14GibjAFrsjA1HF5hpV-Mgv-Suwm3dhnkilR3X-CwEtw" ,"Fundraising"))
-            listview = (ListView) view.findViewById(R.id.membriListView);
+        listview = (ListView) view.findViewById(R.id.membriListView);
 
-            db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                     if (!queryDocumentSnapshots.isEmpty()) {
@@ -61,6 +65,8 @@ public class Members extends Fragment {
                         for (DocumentSnapshot d : list) {
                             User user = d.toObject(User.class);
                             user.setEmail(d.getId());
+                            getMandates((QueryDocumentSnapshot) d,user);
+                            user.setMandates(userMandates);
                             if(!user.getEmail().equals(loggedInUser.getEmail())){
                                 users.add(user);
                             }
@@ -70,18 +76,43 @@ public class Members extends Fragment {
                         listview.setAdapter(adapter);
                     }
                 }
-            });
+        });
 
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     startActivityForResult(new Intent(getContext(),Profile.class).putExtra("userFromMembersList", users.get(position)),
                             getContext().getResources().getInteger(R.integer.REQUEST_CODE_MEMBERS_LIST));
                 }
-            });
+        });
 
         return view;
     }
 
+    private void getMandates(QueryDocumentSnapshot document, final User loggedInUser) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(document.getId()).collection("mandates").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    Mandate mandate = initializeMandate(document);
+                    userMandates.add(mandate);
+                    userMandates.add(mandate);
+                    userMandates.add(mandate);
+                    userMandates.add(mandate);
+                }
+            }
+        });
+    }
 
+    private Mandate initializeMandate(QueryDocumentSnapshot document) {
+        Mandate mandate= new Mandate();
+        Date startDate = ((Timestamp) document.get("start_date")).toDate();
+        Date endDate = ((Timestamp) document.get("stop_date")).toDate();
+        mandate.setEndDate(dateFormat.format(endDate));
+        mandate.setStartDate(dateFormat.format(startDate));
+        mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
+        mandate.setPosition(document.getString("position"));
+        return mandate;
+    }
 }
