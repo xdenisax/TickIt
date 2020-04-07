@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Mandate implements Parcelable {
+
     private String projectName;
     private String position;
     private String startDate;
@@ -38,6 +39,14 @@ public class Mandate implements Parcelable {
             return new Mandate[size];
         }
     };
+
+    public String getProjectName() {
+        return this.projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 
     public String getPosition() {
         return position;

@@ -30,7 +30,7 @@ public class ListviewMemberHistoryAdapter extends ArrayAdapter<Mandate> {
         View view = inflater.inflate(resourceID, null);
 
         ((TextView) view.findViewById(R.id.positionTextView)).setText(mandate.getPosition());
-        ((TextView) view.findViewById(R.id.projectNameTextView)).setText("Nume proiect");
+        ((TextView) view.findViewById(R.id.projectNameTextView)).setText(mandate.getProjectName());
         ((TextView)view.findViewById(R.id.editionTextView)).setText(mandate.getEndDate().substring(mandate.getEndDate().length()-4,mandate.getEndDate().length()));
 
         return view;
