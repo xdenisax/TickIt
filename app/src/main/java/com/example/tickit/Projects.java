@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,6 +26,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Projects extends Fragment {
     ListView projectListview;
@@ -42,6 +45,12 @@ public class Projects extends Fragment {
                 projects.addAll(projectsFromDataBase);
                 ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(getContext(),R.layout.member_card,projectsFromDataBase);
                 projectListview.setAdapter(adapter);
+                projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Toast.makeText(getContext(),projects.get(position).toString(),Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
         return view;
@@ -52,8 +61,9 @@ public class Projects extends Fragment {
         final ArrayList<Project> projectsFromDataBase = new ArrayList<>();
         database.collection("projects").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull final Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    final int[] contorIn = {0};
                     for (final QueryDocumentSnapshot document : task.getResult()) {
                         getEditions(document, new CallbackArrayListEditions() {
                             @Override
@@ -61,12 +71,12 @@ public class Projects extends Fragment {
                                 Project project = document.toObject(Project.class);
                                 project.setEditions(editions);
                                 projectsFromDataBase.add(project);
-
-                                Log.d("projectsCheck", editions.toString());
+                                contorIn[0]++;
+                                if(contorIn[0]==task.getResult().size() -1){ callbackArrayListProjects.callback(projectsFromDataBase);
+                                    Log.d("projectCheck", "PROJECTS"+projectsFromDataBase.toString());}
                             }
                         });
                     }
-                    callbackArrayListProjects.callback(projectsFromDataBase);
                 } else {
                     Log.d("projectsCheck", "Error getting documents.", task.getException());
                 }
@@ -79,6 +89,7 @@ public class Projects extends Fragment {
                 +document.getString("name").substring(1).replace(" ","")
                 + "Editions";
         final ArrayList<Edition> editions = new ArrayList<Edition>();
+
         (FirebaseFirestore.getInstance())
                 .collection("projects")
                 .document(document.getId())
@@ -86,18 +97,21 @@ public class Projects extends Fragment {
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    public void onComplete(@NonNull final Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            final int[] contorIn = {0};
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 initializeEdition(document, new CallbackEdition() {
                                     @Override
                                     public void callback(Edition edition) {
                                         editions.add(edition);
-                                        Log.d("projectsCheck", "Edition" + editions.toString());
+                                        contorIn[0]++;
+                                        if (contorIn[0] == task.getResult().size()) {
+                                            callbackArrayListEditions.callback(editions);
+                                        }
                                     }
                                 });
                             }
-                            callbackArrayListEditions.callback(editions);
                         } else {
                             Log.d("projectCheck", "Error getting documents: ", task.getException());
                         }
@@ -108,34 +122,44 @@ public class Projects extends Fragment {
 
     private void initializeEdition(final QueryDocumentSnapshot document, final CallbackEdition callbackEdition) {
         final Edition edition = new Edition();
-        getUser(document, "coordinator1", new CallbackUser() {
+        getUser(document.getDocumentReference("coordinator1"),  new CallbackUser() {
             @Override
             public void callbackk(final User user1) {
-                getUser(document, "coordinator2", new CallbackUser() {
+                getUser(document.getDocumentReference("coordinator2"),  new CallbackUser() {
                     @Override
                     public void callbackk(User user2) {
                         if(user2!=null){ edition.setCoordinator2(user2); }
                         edition.setCoordinator1(user1);
                         edition.setStrategy(document.getString("strategy"));
                         edition.setYear(String.valueOf(document.get("year")));
-                        ArrayList<User> members = (ArrayList<User>) document.get("members");
-                        if(members!=null){
-                            Log.d("projectCheck", "members"+ members.toString());
-                        }else{
-                            Log.d("projectCheck", "null");
-                        }
+                        final ArrayList<DocumentReference> documentReferences = (ArrayList<DocumentReference>) document.get("members");
+                        if(documentReferences!=null){
+                            final ArrayList<User> members = new ArrayList<>();
+                            final int[] contor = {0};
+                            for(DocumentReference docRef: documentReferences){
+                                getUser(docRef, new CallbackUser() {
+                                    @Override
+                                    public void callbackk(User user) {
+                                        members.add(user);
+                                        contor[0]++;
+                                        if(contor[0] == documentReferences.size()){
+                                            edition.setMembers(members);
+                                            callbackEdition.callback(edition);
+                                        }
+                                    }
+                                });
+                            }
 
-                        Log.d("projectsCheck", "edition" + edition.toString());
-                        callbackEdition.callback(edition);
+                        }else{
+                            Log.d("projectCheck", "nullnullnull"+edition.getStrategy()+ " " +edition.getYear()+edition.getCoordinator1());
+                        }
                     }
                 });
             }
         });
     }
 
-
-    private void getUser(final QueryDocumentSnapshot documentReference, String field, final CallbackUser callbackUser){
-        DocumentReference docRef = documentReference.getDocumentReference(field);
+    private void getUser(final DocumentReference docRef, final CallbackUser callbackUser){
         if(docRef!=null){
             docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -146,9 +170,8 @@ public class Projects extends Fragment {
                 }
             });
         }else{
-            Log.d("projectsCheck",docRef+" NULLLLLLLLLLL" + String.valueOf(documentReference.get("year")) );
+            Log.d("projectsCheck",docRef+" NULLLLLLLLLLL"  );
         }
-
     }
 
 }
