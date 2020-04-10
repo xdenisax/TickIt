@@ -34,8 +34,14 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> {
         ImageView profilImageView = (ImageView) view.findViewById(R.id.userPicture);
         TextView numeTextView =(TextView) view.findViewById(R.id.numeTextView);
 
-        Glide.with(getContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilImageView);
-        numeTextView.setText(user.getLastName() + " " + user.getFirstName());
+
+        if(user.getLastName()!=null || user.getFirstName()!= null){
+            Glide.with(getContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilImageView);
+            numeTextView.setText(user.getLastName() + " " + user.getFirstName());
+        }else{
+            Glide.with(getContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerCropTransform()).into(profilImageView);
+            numeTextView.setText(user.getEmail());
+        }
 
         return view;
     }

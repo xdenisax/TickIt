@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore database;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static User loggedInUser;
-    private ArrayList<Mandate> loggedInUsersMandates = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +66,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getUser(getIntent());
+//        getUser(getIntent());
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
          if (requestCode == RC_SIGN_IN) {
              if (resultCode == RESULT_OK) {
                  Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -132,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         return isMember;
     }
 
-    private void updateInfoIfNewUser(QueryDocumentSnapshot document, User loggedInUser) {
+    private void updateInfoIfNewUser(QueryDocumentSnapshot document, final User loggedInUser) {
         if(document.getString("firstName")==null ){
             database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
             database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());
@@ -141,69 +139,80 @@ public class MainActivity extends AppCompatActivity {
         }else{
             loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
             loggedInUser.setDepartament(document.getString("department"));
-            getMandates(document,loggedInUser);
-            loggedInUser.setMandates(loggedInUsersMandates);
+            getMandates(document.getId(), new CallbackArrayListMandates() {
+                @Override
+                public void callback(ArrayList<Mandate> mandates) {
+                    loggedInUser.setMandates(mandates);
+                }
+            });
         }
     }
 
-    private void getMandates(QueryDocumentSnapshot document, final User loggedInUser) {
-        FirebaseFirestore db = initializeDatabase();
-        db.collection("users").document(document.getId()).collection("mandates").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+    private void getMandates(final String userID, final CallbackArrayListMandates callbackArrayListMandates) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db
+                .collection("users")
+                .document(userID)
+                .collection("mandates")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(final QuerySnapshot queryDocumentSnapshots) {
+                        final ArrayList<Mandate> mandatesFromFirestore = new ArrayList<>();
+                        if(queryDocumentSnapshots.isEmpty()){
+                            mandatesFromFirestore.add(new Mandate());
+                            callbackArrayListMandates.callback(mandatesFromFirestore);
+                            Log.d("checkRef", "getMandatesNull" + mandatesFromFirestore.toString());
+                        }
+                        final int[] counter = {0};
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            initializeMandate(document, new CallbackMandate() {
+                                @Override
+                                public void callback(Mandate mandate) {
+                                    mandatesFromFirestore.add(mandate);
+                                    counter[0]++;
+                                    if(counter[0] == queryDocumentSnapshots.size()){
+                                        callbackArrayListMandates.callback(mandatesFromFirestore);
+                                        Log.d("checkRef", "getMandates" + mandatesFromFirestore.toString());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+    }
+
+    private void initializeMandate(final QueryDocumentSnapshot document, final CallbackMandate callbackMandate) {
+        final Mandate mandate = new Mandate();
+        getProjName(document, new CallbackString() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                    Mandate mandate = initializeMandate(document);
-                    loggedInUsersMandates.add(mandate);
-                }
+            public void onCallBack(String value) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Date startDate = ((Timestamp) document.get("start_date")).toDate();
+                Date endDate = ((Timestamp) document.get("stop_date")).toDate();
+                mandate.setProjectName(value);
+                mandate.setEndDate(dateFormat.format(endDate));
+                mandate.setStartDate(dateFormat.format(startDate));
+                mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
+                mandate.setPosition(document.getString("position"));
+                callbackMandate.callback(mandate);
             }
         });
     }
 
-    private Mandate initializeMandate(QueryDocumentSnapshot document) {
-        Mandate mandate= new Mandate();
-        Date startDate = ((Timestamp) document.get("start_date")).toDate();
-        Date endDate = ((Timestamp) document.get("stop_date")).toDate();
-        mandate.setEndDate(dateFormat.format(endDate));
-        mandate.setStartDate(dateFormat.format(startDate));
-        mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
-        mandate.setPosition(document.getString("position"));
-        return mandate;
-    }
-
-    private  FirebaseFirestore initializeDatabase() {
-        return  FirebaseFirestore.getInstance();
-    }
-
-    private void initializeUser(User user, DocumentSnapshot document) {
-        user.setFirstName(document.getString("firstName"));
-        user.setLastName(document.getString("lastName"));
-        user.setDepartament(document.getString("department"));
-        user.setEmail(document.getId());
-        user.setPhoneNumber(document.getString("phoneNumber"));
-        user.setProfilePicture(document.getString("profilePicture"));
-    }
-
-    public void getUser(Intent intent) {
-        final String userID= intent.getStringExtra("userLoggedInFromMainActivity");
-        if(userID != null) {
-            FirebaseFirestore db= initializeDatabase();
-            final DocumentReference docRef = db.collection("users").document(userID);
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            initializeUser(loggedInUser, document);
-                        }
-                    } else {
-                        Log.d("Firestore", "get failed with ", task.getException());
-                    }
+    private void getProjName(final QueryDocumentSnapshot document, final CallbackString callback) {
+        final DocumentReference docRef = document.getDocumentReference("project_name");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    String value = documentSnapshot.getString("name");
+                    callback.onCallBack(value);
+                } else {
+                    Log.d("checkRef", "No such document");
                 }
-            });
-        }else {
-            Log.d("FragmentContainer", "Tried to retrieve user from different intent than mainActivity one.");
-        }
+            }
+        });
 
     }
 

@@ -58,7 +58,7 @@ public class Profile extends AppCompatActivity {
                 FirebaseFirestore database= FirebaseFirestore.getInstance();
                 database.collection("users").document(user.getEmail()).update("phoneNumber", user.getPhoneNumber());
                 fillWithInfo(user, true);
-                Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_actualiza + data.getStringExtra("phoneNumberModified"),Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.numar_de_telefon_actualiza),Toast.LENGTH_LONG).show();
             }
             if(resultCode == Activity.RESULT_CANCELED){
                 Toast.makeText(getApplicationContext(), R.string.numar_de_telefon_nu_a_fost_actualizat,Toast.LENGTH_LONG).show();
@@ -79,7 +79,18 @@ public class Profile extends AppCompatActivity {
         email = (TextView) findViewById(R.id.emailTextView);
         profilePicture= (ImageView) findViewById(R.id.profilePicture);
 
-        name.setText( user.getFirstName()+ " " +user.getLastName());
+        if(user.getLastName()!=null || user.getFirstName()!= null){
+            Glide.with(getApplicationContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilePicture);
+            name.setText(user.getLastName() + " " + user.getFirstName());
+        }else{
+            if(user.getProfilePicture()!=null){
+                Glide.with(getApplicationContext()).load(Uri.parse(user.getProfilePicture())).apply(RequestOptions.circleCropTransform()).into(profilePicture);
+            }else{
+                Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(profilePicture);
+            }
+            name.setText(user.getEmail().substring(0,user.getEmail().length()-10));
+        }
+
         email.setText(user.getEmail());
         historyButtonPressed(user);
         if(user.getPhoneNumber() == null){
@@ -89,9 +100,6 @@ public class Profile extends AppCompatActivity {
             if(!isPersonalProfile){
                 setActionOnPhoneNumber(user.getPhoneNumber());
             }
-        }
-        if(user.getProfilePicture()!=null){
-            Glide.with(getApplicationContext()).load(Uri.parse(user.getProfilePicture())).apply(RequestOptions.circleCropTransform()).into(profilePicture);
         }
         if(!isPersonalProfile){
             findViewById(R.id.editPhoneNumberProfileActivity).setVisibility(View.GONE);
@@ -117,12 +125,14 @@ public class Profile extends AppCompatActivity {
 
     private void setActionOnPhoneNumber(final String number) {
         phoneNumber= (TextView) findViewById(R.id.phoneNumberTextView);
-        phoneNumber.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:"+number)));
-            }
-        });
+        if(number.length()==10){
+            phoneNumber.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:"+number)));
+                }
+            });
+        }
     }
 
     private void editPhoneNumberButtonPressed(ImageButton editButton) {
@@ -150,10 +160,12 @@ public class Profile extends AppCompatActivity {
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile",user.getMandates()));
+                if (user.getMandates().get(0).getProjectName() == null || user.getMandates().get(0).getPosition() == null) {
+                    Toast.makeText(getApplicationContext(), "Utilizatorul nu are nicio activitate pana in acest moment.", Toast.LENGTH_LONG).show();
+                } else {
+                    startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile", user.getMandates()));
+                }
             }
         });
-
     }
-
 }

@@ -22,6 +22,7 @@ public class Mandate implements Parcelable {
     }
 
     protected Mandate(Parcel in) {
+        projectName= in.readString();
         position = in.readString();
         startDate = in.readString();
         endDate = in.readString();
@@ -98,6 +99,7 @@ public class Mandate implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(projectName);
         dest.writeString(position);
         dest.writeString(startDate);
         dest.writeString(endDate);
