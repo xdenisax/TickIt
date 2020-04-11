@@ -1,6 +1,7 @@
 package com.example.tickit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -48,7 +49,7 @@ public class Projects extends Fragment {
                 projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Toast.makeText(getContext(),projects.get(position).toString(),Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList",projects.get(position)));
                     }
                 });
             }

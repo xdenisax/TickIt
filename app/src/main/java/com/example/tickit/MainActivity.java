@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account){
-        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null,null);
+        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null,null); //account.getPhotoUrl().toString()
         database= FirebaseFirestore.getInstance();
         database.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

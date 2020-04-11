@@ -1,7 +1,16 @@
 package com.example.tickit;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -13,13 +22,34 @@ class Project implements Parcelable {
 
     public Project() { }
 
-    public Project(String name, String description, String imageLink, ArrayList<Edition> editions) {
-        this.name = name;
-        this.description = description;
-        this.imageLink = imageLink;
-        this.editions = editions;
+    public Project(final String Name, final String Description, final String imgLink, final ArrayList<Edition> Editions) {
+        getPhotoUri(imgLink, new CallbackString(){
+            @Override
+            public void onCallBack(String value) {
+                name = Name;
+                description = Description;
+                imageLink=value;
+                editions = Editions;
+            }
+        });
     }
 
+    private void getPhotoUri(String imageLink, final CallbackString callbackString){
+        StorageReference mImageStorage = FirebaseStorage.getInstance().getReference();
+        StorageReference ref = mImageStorage.child("TickIt").child("ProjectsLogo").child(imageLink);
+
+        ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downUri = task.getResult();
+                    String imageUrl = downUri.toString();
+                    callbackString.onCallBack(imageUrl);
+                }
+            }
+        });
+
+    }
     protected Project(Parcel in) {
         name = in.readString();
         description = in.readString();
@@ -40,7 +70,7 @@ class Project implements Parcelable {
     };
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {

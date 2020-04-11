@@ -36,7 +36,7 @@ public class ListViewProjectsAdapter extends ArrayAdapter<Project> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Project project= getItem(position);
+        final Project project= getItem(position);
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View view = inflater.inflate(resourceID,null);
 
@@ -49,6 +49,7 @@ public class ListViewProjectsAdapter extends ArrayAdapter<Project> {
                 public void onCallBack(String value) {
                     Uri photoUri = Uri.parse(value);
                     Glide.with(getContext()).load(photoUri).apply(RequestOptions.circleCropTransform().centerInside()).into(profilImageView);
+                    project.setImageLink(photoUri.toString());
                 }
             });
         }
