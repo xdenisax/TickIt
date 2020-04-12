@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Projects"
-    android:background="@color/darkblue">
+    android:background="@color/darkblue"
+    android:id="@+id/fragment_projects">
 
 
     <TextView

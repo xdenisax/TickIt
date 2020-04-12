@@ -2,12 +2,18 @@ package com.example.tickit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentContainer;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -29,12 +35,25 @@ public class ProjectProfile extends AppCompatActivity {
     TextView descriptionTV;
     ImageView logo;
     Spinner edtionsSpinners;
+    ImageButton backButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_profile);
-        manageIntent(getIntent());
 
+        manageIntent(getIntent());
+        backButtonPressed();
+    }
+
+    private void backButtonPressed() {
+        backButton = (ImageButton) findViewById(R.id.backButtonProfileActivity);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class));
+            }
+        });
     }
 
     private void manageIntent(Intent intent) {
@@ -57,17 +76,6 @@ public class ProjectProfile extends AppCompatActivity {
         }else{
             Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
         }
-        ArrayList<String> years = getEditionsYears(project.getEditions());
-        edtionsSpinners.setAdapter(new ArrayAdapter<String>(getApplicationContext(),R.layout.support_simple_spinner_dropdown_item,years ));
+        edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }
-
-    private ArrayList<String> getEditionsYears(ArrayList<Edition> editions) {
-        ArrayList<String> years = new ArrayList<>();
-        for (Edition edition: editions) {
-            years.add(edition.getYear());
-        }
-        return years;
-    }
-
-
 }

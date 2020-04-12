@@ -19,4 +19,5 @@
     <string name="numar_de_telefon_mai_mult_de_10_cifre">Numarul de telefon trebuie sa aiba 10 cifre.</string>
     <string name="istoric">Istoric</string>
     <string name="descriere">Descriere</string>
+    <string name="strategie">Strategie</string>
 </resources>

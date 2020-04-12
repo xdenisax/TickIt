@@ -12,10 +12,11 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ProjectProfile"></activity>
+        <activity android:name=".EditionProfile"></activity>
+        <activity android:name=".ProjectProfile" />
         <activity
             android:name=".HistoryPopUp"
-            android:theme="@style/AppTheme.PopUpTheme"></activity>
+            android:theme="@style/AppTheme.PopUpTheme" />
         <activity android:name=".Profile" />
         <activity android:name=".FragmentsContainer" />
         <activity android:name=".MainActivity">

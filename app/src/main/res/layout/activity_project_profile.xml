@@ -63,32 +63,15 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/vivid_cyan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/projectNameTextView"
         app:layout_constraintStart_toStartOf="@+id/projectNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/projectNameTextView"
-        app:layout_constraintVertical_bias="0.6" />
+        app:layout_constraintVertical_bias="0.6"
+        android:padding="5dp"
+        />
 
-    <Button
-        android:id="@+id/projectMembersButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/square_background"
-        android:fontFamily="@font/colombia"
-        android:foreground="@drawable/ripple_square_effect_button"
-        android:text="@string/membri"
-        android:textAllCaps="false"
-        android:textColor="@color/vivid_cyan"
-        android:textSize="25sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/projectNameTextView"
-        app:layout_constraintStart_toStartOf="@+id/projectNameTextView"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerEditions"
-        app:layout_constraintVertical_bias="0.0" />
 
     <ScrollView
         android:id="@+id/scrollViewProjectDescription"
