@@ -7,6 +7,25 @@
     tools:context=".EditionProfile"
     android:background="@color/darkblue">
 
+    <TextView
+        android:id="@+id/editionMemberTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/colombia"
+        android:text="@string/membri"
+        android:textColor="@color/brownish_yellow"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/coordinator1TextView"
+        app:layout_constraintVertical_bias="0.0" />
+
     <ImageButton
         android:id="@+id/backButtonEditionActivity"
         android:layout_width="wrap_content"
@@ -26,10 +45,30 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/editionCoordonatoriTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/colombia"
+        android:text="@string/coordonatori"
+        android:textColor="@color/brownish_yellow"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editionYearTextView"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
         android:id="@+id/editionYearTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
@@ -51,14 +90,13 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="Denisa Calota"
-        android:textColor="@color/vivid_cyan"
+        android:textColor="@color/dirty_white"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editionYearTextView"
+        app:layout_constraintTop_toBottomOf="@+id/editionCoordonatoriTextView"
         app:layout_constraintVertical_bias="0.16000003" />
 
     <TextView
@@ -70,15 +108,14 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="Andrei Baicu"
-        android:textColor="@color/vivid_cyan"
+        android:textColor="@color/dirty_white"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/coordinator1TextView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toEndOf="@+id/coordinator1TextView"
+        app:layout_constraintTop_toBottomOf="@+id/editionCoordonatoriTextView"
+        app:layout_constraintVertical_bias="0.16000003" />
 
     <Button
         android:id="@+id/editionStrategyButton"
@@ -93,32 +130,51 @@
         android:foreground="@drawable/ripple_square_effect_button"
         android:text="@string/strategie"
         android:textAllCaps="false"
-        android:textColor="@color/vivid_cyan"
+        android:textColor="@color/dirty_white"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/coordinator2TextView"
-        app:layout_constraintVertical_bias="0.75" />
+        app:layout_constraintVertical_bias="1.0" />
 
-    <Button
-        android:id="@+id/projectMembersButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ListView
+        android:id="@+id/editionMembersListView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/square_background"
-        android:fontFamily="@font/colombia"
-        android:foreground="@drawable/ripple_square_effect_button"
-        android:text="@string/membri"
-        android:textAllCaps="false"
-        android:textColor="@color/vivid_cyan"
-        android:textSize="25sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/editionStrategyButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editionStrategyButton" />
+        app:layout_constraintTop_toBottomOf="@+id/editionMemberTextView" />
+
+    <ImageView
+        android:id="@+id/editionCoordinator1ImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/coordinator1TextView"
+        app:layout_constraintEnd_toEndOf="@+id/coordinator1TextView"
+        app:layout_constraintStart_toStartOf="@+id/coordinator1TextView"
+        app:layout_constraintTop_toBottomOf="@+id/editionCoordonatoriTextView"
+        app:layout_constraintVertical_bias="0.25"
+        app:srcCompat="@drawable/account_cyan" />
+
+    <ImageView
+        android:id="@+id/editionCoordinator2ImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/coordinator2TextView"
+        app:layout_constraintEnd_toEndOf="@+id/coordinator2TextView"
+        app:layout_constraintStart_toStartOf="@+id/coordinator2TextView"
+        app:layout_constraintTop_toBottomOf="@+id/editionCoordonatoriTextView"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/account_cyan" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

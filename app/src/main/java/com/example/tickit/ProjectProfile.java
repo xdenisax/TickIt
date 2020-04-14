@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -44,6 +45,24 @@ public class ProjectProfile extends AppCompatActivity {
 
         manageIntent(getIntent());
         backButtonPressed();
+        setOnSpinnerAction();
+    }
+
+    private void setOnSpinnerAction() {
+        edtionsSpinners = (Spinner) findViewById(R.id.spinnerEditions);
+        final int currentSelection = edtionsSpinners.getSelectedItemPosition();
+        edtionsSpinners.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if(project.getEditions().get(position)==null){
+                        Toast.makeText(getApplicationContext(), "Nu exista informatii despre acest proiect momentan.", Toast.LENGTH_LONG).show();
+                    }else{
+                        startActivity(new Intent(getApplicationContext(), EditionProfile.class).putExtra("editionFromProjectProfile",project.getEditions().get(position)));
+                    }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
     }
 
     private void backButtonPressed() {
