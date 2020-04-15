@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,6 +34,7 @@ public class Members extends Fragment {
     ListViewMemberAdapter adapter;
     User loggedInUser;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    ProgressBar progressBar;
 
     public Members() {
     }
@@ -42,10 +44,13 @@ public class Members extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         listview = (ListView) view.findViewById(R.id.membriListView);
         loggedInUser = MainActivity.getLoggedInUser();
+        progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
+
         users = new ArrayList<>();
         getUsers(new CallbackArrayListUser() {
             @Override
             public void callback(final ArrayList<User> users) {
+                progressBar.setVisibility(View.GONE);
                 listview.setAdapter(new ListViewMemberAdapter(getContext(), R.layout.member_card, users));
                 listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override

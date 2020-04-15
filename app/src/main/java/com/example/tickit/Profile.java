@@ -71,6 +71,10 @@ public class Profile extends AppCompatActivity {
             fillWithInfo((User) intent.getParcelableExtra("userFromMembersList"),false);
             user = (User) intent.getParcelableExtra("userFromMembersList");
         }
+        if(intent.getParcelableExtra("memberFromEditionProfile")!= null) {
+            fillWithInfo((User) intent.getParcelableExtra("memberFromEditionProfile"),false);
+            user = (User) intent.getParcelableExtra("memberFromEditionProfile");
+        }
     }
 
     private void fillWithInfo(User user, boolean isPersonalProfile) {
@@ -150,7 +154,7 @@ public class Profile extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class));
+                finish();
             }
         });
     }

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -33,25 +34,25 @@ import java.util.List;
 
 public class Projects extends Fragment {
     ListView projectListview;
-    ArrayList<Project> projects;
+    ProgressBar progressBar;
     public Projects() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_projects, container, false);
         projectListview = (ListView) view.findViewById(R.id.projectsListvView);
-        projects = new ArrayList<>();
+        progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
 
         getProjects(new CallbackArrayListProjects() {
             @Override
-            public void callback(ArrayList<Project> projectsFromDataBase) {
-                projects.addAll(projectsFromDataBase);
+            public void callback(final ArrayList<Project> projectsFromDataBase) {
+                progressBar.setVisibility(View.GONE);
                 ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(getContext(),R.layout.member_card,projectsFromDataBase);
                 projectListview.setAdapter(adapter);
                 projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList",projects.get(position)));
+                        startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList",projectsFromDataBase.get(position)));
                     }
                 });
             }

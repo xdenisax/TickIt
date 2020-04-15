@@ -37,6 +37,7 @@ public class ProjectProfile extends AppCompatActivity {
     ImageView logo;
     Spinner edtionsSpinners;
     ImageButton backButton;
+    int flag = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +55,17 @@ public class ProjectProfile extends AppCompatActivity {
         edtionsSpinners.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(project.getEditions().get(position)==null){
+                if(position!=0) {
+                    if (project.getEditions().get(position) == null) {
                         Toast.makeText(getApplicationContext(), "Nu exista informatii despre acest proiect momentan.", Toast.LENGTH_LONG).show();
-                    }else{
-                        startActivity(new Intent(getApplicationContext(), EditionProfile.class).putExtra("editionFromProjectProfile",project.getEditions().get(position)));
+                    } else {
+                        startActivity(new Intent(getApplicationContext(), EditionProfile.class).putExtra("editionFromProjectProfile", project.getEditions().get(position)));
                     }
+                }
             }
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(getApplicationContext(), "nothing", Toast.LENGTH_LONG).show();}
         });
     }
 
@@ -70,7 +74,7 @@ public class ProjectProfile extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),FragmentsContainer.class));
+                finish();
             }
         });
     }
@@ -95,6 +99,7 @@ public class ProjectProfile extends AppCompatActivity {
         }else{
             Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
         }
+        project.getEditions().add(0,new Edition(null,null, null,null,"Alege"));
         edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }
 }
