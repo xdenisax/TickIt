@@ -3,12 +3,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.tickit.Callbacks.CallbackArrayListMandates;
+import com.example.tickit.Callbacks.CallbackBoolean;
+import com.example.tickit.Callbacks.CallbackMandate;
+import com.example.tickit.Callbacks.CallbackString;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -18,21 +21,13 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.Timestamp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore database;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static User loggedInUser;
+    private static int userGrade=4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        getUser(getIntent());
     }
 
     @Override
@@ -76,8 +71,9 @@ public class MainActivity extends AppCompatActivity {
              if (resultCode == RESULT_OK) {
                  Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                  try {
-                       GoogleSignInAccount account = task.getResult(ApiException.class);
-                       startActivityIfMemberIsSiSC(FragmentsContainer.class,account);
+                     GoogleSignInAccount account = task.getResult(ApiException.class);
+                     startActivityIfMemberIsSiSC(FragmentsContainer.class,account);
+
                  } catch (ApiException e) {
                      Log.d("Google", "Google sign in failed", e);
                      Toast.makeText(getApplicationContext(), "LogIn failed", Toast.LENGTH_LONG).show();
@@ -95,62 +91,60 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account){
-        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), account.getPhotoUrl().toString(), null,null); //account.getPhotoUrl().toString()
-        database= FirebaseFirestore.getInstance();
-        database.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    if(isUserSiSCMember(task, loggedInUser)){
-                        Intent toClassIntent = new Intent(getApplicationContext(), activity);
-                        toClassIntent.putExtra("userLoggedInFromMainActivity",loggedInUser.getEmail());
-                        startActivity(toClassIntent);
+    private void startActivityIfMemberIsSiSC(final Class activity, GoogleSignInAccount account) {
+        loggedInUser = new User(account.getFamilyName(), account.getGivenName(), null, account.getEmail(), String.valueOf(account.getPhotoUrl()), null, null); //account.getPhotoUrl().toString()
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(loggedInUser.getEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+                                updateInfoIfNewUser(task.getResult(), loggedInUser, new CallbackBoolean() {
+                                    @Override
+                                    public void callback(Boolean bool) {
+                                        Intent toClassIntent = new Intent(getApplicationContext(), activity);
+                                        toClassIntent.putExtra("userLoggedInFromMainActivity", loggedInUser.getEmail());
+                                        startActivity(toClassIntent);
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Autentificare nepermisa persoanelor neautorizate.", Toast.LENGTH_LONG).show();
+                                signOut();
+                            }
+                        } else {
+                            Log.d("Google ", "Error getting documents.", task.getException());
+                        }
                     }
-                    else{
-                        Toast.makeText(getApplicationContext(), "Autentificare nepermisa persoanelor neautorizate.", Toast.LENGTH_LONG).show();
-                        signOut();
-                    }
-                }else{
-                    Log.d("Google ", "Error getting documents.", task.getException());
-                }
-            }
-
-        });
+                });
     }
 
-    private boolean isUserSiSCMember(Task<QuerySnapshot> task, User loggedInUser) {
-        boolean isMember=false;
-        for (QueryDocumentSnapshot document : task.getResult()) {
-            if(loggedInUser.getEmail().equals(document.getId())) {
-                isMember = true;
-                updateInfoIfNewUser(document, loggedInUser);
-            }
-        }
-        return isMember;
-    }
-
-    private void updateInfoIfNewUser(QueryDocumentSnapshot document, final User loggedInUser) {
+    private void updateInfoIfNewUser(final DocumentSnapshot document, final User loggedInUser, final CallbackBoolean callbackBoolean) {
         if(document.getString("firstName")==null ){
             database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
             database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());
             database.collection("users").document(document.getId()).update("phoneNumber",loggedInUser.getPhoneNumber());
             database.collection("users").document(document.getId()).update("profilePicture",loggedInUser.getProfilePicture());
-        }else{
-            loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
-            loggedInUser.setDepartament(document.getString("department"));
+            //trebuie creata colectia de mandate
+        }else {
             getMandates(document.getId(), new CallbackArrayListMandates() {
                 @Override
                 public void callback(ArrayList<Mandate> mandates) {
                     loggedInUser.setMandates(mandates);
+                    callbackBoolean.callback(true);
+                    loggedInUser.setPhoneNumber(document.getString("phoneNumber"));
+                    loggedInUser.setDepartament(document.getString("departament"));
                 }
             });
         }
     }
 
     private void getMandates(final String userID, final CallbackArrayListMandates callbackArrayListMandates) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db
+        FirebaseFirestore
+                .getInstance()
                 .collection("users")
                 .document(userID)
                 .collection("mandates")
@@ -162,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                         if(queryDocumentSnapshots.isEmpty()){
                             mandatesFromFirestore.add(new Mandate());
                             callbackArrayListMandates.callback(mandatesFromFirestore);
-                            Log.d("checkRef", "getMandatesNull" + mandatesFromFirestore.toString());
                         }
                         final int[] counter = {0};
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
@@ -173,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
                                     counter[0]++;
                                     if(counter[0] == queryDocumentSnapshots.size()){
                                         callbackArrayListMandates.callback(mandatesFromFirestore);
-                                        Log.d("checkRef", "getMandates" + mandatesFromFirestore.toString());
                                     }
                                 }
                             });
@@ -187,14 +179,18 @@ public class MainActivity extends AppCompatActivity {
         getProjName(document, new CallbackString() {
             @Override
             public void onCallBack(String value) {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
                 Date startDate = ((Timestamp) document.get("start_date")).toDate();
                 Date endDate = ((Timestamp) document.get("stop_date")).toDate();
                 mandate.setProjectName(value);
                 mandate.setEndDate(dateFormat.format(endDate));
                 mandate.setStartDate(dateFormat.format(startDate));
-                mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
+                mandate.setGrade(Integer.parseInt(String.valueOf(document.get("grade"))));
                 mandate.setPosition(document.getString("position"));
+
+                if(checkIfInMandate(System.currentTimeMillis(), endDate) && (userGrade>mandate.getGrade())){
+                    userGrade=mandate.getGrade();
+                }
+
                 callbackMandate.callback(mandate);
             }
         });
@@ -206,22 +202,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    String value = documentSnapshot.getString("name");
-                    callback.onCallBack(value);
+                    callback.onCallBack(documentSnapshot.getString("name"));
                 } else {
                     Log.d("checkRef", "No such document");
                 }
             }
         });
+    }
 
+    private boolean checkIfInMandate(long currentTimeMillis, Date endDate) {
+        Date currentDate = new Date();
+        currentDate.setTime(currentTimeMillis);
+        return currentDate.before(endDate);
     }
 
     public static User getLoggedInUser() {
         return loggedInUser;
     }
 
-    public static void setLoggedInUser(User loggedUser) {
-        loggedInUser = loggedUser;
+    public static void setLoggedInUser(User user) {
+        loggedInUser=user;
+    }
+
+    public static int getUserGrade() {
+        return userGrade;
     }
 
     private void signIn() {

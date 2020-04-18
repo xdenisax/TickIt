@@ -12,7 +12,9 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EditionProfile"></activity>
+        <activity android:name=".AddMemberChoicePopUp"
+            android:theme="@style/AppTheme.PopUpTheme" ></activity>
+        <activity android:name=".EditionProfile" />
         <activity android:name=".ProjectProfile" />
         <activity
             android:name=".HistoryPopUp"

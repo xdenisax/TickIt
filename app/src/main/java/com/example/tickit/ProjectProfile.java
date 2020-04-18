@@ -64,8 +64,7 @@ public class ProjectProfile extends AppCompatActivity {
                 }
             }
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getApplicationContext(), "nothing", Toast.LENGTH_LONG).show();}
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 

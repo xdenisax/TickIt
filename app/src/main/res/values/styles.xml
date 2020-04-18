@@ -13,4 +13,10 @@
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
 
+    <style name="FloatingButton" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:background">@drawable/tabbackground</item>
+        <item name="android:textColor">@color/dirty_white</item>
+
+    </style>
+
 </resources>

@@ -21,4 +21,17 @@
     <string name="descriere">Descriere</string>
     <string name="strategie">Strategie</string>
     <string name="coordonatori">Coordonatori</string>
+    <string name="excel">Excel</string>
+    <string name="hint_adrese_mail_membri_noi">Adresele de email se introduc separate printr-o virgula si un spatiu.</string>
+    <string name="lista">Lista</string>
+    <string name="adauga">Adauga</string>
+
+    <string-array name="departments">
+        <item>Departament</item>
+        <item>Educational</item>
+        <item>Fundraising</item>
+        <item>Human Resources</item>
+        <item>Imagine si promovare</item>
+        <item>IT</item>
+    </string-array>
 </resources>

@@ -1,8 +1,6 @@
 package com.example.tickit;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,29 +11,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.Toast;
 
+import com.example.tickit.Callbacks.CallbackArrayListEditions;
+import com.example.tickit.Callbacks.CallbackArrayListMandates;
+import com.example.tickit.Callbacks.CallbackArrayListProjects;
+import com.example.tickit.Callbacks.CallbackEdition;
+import com.example.tickit.Callbacks.CallbackMandate;
+import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.Callbacks.CallbackUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 public class Projects extends Fragment {
     ListView projectListview;
     ProgressBar progressBar;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     public Projects() { }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,14 +52,17 @@ public class Projects extends Fragment {
             @Override
             public void callback(final ArrayList<Project> projectsFromDataBase) {
                 progressBar.setVisibility(View.GONE);
-                ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(getContext(),R.layout.member_card,projectsFromDataBase);
-                projectListview.setAdapter(adapter);
-                projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList",projectsFromDataBase.get(position)));
-                    }
-                });
+                if(getActivity()!=null) {
+                    ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(getContext(), R.layout.member_card, projectsFromDataBase);
+                    adapter.notifyDataSetChanged();
+                    projectListview.setAdapter(adapter);
+                    projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList", projectsFromDataBase.get(position)));
+                        }
+                    });
+                }
             }
         });
         return view;
@@ -140,7 +148,7 @@ public class Projects extends Fragment {
                         if(documentReferences!=null){
                             final ArrayList<User> members = new ArrayList<>();
                             final int[] contor = {0};
-                            for(DocumentReference docRef: documentReferences){
+                            for(final DocumentReference docRef: documentReferences){
                                 getUser(docRef, new CallbackUser() {
                                     @Override
                                     public void callbackk(User user) {
@@ -167,15 +175,91 @@ public class Projects extends Fragment {
         if(docRef!=null){
             docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User user = documentSnapshot.toObject(User.class);
-                    user.setEmail(documentSnapshot.getId());
-                    callbackUser.callbackk(user);
+                public void onSuccess(final DocumentSnapshot documentSnapshot) {
+                    getMandates(documentSnapshot.getId(), new CallbackArrayListMandates() {
+                        @Override
+                        public void callback(ArrayList<Mandate> mandates) {
+                            User user = documentSnapshot.toObject(User.class);
+                            user.setEmail(documentSnapshot.getId());
+                            user.setMandates(mandates);
+                            Log.d("mandatesCheck", mandates.toString());
+                            callbackUser.callbackk(user);
+                        }
+                    });
+
                 }
             });
         }else{
             Log.d("projectsCheck",docRef+" NULLLLLLLLLLL"  );
         }
+    }
+
+    private void getMandates(final String userID, final CallbackArrayListMandates callbackArrayListMandates) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db
+                .collection("users")
+                .document(userID)
+                .collection("mandates")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(final QuerySnapshot queryDocumentSnapshots) {
+                        final ArrayList<Mandate> mandatesFromFirestore = new ArrayList<>();
+                        if(queryDocumentSnapshots.isEmpty()){
+                            mandatesFromFirestore.add(new Mandate());
+                            callbackArrayListMandates.callback(mandatesFromFirestore);
+                            Log.d("checkRef", "getMandatesNull" + mandatesFromFirestore.toString());
+                        }
+                        final int[] counter = {0};
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            initializeMandate(document, new CallbackMandate() {
+                                @Override
+                                public void callback(Mandate mandate) {
+                                    mandatesFromFirestore.add(mandate);
+                                    counter[0]++;
+                                    if(counter[0] == queryDocumentSnapshots.size()){
+                                        callbackArrayListMandates.callback(mandatesFromFirestore);
+                                        Log.d("checkRef", "getMandates" + mandatesFromFirestore.toString());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+    }
+
+    private void initializeMandate(final QueryDocumentSnapshot document, final CallbackMandate callbackMandate) {
+        final Mandate mandate = new Mandate();
+        getProjName(document, new CallbackString() {
+            @Override
+            public void onCallBack(String value) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Date startDate = ((Timestamp) document.get("start_date")).toDate();
+                Date endDate = ((Timestamp) document.get("stop_date")).toDate();
+                mandate.setProjectName(value);
+                mandate.setEndDate(dateFormat.format(endDate));
+                mandate.setStartDate(dateFormat.format(startDate));
+                mandate.setGrade(Integer.parseInt(document.get("grade").toString()));
+                mandate.setPosition(document.getString("position"));
+                callbackMandate.callback(mandate);
+            }
+        });
+    }
+
+    private void getProjName(final QueryDocumentSnapshot document, final CallbackString callback) {
+        final DocumentReference docRef = document.getDocumentReference("project_name");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    String value = documentSnapshot.getString("name");
+                    callback.onCallBack(value);
+                } else {
+                    Log.d("checkRef", "No such document");
+                }
+            }
+        });
+
     }
 
 }

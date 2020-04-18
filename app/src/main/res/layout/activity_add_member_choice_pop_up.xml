@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddMemberChoicePopUp"
+    android:background="@color/darkblue">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/square_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <EditText
+            android:id="@+id/addMembersEmailsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/vivid_cyan"
+            android:inputType="textEmailAddress|textMultiLine"
+            android:lines="4"
+            android:textColor="@color/dirty_white"
+            android:textColorHint="#46E1EFE6"
+            android:textCursorDrawable="@color/dirty_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addMembersManuallyButton" />
+
+        <TextView
+            android:id="@+id/hintMailTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/colombia"
+            android:gravity="center_horizontal"
+            android:text="@string/hint_adrese_mail_membri_noi"
+            android:textColor="@color/dirty_white"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toTopOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintEnd_toEndOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintStart_toStartOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintTop_toBottomOf="@+id/addMembersManuallyButton"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/addMembersManuallyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/square_background"
+            android:foreground="@drawable/ripple_square_effect_button"
+            android:drawableTop="@drawable/keyboard"
+            android:fontFamily="@font/colombia"
+            android:padding="2dp"
+            android:text="@string/lista"
+            android:textAllCaps="false"
+            android:textColor="@color/dirty_white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/addMembersFromExcelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/square_background"
+            android:drawableTop="@drawable/excel"
+            android:fontFamily="@font/colombia"
+            android:foreground="@drawable/ripple_square_effect_button"
+            android:padding="2dp"
+            android:text="@string/excel"
+            android:textAllCaps="false"
+            android:textColor="@color/dirty_white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/savePhoneNumberPopUp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/addMembersInDataBaseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/square_background"
+            android:fontFamily="@font/colombia"
+            android:foreground="@drawable/ripple_square_effect_button"
+            android:text="@string/adauga"
+            android:textAllCaps="false"
+            android:textColor="@color/dirty_white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintTop_toBottomOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Spinner
+            android:id="@+id/spinnerDepartments"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/vivid_cyan"
+            app:layout_constraintBottom_toTopOf="@+id/hintMailTextView"
+            app:layout_constraintEnd_toEndOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintStart_toStartOf="@+id/addMembersEmailsEditText"
+            app:layout_constraintTop_toBottomOf="@+id/addMembersManuallyButton"
+            app:layout_constraintVertical_bias="1.0" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

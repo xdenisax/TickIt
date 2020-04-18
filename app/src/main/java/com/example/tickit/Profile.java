@@ -48,7 +48,7 @@ public class Profile extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)     {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
@@ -168,6 +168,7 @@ public class Profile extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Utilizatorul nu are nicio activitate pana in acest moment.", Toast.LENGTH_LONG).show();
                 } else {
                     startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile", user.getMandates()));
+                    Log.d("MainTime","profileHistory"+user);
                 }
             }
         });

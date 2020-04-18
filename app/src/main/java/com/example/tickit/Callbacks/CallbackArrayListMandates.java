@@ -1,4 +1,6 @@
-package com.example.tickit;
+package com.example.tickit.Callbacks;
+
+import com.example.tickit.Mandate;
 
 import java.util.ArrayList;
 

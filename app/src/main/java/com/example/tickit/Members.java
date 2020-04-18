@@ -3,6 +3,7 @@ package com.example.tickit;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -10,15 +11,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.example.tickit.Callbacks.CallbackArrayListMandates;
+import com.example.tickit.Callbacks.CallbackArrayListUser;
+import com.example.tickit.Callbacks.CallbackMandate;
+import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.Callbacks.CallbackUser;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -35,6 +45,7 @@ public class Members extends Fragment {
     User loggedInUser;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     ProgressBar progressBar;
+    ImageButton addMemberButton;
 
     public Members() {
     }
@@ -45,6 +56,7 @@ public class Members extends Fragment {
         listview = (ListView) view.findViewById(R.id.membriListView);
         loggedInUser = MainActivity.getLoggedInUser();
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
+        setAllowenceAddMembersButton(view);
 
         users = new ArrayList<>();
         getUsers(new CallbackArrayListUser() {
@@ -63,12 +75,26 @@ public class Members extends Fragment {
         return view;
     }
 
+    private void setAllowenceAddMembersButton(View view) {
+        addMemberButton = (view.findViewById(R.id.addMembersButton));
+        if(MainActivity.getUserGrade()>1){
+            addMemberButton.setVisibility(View.GONE);
+        }else{
+            addMemberButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getContext(), AddMemberChoicePopUp.class));
+                }
+            });
+        }
+
+    }
+
     private void getUsers(final CallbackArrayListUser callbackArrayListUser) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     final List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                     final ArrayList<User> usersFromFirestore = new ArrayList<>();
@@ -99,6 +125,13 @@ public class Members extends Fragment {
                 }
             }
         });
+
+//        db.collection("users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//            @Override
+//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//
+//            }
+//        });
     }
 
     private void getUser(final DocumentSnapshot documentSnapshot, final CallbackUser callbackUser){
