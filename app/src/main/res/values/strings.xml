@@ -18,13 +18,22 @@
     <string name="numar_de_telefon_nu_a_fost_actualizat">Numarul de telefon nu a fost actualizat</string>
     <string name="numar_de_telefon_mai_mult_de_10_cifre">Numarul de telefon trebuie sa aiba 10 cifre.</string>
     <string name="istoric">Istoric</string>
-    <string name="descriere">Descriere</string>
     <string name="strategie">Strategie</string>
     <string name="coordonatori">Coordonatori</string>
     <string name="excel">Excel</string>
     <string name="hint_adrese_mail_membri_noi">Adresele de email se introduc separate printr-o virgula si un spatiu.</string>
     <string name="lista">Lista</string>
     <string name="adauga">Adauga</string>
+    <string name="task_uri">Task-uri</string>
+    <string name="task_uri_asumate">Task-uri asumate</string>
+    <string name="nu_sunt_task_uri_deschise_in_acest_moment">Nu sunt task-uri deschise in acest moment.</string>
+    <string name="nu_sunt_task_uri_asumate_pana_in_acest_moment">Nu sunt task-uri asumate pana in acest moment.</string>
+    <string name="nume_task">Nume task</string>
+    <string name="descriere">Descriere</string>
+    <string name="resursa_ex_link_spreadsheet">Resursa (ex: link spreadsheet)</string>
+    <string name="ziua_de_start_ex_01_12_2020">Ziua de start (ex: 01/12/2020)</string>
+    <string name="deadline_ex_20_12_2020">Deadline (ex: 20/12/2020)</string>
+    <string name="numar_necesar_de_voluntari">Numar necesar de voluntari</string>
 
     <string-array name="departments">
         <item>Departament</item>

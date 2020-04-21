@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
-    FirebaseFirestore database;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static User loggedInUser;
     private static int userGrade=4;
@@ -123,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateInfoIfNewUser(final DocumentSnapshot document, final User loggedInUser, final CallbackBoolean callbackBoolean) {
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
         if(document.getString("firstName")==null ){
             database.collection("users").document(document.getId()).update("firstName",loggedInUser.getFirstName());
             database.collection("users").document(document.getId()).update("lastName",loggedInUser.getLastName());

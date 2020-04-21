@@ -1,8 +1,22 @@
 package com.example.tickit;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -15,14 +29,31 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.nbsp.materialfilepicker.MaterialFilePicker;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+import com.opencsv.CSVReader;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class AddMemberChoicePopUp extends AppCompatActivity {
     Button addMembersInDataBaseButton, addMembersFromExcel, addMembersManually;
     EditText emailsEditText;
     TextView hintTextView;
     Spinner spinnerDepartment;
+    int REQUEST_CODE_FILE_PATH =10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +66,55 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         setActionOnExcelButton();
         setActionOnManuallyButton();
         setActionOnAddInDataBase();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_FILE_PATH && resultCode == RESULT_OK) {
+            String src = data.getData().getPath();
+            String path = src.substring(src.indexOf(":")+1);
+                //DocumentFile doc = DocumentFile.fromSingleUri(this, data.getData());
+            Toast.makeText(getApplicationContext(), path +"", Toast.LENGTH_LONG).show();
+            readCSV(path);
+
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==1001){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "Permisiune acordata.", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(getApplicationContext(), "Permisiune respinsa.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void readCSV(String path) {
+        try{
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path);
+            Toast.makeText(getApplicationContext(), file.getAbsolutePath() +"", Toast.LENGTH_LONG).show();
+            Reader reader = Files.newBufferedReader(Paths.get(new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path).getAbsolutePath()));
+            CSVReader csvReader = new CSVReader(reader);
+
+            String[] line;
+            while((line = csvReader.readNext())!=null){
+                Toast.makeText(getApplicationContext(), line[0],Toast.LENGTH_LONG).show();
+            }
+        } catch (FileNotFoundException e) {
+            Log.d("traceERR", e.toString());
+            Toast.makeText(getApplicationContext(), "Nu s-a putut gasi fisierul CSV.",Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("traceERR", e.toString());
+            Toast.makeText(getApplicationContext(), "Probleme la citire. ",Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setSpinnerUp() {
@@ -130,9 +210,19 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setAvailabilty(false);
+                startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), REQUEST_CODE_FILE_PATH);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE )!= PackageManager.PERMISSION_GRANTED){
+                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
+                }
+//                new MaterialFilePicker()
+//                        .withActivity(AddMemberChoicePopUp.this)
+//                        .withRequestCode(10)
+//                        .withHiddenFiles(true) // Show hidden files and folders
+//                        .withTitle("Alegeti fisierul CSV.")
+//                        .start();
             }
         });
-
     }
 
     private void setAvailabilty(Boolean isVisible) {
