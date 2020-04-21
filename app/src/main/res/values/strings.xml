@@ -34,6 +34,8 @@
     <string name="ziua_de_start_ex_01_12_2020">Ziua de start (ex: 01/12/2020)</string>
     <string name="deadline_ex_20_12_2020">Deadline (ex: 20/12/2020)</string>
     <string name="numar_necesar_de_voluntari">Numar necesar de voluntari</string>
+    <string name="resurse">Resurse</string>
+    <string name="imi_asum">Imi asum</string>
 
     <string-array name="departments">
         <item>Departament</item>

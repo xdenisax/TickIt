@@ -6,19 +6,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-public class AddTask extends AppCompatActivity {
+public class TaskProfile extends AppCompatActivity {
 
     ImageButton backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_task);
+        setContentView(R.layout.activity_task_profile);
         backButtonPressed();
     }
 
     private void backButtonPressed() {
-        backButton = (ImageButton) findViewById(R.id.backButtonAddTask);
+        backButton = (ImageButton) findViewById(R.id.backButtonTaskProfile);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

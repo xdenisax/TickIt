@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 
 public class OpenTasks extends Fragment {
     ImageButton addTaskButton;
+    ListView listViewAssumed;
     public OpenTasks() {
     }
 
@@ -22,8 +24,6 @@ public class OpenTasks extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_open_tasks, container, false);
         addTaskButtonPressed(view);
-
-
         return view;
     }
 
@@ -33,6 +33,13 @@ public class OpenTasks extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), AddTask.class));
+            }
+        });
+        addTaskButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startActivity(new Intent(getContext(),TaskProfile.class));
+                return false;
             }
         });
 
