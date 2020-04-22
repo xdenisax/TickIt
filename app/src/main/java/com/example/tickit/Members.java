@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Members extends Fragment {
     ListView listview;
@@ -63,7 +64,7 @@ public class Members extends Fragment {
             @Override
             public void callback(final ArrayList<User> users) {
                 progressBar.setVisibility(View.GONE);
-                listview.setAdapter(new ListViewMemberAdapter(getContext(), R.layout.member_card, users));
+                listview.setAdapter(new ListViewMemberAdapter(getActivity().getApplicationContext(),R.layout.member_card,users));
                 listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

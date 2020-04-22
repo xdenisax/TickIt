@@ -46,11 +46,11 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <Spinner
-        android:id="@+id/spinnerProiectAdaugaTask"
+        android:id="@+id/spinnerProjectAddTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/vivid_cyan"
@@ -60,9 +60,23 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewTitle"
         app:layout_constraintVertical_bias="0.100000024" />
 
+    <Spinner
+        android:id="@+id/spinnerDivisionAddTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/vivid_cyan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerProjectAddTask"
+        app:layout_constraintVertical_bias="0.0" />
+
     <EditText
         android:id="@+id/taskNameEditText"
-        android:hint="@string/nume_task"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -70,6 +84,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/vivid_cyan"
+        android:hint="@string/nume_task"
         android:inputType="text"
         android:textColor="@color/dirty_white"
         android:textColorHint="#46E1EFE6"
@@ -77,11 +92,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerProiectAdaugaTask"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerDivisionAddTask"
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
-        android:id="@+id/taskDescriere"
+        android:id="@+id/taskDescriptionEditText"
         android:hint="@string/descriere"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -101,7 +116,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
-        android:id="@+id/taskResursa"
+        android:id="@+id/taskResourceEditText"
         android:hint="@string/resursa_ex_link_spreadsheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -117,7 +132,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskDescriere"
+        app:layout_constraintTop_toBottomOf="@+id/taskDescriptionEditText"
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
@@ -178,7 +193,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskResursa"
+        app:layout_constraintTop_toBottomOf="@+id/taskResourceEditText"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
