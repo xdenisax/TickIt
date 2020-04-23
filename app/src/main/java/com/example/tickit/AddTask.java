@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.tickit.Callbacks.CallbackArrayListStrings;
 import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackPrjectTask;
 import com.example.tickit.Callbacks.CallbackString;
@@ -19,10 +20,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class AddTask extends AppCompatActivity {
@@ -37,18 +40,90 @@ public class AddTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
 
+        divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
+        spinnerProject = (Spinner) findViewById(R.id.spinnerProjectAddTask);
+        divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
+        taskNameEditText = (EditText) findViewById(R.id.taskNameEditText);
+        taskDescriptionEditText = (EditText) findViewById(R.id.taskDescriptionEditText);
+        taskResourceEditText= (EditText) findViewById(R.id.taskResourceEditText);
+        startDateTaskEditText= (EditText) findViewById(R.id.taskStartDate);
+        stopDateTaskEditText = (EditText) findViewById(R.id.taskStopDate);
+        numberOfMemberEditText = (EditText) findViewById(R.id.taskMaxNoOfVolunteers);
+
         backButtonPressed();
         saveButtonPressed();
         setSpinnersUp();
     }
 
     private void setSpinnersUp() {
-        spinnerProject = (Spinner) findViewById(R.id.spinnerProjectAddTask);
-        divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
-        String projects[] = new String[3]; projects[0]="Alege proiect"; projects[1]="Tap That Job"; projects[2]="Spring IT";
-        spinnerProject.setAdapter(new SpinnerStringAdapter(getApplicationContext(), projects));
+        getUserCurrentMandates(new CallbackArrayListStrings() {
+            @Override
+            public void onCallback(ArrayList<String> strings) {
+                String[] projects =  new String[strings.size()];
+                projects= strings.toArray(new String[0]);
+                spinnerProject.setAdapter(new SpinnerStringAdapter(getApplicationContext(), projects));
+                divisionsSpinner.setAdapter(new SpinnerStringAdapter(getApplicationContext(), getResources().getStringArray(R.array.departments)));
+            }
+        });
+    }
 
-        divisionsSpinner.setAdapter(new SpinnerStringAdapter(getApplicationContext(), getResources().getStringArray(R.array.departments)));
+    private void getUserCurrentMandates(final CallbackArrayListStrings callbackArrayListStrings) {
+        final ArrayList<String> projects = new ArrayList<>();
+        projects.add("Proiect");
+        boolean isBeBC=false;
+        for (Mandate mandate : MainActivity.getLoggedInUser().getMandates()){
+            if(isOnGoing(mandate)  ) {
+                if(mandate.getProjectName().equals("BE-BC")) {
+                    isBeBC=true;
+                    getProjectsName(new CallbackArrayListStrings() {
+                        @Override
+                        public void onCallback(ArrayList<String> strings) {
+                            projects.addAll(strings);
+                            callbackArrayListStrings.onCallback(projects);
+                        }
+                    });
+                }else{
+                    projects.add(mandate.getProjectName());
+                }
+            }
+        }
+        if(!isBeBC) {
+            callbackArrayListStrings.onCallback(projects);
+        }
+    }
+
+    private void getProjectsName(final CallbackArrayListStrings callbackArrayListStrings){
+        (FirebaseFirestore.getInstance())
+                .collection("projects")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            ArrayList<String> projectsNames=new ArrayList<>();
+                            for(QueryDocumentSnapshot doc:task.getResult()){
+                                projectsNames.add(doc.getString("name"));
+                                if(projectsNames.size()==task.getResult().size()){
+                                    callbackArrayListStrings.onCallback(projectsNames);
+                                }
+                            }
+                        }
+                    }
+                });
+
+    }
+
+    private boolean isOnGoing(Mandate mandate) {
+        try {
+            SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd-MM-yyyy");
+            Date endDate = dateFormat2.parse(mandate.getEndDate());
+            return System.currentTimeMillis() < endDate.getTime();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Nu am putut obtine data de sfarsit pentru proiectul "+ mandate.getProjectName(), Toast.LENGTH_LONG).show();
+        }
+        return false;
     }
 
     private void saveButtonPressed() {
@@ -60,9 +135,9 @@ public class AddTask extends AppCompatActivity {
                     @Override
                     public void onCallBack(ProjectTask projectTask) {
                         addProjectTaskInDataBase(projectTask);
+                        finish();
                     }
                 });
-
             }
         });
     }
@@ -71,29 +146,21 @@ public class AddTask extends AppCompatActivity {
         (FirebaseFirestore.getInstance()).collection("openTasks").document(projectTask.getId()).set(projectTask).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia "+projectTask.getDivision()+" in cadrul proiectului "+projectTask.getProject(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia "+projectTask.getDivision()+" in cadrul proiectului "+spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
             }
         });
 
     }
 
     private void buildTaskFromForm(final CallbackPrjectTask callbackPrjectTask) {
-        spinnerProject = (Spinner) findViewById(R.id.spinnerProjectAddTask);
-        divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
-        taskNameEditText = (EditText) findViewById(R.id.taskNameEditText);
-        taskDescriptionEditText = (EditText) findViewById(R.id.taskDescriptionEditText);
-        taskResourceEditText= (EditText) findViewById(R.id.taskResourceEditText);
-        startDateTaskEditText= (EditText) findViewById(R.id.taskStartDate);
-        stopDateTaskEditText = (EditText) findViewById(R.id.taskStopDate);
-        numberOfMemberEditText = (EditText) findViewById(R.id.taskMaxNoOfVolunteers);
-
         if( validation()){
             getDocumentReferenceProject(spinnerProject.getSelectedItem().toString(), new CallbackDocumentReference() {
                 @Override
                 public void callback(DocumentReference documentReference) {
                         callbackPrjectTask.onCallBack(
-                                new ProjectTask( taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (dateFormat.format(new Date().getTime())).replace("/",""),
+                                new ProjectTask( (taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (dateFormat.format(new Date().getTime())).replace("/","")).replace(" ",""),
                                         taskNameEditText.getText().toString(),
+                                        taskDescriptionEditText.getText().toString(),
                                         documentReference,
                                         divisionsSpinner.getSelectedItem().toString(),
                                         getDate(startDateTaskEditText),
@@ -123,15 +190,6 @@ public class AddTask extends AppCompatActivity {
     }
 
     private boolean validation() {
-        spinnerProject = (Spinner) findViewById(R.id.spinnerProjectAddTask);
-        divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
-        taskNameEditText = (EditText) findViewById(R.id.taskNameEditText);
-        taskDescriptionEditText = (EditText) findViewById(R.id.taskDescriptionEditText);
-        taskResourceEditText = (EditText) findViewById(R.id.taskResourceEditText);
-        startDateTaskEditText = (EditText) findViewById(R.id.taskStartDate);
-        stopDateTaskEditText = (EditText) findViewById(R.id.taskStopDate);
-        numberOfMemberEditText = (EditText) findViewById(R.id.taskMaxNoOfVolunteers);
-
         if (spinnerProject.getSelectedItemPosition() == 0) {
             Toast.makeText(getApplicationContext(), "Alegeti proiectul pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
             return false;

@@ -16,11 +16,12 @@ public class ProjectTask {
     private Date stopDate;
     private int numberOfVolunteers;
     private String taskResource;
+    private String taskDescription;
     private ArrayList<AssumedTasksSituation> membersWhoAssumed;
 
     public  ProjectTask(){}
 
-    public ProjectTask(String id, String taskName, DocumentReference project, String division, Date startDate, Date stopDate, int numberOfVolunteers, String taskResource, ArrayList<AssumedTasksSituation> membersWhoAssumed) {
+    public ProjectTask(String id, String taskName, String taskDescription, DocumentReference project, String division, Date startDate, Date stopDate, int numberOfVolunteers, String taskResource, ArrayList<AssumedTasksSituation> membersWhoAssumed) {
         this.id = id;
         this.taskName = taskName;
         this.project = project;
@@ -30,6 +31,7 @@ public class ProjectTask {
         this.taskResource = taskResource;
         this.membersWhoAssumed = membersWhoAssumed;
         this.division=division;
+        this.taskDescription=taskDescription;
     }
 
     public String getDivision() {
@@ -110,6 +112,7 @@ public class ProjectTask {
                 "id='" + id + '\'' +
                 ", division='" + division + '\'' +
                 ", taskName='" + taskName + '\'' +
+                ", description='" + taskDescription + '\'' +
                 ", project=" + project +
                 ", startDate=" + startDate +
                 ", stopDate=" + stopDate +
@@ -117,5 +120,13 @@ public class ProjectTask {
                 ", taskResource='" + taskResource + '\'' +
                 ", membersWhoAssumed=" + membersWhoAssumed +
                 '}';
+    }
+
+    public String getTaskDescription() {
+        return taskDescription;
+    }
+
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
     }
 }

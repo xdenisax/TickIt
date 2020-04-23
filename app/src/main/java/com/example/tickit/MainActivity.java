@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        userGrade=4;
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -66,19 +68,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-         if (requestCode == RC_SIGN_IN) {
-             if (resultCode == RESULT_OK) {
-                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                 try {
-                     GoogleSignInAccount account = task.getResult(ApiException.class);
-                     startActivityIfMemberIsSiSC(FragmentsContainer.class,account);
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == RESULT_OK) {
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    startActivityIfMemberIsSiSC(FragmentsContainer.class,account);
 
-                 } catch (ApiException e) {
-                     Log.d("Google", "Google sign in failed", e);
-                     Toast.makeText(getApplicationContext(), "LogIn failed", Toast.LENGTH_LONG).show();
-                 }
-             }
-         }
+                } catch (ApiException e) {
+                    Log.d("Google", "Google sign in failed", e);
+                    Toast.makeText(getApplicationContext(), "LogIn failed", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 
     @Override
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                                         Intent toClassIntent = new Intent(getApplicationContext(), activity);
                                         toClassIntent.putExtra("userLoggedInFromMainActivity", loggedInUser.getEmail());
                                         startActivity(toClassIntent);
+                                        Toast.makeText(getApplicationContext(), getUserGrade()+"main", Toast.LENGTH_LONG).show();
                                     }
                                 });
                             } else {
@@ -235,10 +238,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void signOut(){
         mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete( Task<Void> task) {
-                    }
-                });
+            @Override
+            public void onComplete( Task<Void> task) {
+            }
+        });
     }
 }
-
