@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -46,12 +47,13 @@ public class OpenTasks extends Fragment {
         textViewNoOpenTasks.setVisibility(View.GONE);
 
 
-        Toast.makeText(getContext(), MainActivity.getUserGrade()+"task", Toast.LENGTH_LONG).show();
         loadOpenTasks();
         addTaskButtonPressed(view);
         setAllowanceOnAddTaskButton(view);
         return view;
     }
+
+
 
     private void setAllowanceOnAddTaskButton( View view) {
         addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
@@ -70,9 +72,16 @@ public class OpenTasks extends Fragment {
     private void loadOpenTasks() {
         getOpenTasksFromDataBase(new CallbackArrayListTasks() {
             @Override
-            public void onCallBack(ArrayList<ProjectTask> tasks) {
+            public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 spinkitOpenTasks.setVisibility(View.GONE);
                 openTasks.setAdapter(new ListViewTasksAdapter(getContext(),R.layout.task_card, tasks ));
+                openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Toast.makeText(getContext(), tasks.get(position).toString(), Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
+                    }
+                });
             }
         });
     }

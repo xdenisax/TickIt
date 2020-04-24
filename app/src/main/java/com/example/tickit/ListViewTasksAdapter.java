@@ -69,7 +69,6 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
                 }
             }
         });
-
     }
 }
 

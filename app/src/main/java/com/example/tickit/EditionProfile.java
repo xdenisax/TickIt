@@ -11,9 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -88,7 +86,7 @@ public class EditionProfile extends AppCompatActivity {
     }
 
     private void strategyButtonPressed() {
-        strategyButton = (Button) findViewById(R.id.editionStrategyButton);
+        strategyButton = (Button) findViewById(R.id.assumptionButton);
         strategyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

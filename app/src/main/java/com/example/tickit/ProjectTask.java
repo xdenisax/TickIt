@@ -1,13 +1,17 @@
 package com.example.tickit;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ProjectTask {
+public class ProjectTask implements Parcelable {
     private String id;
     private String division;
     private String taskName;
@@ -33,6 +37,31 @@ public class ProjectTask {
         this.division=division;
         this.taskDescription=taskDescription;
     }
+
+    protected ProjectTask(Parcel in) {
+        id = in.readString();
+        division = in.readString();
+        taskName = in.readString();
+        numberOfVolunteers = in.readInt();
+        taskResource = in.readString();
+        taskDescription = in.readString();
+        membersWhoAssumed = in.createTypedArrayList(AssumedTasksSituation.CREATOR);
+        startDate = (Date) in.readSerializable();
+        stopDate = (Date) in.readSerializable();
+        project = FirebaseFirestore.getInstance().document((String) in.readSerializable());
+    }
+
+    public static final Creator<ProjectTask> CREATOR = new Creator<ProjectTask>() {
+        @Override
+        public ProjectTask createFromParcel(Parcel in) {
+            return new ProjectTask(in);
+        }
+
+        @Override
+        public ProjectTask[] newArray(int size) {
+            return new ProjectTask[size];
+        }
+    };
 
     public String getDivision() {
         return division;
@@ -128,5 +157,24 @@ public class ProjectTask {
 
     public void setTaskDescription(String taskDescription) {
         this.taskDescription = taskDescription;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(division);
+        dest.writeString(taskName);
+        dest.writeInt(numberOfVolunteers);
+        dest.writeString(taskResource);
+        dest.writeString(taskDescription);
+        dest.writeTypedList(membersWhoAssumed);
+        dest.writeSerializable(startDate);
+        dest.writeSerializable(stopDate);
+        dest.writeSerializable(project.getPath());
     }
 }

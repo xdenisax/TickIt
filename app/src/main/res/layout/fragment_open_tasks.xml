@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/textViewTitleOpenTasks"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView" />
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/spin_kitOpenTasks"
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toTopOf="@+id/assumedTasksListView" />
 
     <TextView
-        android:id="@+id/textViewTitle"
+        android:id="@+id/taskNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -113,7 +113,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle"
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -132,7 +132,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView" />
 
     <TextView
         android:id="@+id/textViewNoOpenTasks"

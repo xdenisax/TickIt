@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -214,8 +215,8 @@ public class AddTask extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Introduceti numarul de voluntari necesari.", Toast.LENGTH_LONG).show();
                                 return false;
                             } else {
-                                if (taskResourceEditText.getText().length() < 5) {
-                                    Toast.makeText(getApplicationContext(), "Introduceti link-ul pentru resursa task-ului.", Toast.LENGTH_LONG).show();
+                                if (taskResourceEditText.getText().length() < 5 || URLUtil.isValidUrl(taskResourceEditText.getText().toString())) {
+                                    Toast.makeText(getApplicationContext(), "Introduceti un URL valid.", Toast.LENGTH_LONG).show();
                                     return false;
                                 }else{
                                     if(divisionsSpinner.getSelectedItemPosition()==0){

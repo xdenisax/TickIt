@@ -26,7 +26,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textViewTitle"
+        android:id="@+id/taskNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -34,7 +34,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="Nume task"
         android:textColor="@color/dirty_white"
         android:textSize="45sp"
         android:textStyle="bold"
@@ -54,13 +53,12 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="Nume proiect"
         android:textColor="@color/vivid_cyan"
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle"
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -71,7 +69,6 @@
         android:layout_marginTop="32dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="01/02/2020"
         android:textColor="@color/dirty_white"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -89,7 +86,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="05/02/2020"
         android:textColor="@color/red"
         android:textStyle="bold"
         android:textSize="25sp"
@@ -121,7 +117,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fontFamily="@font/cormorant"
-            android:text="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."
             android:textColor="@color/dirty_white"
             android:textSize="17sp"
             android:textStyle="italic"
@@ -175,13 +170,13 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/editionStrategyButton"
+        app:layout_constraintBottom_toTopOf="@+id/assumptionButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ResourcesButton" />
 
     <Button
-        android:id="@+id/editionStrategyButton"
+        android:id="@+id/assumptionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -200,6 +195,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ResourcesButton"
         app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/noMemberAssumedYet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/colombia"
+        android:textColor="@color/dirty_white"
+        android:textSize="20sp"
+        android:gravity="center_horizontal"
+        android:text="@string/niciun_membru_nu_si_a_asumat_acest_task_inca"
+        app:layout_constraintBottom_toBottomOf="@+id/assumedTaskMembersListView"
+        app:layout_constraintEnd_toEndOf="@+id/assumedTaskMembersListView"
+        app:layout_constraintStart_toStartOf="@+id/assumedTaskMembersListView"
+        app:layout_constraintTop_toTopOf="@+id/assumedTaskMembersListView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
