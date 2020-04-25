@@ -46,7 +46,6 @@ public class OpenTasks extends Fragment {
         textViewNoOpenTasks = (TextView) view.findViewById(R.id.textViewNoOpenTasks);
         textViewNoOpenTasks.setVisibility(View.GONE);
 
-
         loadOpenTasks();
         addTaskButtonPressed(view);
         setAllowanceOnAddTaskButton(view);
@@ -78,7 +77,6 @@ public class OpenTasks extends Fragment {
                 openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Toast.makeText(getContext(), tasks.get(position).toString(), Toast.LENGTH_LONG).show();
                         startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
                     }
                 });

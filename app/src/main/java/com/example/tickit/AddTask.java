@@ -168,7 +168,7 @@ public class AddTask extends AppCompatActivity {
                                         getDate(stopDateTaskEditText),
                                         Integer.parseInt(numberOfMemberEditText.getText().toString()),
                                         taskResourceEditText.getText().toString(),
-                                        null
+                                        new ArrayList<AssumedTasksSituation>()
                                 )
                         );
                 }

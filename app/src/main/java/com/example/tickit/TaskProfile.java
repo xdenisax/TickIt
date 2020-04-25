@@ -1,5 +1,6 @@
 package com.example.tickit;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ActivityNotFoundException;
@@ -15,11 +16,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tickit.Callbacks.CallbackString;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.apache.log4j.chainsaw.Main;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class TaskProfile extends AppCompatActivity {
 
@@ -43,16 +51,115 @@ public class TaskProfile extends AppCompatActivity {
         noMemberAssumedYetTextView.setVisibility(View.GONE);
         resourcesButton = (Button) findViewById(R.id.ResourcesButton);
         assumptionButton =(Button) findViewById(R.id.assumptionButton);
+        membersWhoAssumedListView = (ListView) findViewById(R.id.assumedTaskMembersListView);
+        manageIntent(getIntent());
 
         backButtonPressed();
-        setActionOnResourcesButton();
-        manageIntent(getIntent());
+        resourcesButtonPressed();
+        assumptionButtonPressed();
+
+    }
+
+    private void assumptionButtonPressed() {
+        assumptionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(validation()){
+                    noMemberAssumedYetTextView.setVisibility(View.GONE);
+                    task.getMembersWhoAssumed().add(new AssumedTasksSituation(MainActivity.getLoggedInUser(),0,false));
+                    membersWhoAssumedListView.setAdapter(new ListViewAssumedTaskSituationAdapter(getApplicationContext(),R.layout.member_card,task.getMembersWhoAssumed()));
+                    if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()){
+                        addTaskToAssumedTasksInDataBase(task);
+                        removeTaskFromOpenTasks(task);
+                    }else{
+                        updateDatabaseEntry(task.getId(), task);
+                    }
+                }
+            }
+        });
+    }
+
+    private void removeTaskFromOpenTasks(ProjectTask task) {
+        (FirebaseFirestore.getInstance())
+                .collection("openTasks")
+                .document(task.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(),"Task-ul a fost trecut cu succes in categoria Task-uri asumate in totalitate." , Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(),"Nu s-a putut trece task-ul in categoria Task-uri asumate." , Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void addTaskToAssumedTasksInDataBase(ProjectTask task) {
+        (FirebaseFirestore.getInstance())
+                .collection("assumedTasks")
+                .document(task.getId())
+                .set(task)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(getApplicationContext(),"S-au ocupat toate locurile disponibile pentru acest task." , Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private boolean validation() {
+        if(MainActivity.getLoggedInUser().getDepartament().equals(task.getDivision())){
+            if(task.getMembersWhoAssumed().size()<task.getNumberOfVolunteers()){
+                if(!hasMemberAssumedAlready(task.getMembersWhoAssumed(),MainActivity.getLoggedInUser())){
+                    return true;
+                }else{
+                    Toast.makeText(getApplicationContext(), "Deja ti-ai asumat acest task.",Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            }else{
+                Toast.makeText(getApplicationContext(), "Nu mai sunt locuri disponibile pentru acest task.", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        }else{
+            Toast.makeText(getApplicationContext(), "Task-ul nu este destinat diviziei tale.",Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+    private boolean hasMemberAssumedAlready(ArrayList<AssumedTasksSituation> membersWhoAssumed, User loggedInUser) {
+        for(AssumedTasksSituation task : membersWhoAssumed){
+            if(task.getUser().getEmail().equals(loggedInUser.getEmail())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateDatabaseEntry(String id, final ProjectTask task) {
+        (FirebaseFirestore.getInstance())
+                .collection("openTasks")
+                .document(id)
+                .update("membersWhoAssumed",task.getMembersWhoAssumed())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), "Ti-ai asumat task-ul" + task.getTaskName(), Toast.LENGTH_LONG).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Nu s-a putut asuma task-ul. Mai asteapta cateva momemnte si reincearca.", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void manageIntent(Intent intent) {
         if(intent.getParcelableExtra("openTaskFromOpenTasks")!= null) {
             task = (ProjectTask) intent.getParcelableExtra("openTaskFromOpenTasks");
-            Toast.makeText(getApplicationContext(), task.toString(), Toast.LENGTH_LONG).show();
             fillWithInfo();
         }
     }
@@ -66,8 +173,10 @@ public class TaskProfile extends AppCompatActivity {
                 startDateTextView.setText(dateFormat.format(task.getStartDate()));
                 deadlineTextView.setText(dateFormat.format(task.getStopDate()));
                 descriptionTextView.setText(task.getTaskDescription());
-                if(task.getMembersWhoAssumed()==null){
+                if(task.getMembersWhoAssumed().size()==0){
                     noMemberAssumedYetTextView.setVisibility(View.VISIBLE);
+                }else{
+                    membersWhoAssumedListView.setAdapter(new ListViewAssumedTaskSituationAdapter(getApplicationContext(),R.layout.member_card,task.getMembersWhoAssumed()));
                 }
             }
         });
@@ -88,7 +197,7 @@ public class TaskProfile extends AppCompatActivity {
         });
     }
 
-    private void setActionOnResourcesButton() {
+    private void resourcesButtonPressed() {
         resourcesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
