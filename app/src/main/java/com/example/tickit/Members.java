@@ -3,6 +3,7 @@ package com.example.tickit;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -64,7 +65,7 @@ public class Members extends Fragment {
             @Override
             public void callback(final ArrayList<User> users) {
                 progressBar.setVisibility(View.GONE);
-                listview.setAdapter(new ListViewMemberAdapter(getActivity().getApplicationContext(),R.layout.member_card,users));
+                listview.setAdapter(new ListViewMemberAdapter(MainActivity.getContext(),R.layout.member_card,users));
                 listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -73,6 +74,7 @@ public class Members extends Fragment {
                 });
             }
         });
+
         return view;
     }
 

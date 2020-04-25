@@ -2,6 +2,7 @@ package com.example.tickit;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private static Context context;
     private static User loggedInUser;
     private static int userGrade=4;
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context=this;
 
         userGrade=4;
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
@@ -242,5 +245,9 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete( Task<Void> task) {
             }
         });
+    }
+
+    public static Context getContext() {
+        return context;
     }
 }

@@ -32,9 +32,10 @@ import java.util.List;
 
 public class OpenTasks extends Fragment {
     ImageButton addTaskButton;
-    ListView openTasks;
-    ProgressBar spinkitOpenTasks;
-    TextView textViewNoOpenTasks;
+    ListView openTasks, assumedTasks;
+    ProgressBar spinkitOpenTasks, spinKitAssumedTasks;
+    ListViewTasksAdapter adapter;
+    TextView textViewNoOpenTasks, textViewNoAssumedTasks;
     public OpenTasks() {
     }
 
@@ -42,51 +43,72 @@ public class OpenTasks extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_open_tasks, container, false);
         openTasks = (ListView) view.findViewById(R.id.openTasksListView);
+        assumedTasks = (ListView) view.findViewById(R.id.assumedTasksListView);
         spinkitOpenTasks = (ProgressBar) view.findViewById(R.id.spin_kitOpenTasks);
+        spinKitAssumedTasks  = (ProgressBar) view.findViewById(R.id.spin_kitAssumedTasks);
         textViewNoOpenTasks = (TextView) view.findViewById(R.id.textViewNoOpenTasks);
+        textViewNoAssumedTasks = (TextView) view.findViewById(R.id.textViewNoAssumedTasks);
         textViewNoOpenTasks.setVisibility(View.GONE);
+        textViewNoAssumedTasks.setVisibility(View.GONE);
 
-        loadOpenTasks();
         addTaskButtonPressed(view);
         setAllowanceOnAddTaskButton(view);
+
+        loadOpenTasks();
+        loadAssumedTasks();
         return view;
     }
 
+    private void loadAssumedTasks() {
+        getTasksFromDataBase("assumedTasks", new CallbackArrayListTasks() {
+            @Override
+            public void onCallBack(final ArrayList<ProjectTask> tasks) {
+                spinKitAssumedTasks.setVisibility(View.GONE);
 
-
-    private void setAllowanceOnAddTaskButton( View view) {
-        addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
-        if(MainActivity.getUserGrade()==4){
-            addTaskButton.setVisibility(View.GONE);
-        }else{
-            addTaskButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(getContext(), AddTask.class));
+                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
+                    assumedTasks.setAdapter(adapter);
+                    assumedTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
+                        }
+                    });
+                if(tasks.size()>0){
+                    textViewNoAssumedTasks.setVisibility(View.INVISIBLE);
+                }else{
+                    textViewNoAssumedTasks.setVisibility(View.VISIBLE);
                 }
-            });
-        }
+            }
+        });
     }
 
     private void loadOpenTasks() {
-        getOpenTasksFromDataBase(new CallbackArrayListTasks() {
+        getTasksFromDataBase("openTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                spinkitOpenTasks.setVisibility(View.GONE);
-                openTasks.setAdapter(new ListViewTasksAdapter(getContext(),R.layout.task_card, tasks ));
+                adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
+                openTasks.setAdapter(adapter);
                 openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
                     }
                 });
+
+                spinkitOpenTasks.setVisibility(View.GONE);
+                if(tasks.size()>0){
+                    textViewNoOpenTasks.setVisibility(View.INVISIBLE);
+                }else{
+                    textViewNoOpenTasks.setVisibility(View.VISIBLE);
+                }
+
             }
         });
     }
 
-    private void getOpenTasksFromDataBase(final CallbackArrayListTasks callbackArrayListTasks){
+    private void getTasksFromDataBase(final String collection, final CallbackArrayListTasks callbackArrayListTasks){
         (FirebaseFirestore.getInstance())
-                .collection("openTasks")
+                .collection(collection)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot task, @Nullable FirebaseFirestoreException e) {
@@ -101,8 +123,7 @@ public class OpenTasks extends Fragment {
                         }
                     }
                 }else{
-                    spinkitOpenTasks.setVisibility(View.GONE);
-                    textViewNoOpenTasks.setVisibility(View.VISIBLE);
+                    callbackArrayListTasks.onCallBack(new ArrayList<ProjectTask>() );
                 }
             }
         });
@@ -126,5 +147,18 @@ public class OpenTasks extends Fragment {
 
     }
 
+    private void setAllowanceOnAddTaskButton( View view) {
+        addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
+        if(MainActivity.getUserGrade()==4){
+            addTaskButton.setVisibility(View.GONE);
+        }else{
+            addTaskButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getContext(), AddTask.class));
+                }
+            });
+        }
+    }
 
 }
