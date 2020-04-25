@@ -69,6 +69,7 @@ public class TaskProfile extends AppCompatActivity {
                     task.getMembersWhoAssumed().add(new AssumedTasksSituation(MainActivity.getLoggedInUser(),0,false));
                     membersWhoAssumedListView.setAdapter(new ListViewAssumedTaskSituationAdapter(getApplicationContext(),R.layout.member_card,task.getMembersWhoAssumed()));
                     if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()){
+                        assumptionButton.setVisibility(View.INVISIBLE);
                         addTaskToAssumedTasksInDataBase(task);
                         removeTaskFromOpenTasks(task);
                     }else{
@@ -177,6 +178,9 @@ public class TaskProfile extends AppCompatActivity {
                     noMemberAssumedYetTextView.setVisibility(View.VISIBLE);
                 }else{
                     membersWhoAssumedListView.setAdapter(new ListViewAssumedTaskSituationAdapter(getApplicationContext(),R.layout.member_card,task.getMembersWhoAssumed()));
+                }
+                if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()){
+                    assumptionButton.setVisibility(View.INVISIBLE);
                 }
             }
         });

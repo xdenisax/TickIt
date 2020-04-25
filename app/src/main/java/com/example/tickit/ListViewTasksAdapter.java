@@ -1,6 +1,7 @@
 package com.example.tickit;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +55,17 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
                 projectName.setText(value);
             }
         });
+
+        if(task.getStopDate().getTime() < System.currentTimeMillis()){
+            setColorGrey(view);
+        }
         return view;
+    }
+
+    private void setColorGrey(View view) {
+        ((TextView) view.findViewById(R.id.textViewTaskNameCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
+        ((TextView) view.findViewById(R.id.textViewProjectNameCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
+        ((TextView) view.findViewById(R.id.textViewDeadlineCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
     }
 
     private void getProjName(DocumentReference docRef, final CallbackString callback) {
