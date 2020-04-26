@@ -37,6 +37,7 @@
     <string name="resurse">Resurse</string>
     <string name="imi_asum">Imi asum</string>
     <string name="niciun_membru_nu_si_a_asumat_acest_task_inca">Niciun membru nu si-a asumat acest task inca.</string>
+    <string name="slash">/</string>
 
     <string-array name="departments">
         <item>Departament</item>

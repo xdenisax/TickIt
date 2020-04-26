@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
+    implementation 'me.itangqi.waveloadingview:library:0.3.5'
 
     implementation 'net.sourceforge.jexcelapi:jxl:2.6.12'
     implementation 'com.loopj.android:android-async-http:1.4.10'

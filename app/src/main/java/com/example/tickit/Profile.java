@@ -75,6 +75,10 @@ public class Profile extends AppCompatActivity {
             fillWithInfo((User) intent.getParcelableExtra("memberFromEditionProfile"),false);
             user = (User) intent.getParcelableExtra("memberFromEditionProfile");
         }
+        if(intent.getParcelableExtra("memberFromTaskProfile")!=null){
+            fillWithInfo((User) intent.getParcelableExtra("memberFromTaskProfile"),false);
+            user = (User) intent.getParcelableExtra("memberFromTaskProfile");
+        }
     }
 
     private void fillWithInfo(User user, boolean isPersonalProfile) {

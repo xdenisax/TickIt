@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -57,6 +58,28 @@ public class TaskProfile extends AppCompatActivity {
         backButtonPressed();
         resourcesButtonPressed();
         assumptionButtonPressed();
+        setActionsOnMembersListView();
+
+    }
+
+    private void setActionsOnMembersListView() {
+        membersWhoAssumedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(task.getMembersWhoAssumed().get(position)!=null){
+                    startActivity(new Intent(getApplicationContext(),Profile.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position).getUser()));
+                }
+            }
+        });
+        membersWhoAssumedListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(task.getMembersWhoAssumed().get(position)!=null){
+                    startActivity(new Intent(getApplicationContext(),MembersProgressPopUp.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position)));
+                }
+                return false;
+            }
+        });
 
     }
 

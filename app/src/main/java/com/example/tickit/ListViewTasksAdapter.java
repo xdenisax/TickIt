@@ -43,8 +43,10 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
         TextView taskName = (TextView) view.findViewById(R.id.textViewTaskNameCard);
         final TextView projectName = (TextView) view.findViewById(R.id.textViewProjectNameCard);
         TextView deadline = (TextView) view.findViewById(R.id.textViewDeadlineCard);
+        TextView assumptionStatusTextView = (TextView) view.findViewById(R.id.assumptionStatusTextView);
 
         taskName.setText(task.getTaskName());
+        assumptionStatusTextView.setText(task.getMembersWhoAssumed().size()+"/" + task.getNumberOfVolunteers() + " voluntari");
 
         String date = dateFormat.format(task.getStopDate());
         deadline.setText(date);

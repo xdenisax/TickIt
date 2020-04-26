@@ -14,7 +14,10 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TaskProfile"></activity>
+        <activity
+            android:name=".MembersProgressPopUp"
+            android:theme="@style/AppTheme.PopUpTheme" ></activity>
+        <activity android:name=".TaskProfile" />
         <activity android:name=".AddTask" />
         <activity
             android:name=".AddMemberChoicePopUp"

@@ -35,13 +35,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/colombia"
-                    android:text="Contactare"
                     android:textColor="@color/dirty_white"
                     android:textSize="30sp"/>
 
                 <TextView
                     android:id="@+id/textViewProjectNameCard"
-                    android:text="Tap That Job"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/colombia"
@@ -50,8 +48,16 @@
 
             </LinearLayout>
             <TextView
+                android:id="@+id/assumptionStatusTextView"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/colombia"
+                android:textColor="@color/brownish_yellow"
+                android:textSize="22sp" />
+            <TextView
                 android:id="@+id/textViewDeadlineCard"
-                android:text="20/02/2020"
+                android:gravity="end"
                 android:padding="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
