@@ -31,11 +31,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TaskProfile extends AppCompatActivity {
-
+    int REQUEST_CODE_EDIT_TASK=5;
     ImageButton backButton;
     ProjectTask task;
     TextView taskNameTextView, projectNameTextView,startDateTextView, deadlineTextView, descriptionTextView, noMemberAssumedYetTextView;
-    Button resourcesButton, assumptionButton;
+    Button resourcesButton, assumptionButton, editButton, deleteButton;
     ListView membersWhoAssumedListView;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -52,6 +52,8 @@ public class TaskProfile extends AppCompatActivity {
         noMemberAssumedYetTextView.setVisibility(View.GONE);
         resourcesButton = (Button) findViewById(R.id.ResourcesButton);
         assumptionButton =(Button) findViewById(R.id.assumptionButton);
+        editButton =(Button) findViewById(R.id.editTaskButton);
+        deleteButton =(Button) findViewById(R.id.deleteTaskButton);
         membersWhoAssumedListView = (ListView) findViewById(R.id.assumedTaskMembersListView);
         manageIntent(getIntent());
 
@@ -60,6 +62,77 @@ public class TaskProfile extends AppCompatActivity {
         assumptionButtonPressed();
         setActionsOnMembersListView();
 
+        setAllowanceOnViews();
+    }
+
+    private void setAllowanceOnViews() {
+        if(MainActivity.getUserGrade()<=3){
+            membersWhoAssumedListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(task.getMembersWhoAssumed().get(position)!=null){
+                        startActivity(new Intent(getApplicationContext(),MembersProgressPopUp.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position)));
+                    }
+                    return true;
+                }
+            });
+            deleteButton.setVisibility(View.VISIBLE);
+            editButton.setVisibility(View.VISIBLE);
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteTaskFromDataBase();
+                    finish();
+                }
+            });
+            editButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivityForResult(new Intent(getApplicationContext(),AddTask.class).putExtra("taskFromTaskProfile",task), REQUEST_CODE_EDIT_TASK);
+                }
+            });
+
+        }else{
+            deleteButton.setVisibility(View.INVISIBLE);
+            editButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void deleteTaskFromDataBase() {
+        (FirebaseFirestore.getInstance())
+                .collection("openTasks")
+                .document(task.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), "Task eliminat cu succes.",Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Task-ul nu se afla in openT",Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        (FirebaseFirestore.getInstance())
+                .collection("assumedTasks")
+                .document(task.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getApplicationContext(), "Task eliminat cu succes.",Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Task-ul nu se afla in assumedt",Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void setActionsOnMembersListView() {
@@ -71,16 +144,6 @@ public class TaskProfile extends AppCompatActivity {
                 }
             }
         });
-        membersWhoAssumedListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if(task.getMembersWhoAssumed().get(position)!=null){
-                    startActivity(new Intent(getApplicationContext(),MembersProgressPopUp.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position)));
-                }
-                return false;
-            }
-        });
-
     }
 
     private void assumptionButtonPressed() {

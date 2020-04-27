@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
@@ -39,9 +39,8 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backButtonTaskProfile"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -49,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
@@ -57,8 +56,9 @@
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/taskDescriptionTextView"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -95,59 +95,41 @@
         app:layout_constraintTop_toBottomOf="@+id/projectNameTextViewTaskProfile"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ScrollView
-        android:id="@+id/scrollViewTaskDescription"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="32dp"
+    <TextView
+        android:id="@+id/taskDescriptionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/square_background"
-        android:orientation="vertical"
-        android:padding="7dp"
-        app:layout_constraintBottom_toTopOf="@+id/ResourcesButton"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/cormorant"
+        android:textColor="@color/dirty_white"
+        android:textSize="17sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewArrow">
-
-        <TextView
-            android:id="@+id/taskDescriptionTextView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/cormorant"
-            android:textColor="@color/dirty_white"
-            android:textSize="17sp"
-            android:textStyle="italic"
-            app:layout_constraintBottom_toBottomOf="@+id/scrollViewProjectDescription"
-            app:layout_constraintEnd_toEndOf="@+id/scrollViewProjectDescription"
-            app:layout_constraintStart_toStartOf="@+id/scrollViewProjectDescription"
-            app:layout_constraintTop_toTopOf="@+id/scrollViewProjectDescription" />
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/imageViewArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/taskStartDateTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/projectNameTextViewTaskProfile"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintTop_toTopOf="@+id/taskStopDateTextView"
         app:srcCompat="@drawable/ic_arrow_forward_black_24dp" />
 
     <Button
         android:id="@+id/ResourcesButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/square_background"
         android:fontFamily="@font/colombia"
@@ -157,10 +139,8 @@
         android:textColor="@color/dirty_white"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/scrollViewTaskDescription"
-        app:layout_constraintStart_toStartOf="@+id/scrollViewTaskDescription"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewArrow"
-        app:layout_constraintVertical_bias="0.31" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ListView
         android:id="@+id/assumedTaskMembersListView"
@@ -172,8 +152,9 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/assumptionButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ResourcesButton" />
+        app:layout_constraintTop_toBottomOf="@+id/taskStartDateTextView" />
 
     <Button
         android:id="@+id/assumptionButton"
@@ -212,5 +193,48 @@
         app:layout_constraintStart_toStartOf="@+id/assumedTaskMembersListView"
         app:layout_constraintTop_toTopOf="@+id/assumedTaskMembersListView" />
 
+    <Button
+        android:id="@+id/deleteTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/square_background"
+        android:fontFamily="@font/colombia"
+        android:foreground="@drawable/ripple_square_effect_button"
+        android:text="@string/sterge"
+        android:textAllCaps="false"
+        android:textColor="@color/dirty_white"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ResourcesButton"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/editTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/square_background"
+        android:fontFamily="@font/colombia"
+        android:foreground="@drawable/ripple_square_effect_button"
+        android:text="@string/editeaza"
+        android:textAllCaps="false"
+        android:textColor="@color/dirty_white"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ResourcesButton"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
