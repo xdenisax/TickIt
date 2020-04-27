@@ -168,7 +168,7 @@ public class Profile extends AppCompatActivity {
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (user.getMandates().get(0).getProjectName() == null || user.getMandates().get(0).getPosition() == null) {
+                if (user.getMandates().get(0).getProjectName() == null || user.getMandates().get(0).getPosition() == null || user.getMandates()==null) {
                     Toast.makeText(getApplicationContext(), "Utilizatorul nu are nicio activitate pana in acest moment.", Toast.LENGTH_LONG).show();
                 } else {
                     startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile", user.getMandates()));

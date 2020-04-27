@@ -1,6 +1,7 @@
 package com.example.tickit;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ActivityNotFoundException;
@@ -31,13 +32,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TaskProfile extends AppCompatActivity {
-    int REQUEST_CODE_EDIT_TASK=5;
     ImageButton backButton;
     ProjectTask task;
     TextView taskNameTextView, projectNameTextView,startDateTextView, deadlineTextView, descriptionTextView, noMemberAssumedYetTextView;
     Button resourcesButton, assumptionButton, editButton, deleteButton;
     ListView membersWhoAssumedListView;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    int REQUEST_CODE_EDIT_TASK =5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,14 @@ public class TaskProfile extends AppCompatActivity {
         setAllowanceOnViews();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE_EDIT_TASK){
+            finish();
+        }
+    }
+
     private void setAllowanceOnViews() {
         if(MainActivity.getUserGrade()<=3){
             membersWhoAssumedListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -76,23 +85,26 @@ public class TaskProfile extends AppCompatActivity {
                     return true;
                 }
             });
-            deleteButton.setVisibility(View.VISIBLE);
-            editButton.setVisibility(View.VISIBLE);
-
-            deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deleteTaskFromDataBase();
-                    finish();
-                }
-            });
-            editButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivityForResult(new Intent(getApplicationContext(),AddTask.class).putExtra("taskFromTaskProfile",task), REQUEST_CODE_EDIT_TASK);
-                }
-            });
-
+            if(task.getDivision().equals(MainActivity.getLoggedInUser().getDepartament())){
+                deleteButton.setVisibility(View.VISIBLE);
+                editButton.setVisibility(View.VISIBLE);
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteTaskFromDataBase();
+                        finish();
+                    }
+                });
+                editButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivityForResult(new Intent(getApplicationContext(),AddTask.class).putExtra("taskFromTaskProfile",task), REQUEST_CODE_EDIT_TASK);
+                    }
+                });
+            }else {
+                deleteButton.setVisibility(View.INVISIBLE);
+                editButton.setVisibility(View.INVISIBLE);
+            }
         }else{
             deleteButton.setVisibility(View.INVISIBLE);
             editButton.setVisibility(View.INVISIBLE);
@@ -109,12 +121,6 @@ public class TaskProfile extends AppCompatActivity {
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(getApplicationContext(), "Task eliminat cu succes.",Toast.LENGTH_LONG).show();
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "Task-ul nu se afla in openT",Toast.LENGTH_LONG).show();
-                    }
                 });
 
         (FirebaseFirestore.getInstance())
@@ -125,12 +131,6 @@ public class TaskProfile extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(getApplicationContext(), "Task eliminat cu succes.",Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "Task-ul nu se afla in assumedt",Toast.LENGTH_LONG).show();
                     }
                 });
     }

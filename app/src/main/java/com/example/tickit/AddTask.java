@@ -3,13 +3,16 @@ package com.example.tickit;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tickit.Callbacks.CallbackArrayListStrings;
@@ -17,6 +20,7 @@ import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackPrjectTask;
 import com.example.tickit.Callbacks.CallbackString;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,12 +39,16 @@ public class AddTask extends AppCompatActivity {
     Button saveButton;
     Spinner spinnerProject, divisionsSpinner;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    ProjectTask task;
+    TextView title;
+    int isEditMode =0;
+    int REQUEST_CODE_EDIT_TASK =5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
-
+        title = (TextView) findViewById(R.id.taskNameTextView);
         divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
         spinnerProject = (Spinner) findViewById(R.id.spinnerProjectAddTask);
         divisionsSpinner = (Spinner) findViewById(R.id.spinnerDivisionAddTask);
@@ -54,6 +62,33 @@ public class AddTask extends AppCompatActivity {
         backButtonPressed();
         saveButtonPressed();
         setSpinnersUp();
+        manageIntent(getIntent());
+    }
+
+    private void manageIntent(Intent intent) {
+        if(intent.getParcelableExtra("taskFromTaskProfile")!= null) {
+            task = (ProjectTask) intent.getParcelableExtra("taskFromTaskProfile");
+            fillWithInfo();
+            isEditMode =1;
+        }
+    }
+
+    private void fillWithInfo() {
+        title.setTextSize(35);
+        getProjectName(task.getProject(), new CallbackString() {
+            @Override
+            public void onCallBack(String value) {
+                title.setText("Editare task " + task.getTaskName() + " pe proiectul " + value);
+            }
+        });
+        divisionsSpinner.setVisibility(View.GONE);
+        spinnerProject.setVisibility(View.GONE);
+        taskNameEditText.setText(task.getTaskName());
+        taskDescriptionEditText.setText(task.getTaskDescription());
+        taskResourceEditText.setText(task.getTaskResource());
+        startDateTaskEditText.setText(dateFormat.format(task.getStartDate()));
+        stopDateTaskEditText.setText(dateFormat.format(task.getStopDate()));
+        numberOfMemberEditText.setText(String.valueOf(task.getNumberOfVolunteers()));
     }
 
     private void setSpinnersUp() {
@@ -132,34 +167,47 @@ public class AddTask extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                buildTaskFromForm(new CallbackPrjectTask() {
+                    buildTaskFromForm(isEditMode, new CallbackPrjectTask() {
+                        @Override
+                        public void onCallBack(ProjectTask projectTask) {
+                            if(task!=null){
+                                if(task.getNumberOfVolunteers()==task.getMembersWhoAssumed().size()) {
+                                    addProjectTaskInDataBase("assumedTasks", projectTask);
+                                }else{
+                                    addProjectTaskInDataBase("openTasks", projectTask);
+                                }
+                                setResult(RESULT_OK);
+                            }else {
+                                addProjectTaskInDataBase("openTasks", projectTask);
+                            }
+                            finish();
+                        }
+                    });
+            }
+        });
+    }
+
+    private void addProjectTaskInDataBase(String collection, final ProjectTask projectTask) {
+        (FirebaseFirestore.getInstance())
+                .collection(collection)
+                .document(projectTask.getId())
+                .set(projectTask)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onCallBack(ProjectTask projectTask) {
-                        addProjectTaskInDataBase(projectTask);
-                        finish();
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
                     }
                 });
-            }
-        });
     }
 
-    private void addProjectTaskInDataBase(final ProjectTask projectTask) {
-        (FirebaseFirestore.getInstance()).collection("openTasks").document(projectTask.getId()).set(projectTask).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia "+projectTask.getDivision()+" in cadrul proiectului "+spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
-            }
-        });
-
-    }
-
-    private void buildTaskFromForm(final CallbackPrjectTask callbackPrjectTask) {
+    private void buildTaskFromForm(final int flag, final CallbackPrjectTask callbackPrjectTask) {
         if( validation()){
-            getDocumentReferenceProject(spinnerProject.getSelectedItem().toString(), new CallbackDocumentReference() {
-                @Override
-                public void callback(DocumentReference documentReference) {
+            if(flag == 0){
+                getDocumentReferenceProject(spinnerProject.getSelectedItem().toString(), new CallbackDocumentReference() {
+                    @Override
+                    public void callback(DocumentReference documentReference) {
                         callbackPrjectTask.onCallBack(
-                                new ProjectTask( (taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (dateFormat.format(new Date().getTime())).replace("/","")).replace(" ",""),
+                                new ProjectTask((taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (dateFormat.format(new Date().getTime())).replace("/", "")).replace(" ", ""),
                                         taskNameEditText.getText().toString(),
                                         taskDescriptionEditText.getText().toString(),
                                         documentReference,
@@ -171,10 +219,25 @@ public class AddTask extends AppCompatActivity {
                                         new ArrayList<AssumedTasksSituation>()
                                 )
                         );
-                }
-            });
+                    }
+                });
+            }
+            if(flag==1) {
+                callbackPrjectTask.onCallBack(
+                        new ProjectTask(task.getId(),
+                                taskNameEditText.getText().toString(),
+                                taskDescriptionEditText.getText().toString(),
+                                task.getProject(),
+                                task.getDivision(),
+                                getDate(startDateTaskEditText),
+                                getDate(stopDateTaskEditText),
+                                Integer.parseInt(numberOfMemberEditText.getText().toString()),
+                                taskResourceEditText.getText().toString(),
+                                task.getMembersWhoAssumed()
+                        )
+                );
+            }
         }
-
     }
 
     private void getDocumentReferenceProject(String projectName, final CallbackDocumentReference callbackDocumentReference) {
@@ -190,40 +253,59 @@ public class AddTask extends AppCompatActivity {
         });
     }
 
+    private void getProjectName(DocumentReference docRef, final CallbackString callback) {
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    String value = documentSnapshot.getString("name");
+                    callback.onCallBack(value);
+                } else {
+                    Log.d("checkRef", "No such document");
+                }
+            }
+        });
+    }
+
     private boolean validation() {
-        if (spinnerProject.getSelectedItemPosition() == 0) {
+        if (spinnerProject.getSelectedItemPosition() == 0 && isEditMode ==0) {
             Toast.makeText(getApplicationContext(), "Alegeti proiectul pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
             return false;
         } else {
-            if (taskNameEditText.getText().length() < 3) {
-                Toast.makeText(getApplicationContext(), "Numele task-ului trebuie sa aiba mai mult de 3 caractere.", Toast.LENGTH_LONG).show();
+            if(!divisionsSpinner.getSelectedItem().equals(MainActivity.getLoggedInUser().getDepartament())&& isEditMode ==0){
+                Toast.makeText(getApplicationContext(), "Divizia aleasa nu corespunde cu divizia ta.", Toast.LENGTH_LONG).show();
                 return false;
-            } else {
-                if (taskDescriptionEditText.getText().length() < 10) {
-                    Toast.makeText(getApplicationContext(), "Descrierea task-ului trebuie sa aiba mai mult de 10 caractere.", Toast.LENGTH_LONG).show();
+            }else{
+                if (taskNameEditText.getText().length() < 3) {
+                    Toast.makeText(getApplicationContext(), "Numele task-ului trebuie sa aiba mai mult de 3 caractere.", Toast.LENGTH_LONG).show();
                     return false;
                 } else {
-                    if (!dateValidation(startDateTaskEditText) || !dateValidation(stopDateTaskEditText)) {
-                        Toast.makeText(getApplicationContext(), "Data nu a fost introdusa in formatul corect: dd/mm/yyyy.", Toast.LENGTH_LONG).show();
+                    if (taskDescriptionEditText.getText().length() < 10) {
+                        Toast.makeText(getApplicationContext(), "Descrierea task-ului trebuie sa aiba mai mult de 10 caractere.", Toast.LENGTH_LONG).show();
                         return false;
                     } else {
-                        if (System.currentTimeMillis() > getDate(stopDateTaskEditText).getTime() || getDate(startDateTaskEditText).getTime() > getDate(stopDateTaskEditText).getTime()) {
-                            Toast.makeText(getApplicationContext(), "Data de inceput sau cea de sfarsit nu sunt corect alese.", Toast.LENGTH_LONG).show();
+                        if (!dateValidation(startDateTaskEditText) || !dateValidation(stopDateTaskEditText)) {
+                            Toast.makeText(getApplicationContext(), "Data nu a fost introdusa in formatul corect: dd/mm/yyyy.", Toast.LENGTH_LONG).show();
                             return false;
                         } else {
-                            if (numberOfMemberEditText.getText().length() < 1) {
-                                Toast.makeText(getApplicationContext(), "Introduceti numarul de voluntari necesari.", Toast.LENGTH_LONG).show();
+                            if (System.currentTimeMillis() > getDate(stopDateTaskEditText).getTime() || getDate(startDateTaskEditText).getTime() > getDate(stopDateTaskEditText).getTime()) {
+                                Toast.makeText(getApplicationContext(), "Data de inceput sau cea de sfarsit nu sunt corect alese.", Toast.LENGTH_LONG).show();
                                 return false;
                             } else {
-                                if (taskResourceEditText.getText().length() < 5 || URLUtil.isValidUrl(taskResourceEditText.getText().toString())) {
-                                    Toast.makeText(getApplicationContext(), "Introduceti un URL valid.", Toast.LENGTH_LONG).show();
+                                if (numberOfMemberEditText.getText().length() < 1) {
+                                    Toast.makeText(getApplicationContext(), "Introduceti numarul de voluntari necesari.", Toast.LENGTH_LONG).show();
                                     return false;
-                                }else{
-                                    if(divisionsSpinner.getSelectedItemPosition()==0){
-                                        Toast.makeText(getApplicationContext(), "Alegeti divizia pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    if (taskResourceEditText.getText().length() < 5 || URLUtil.isValidUrl(taskResourceEditText.getText().toString())) {
+                                        Toast.makeText(getApplicationContext(), "Introduceti un URL valid.", Toast.LENGTH_LONG).show();
                                         return false;
                                     }else{
-                                        return true;
+                                        if(divisionsSpinner.getSelectedItemPosition()==0&& isEditMode ==0){
+                                            Toast.makeText(getApplicationContext(), "Alegeti divizia pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
+                                            return false;
+                                        }else{
+                                            return true;
+                                        }
                                     }
                                 }
                             }
@@ -231,6 +313,7 @@ public class AddTask extends AppCompatActivity {
                     }
                 }
             }
+
         }
     }
 
