@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
+import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -62,7 +63,7 @@ public class OpenTasks extends Fragment {
     }
 
     private void loadAssumedTasks() {
-        getTasksFromDataBase("assumedTasks", new CallbackArrayListTasks() {
+        ProjectTasksDatabaseCalls.getTasks("assumedTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 spinKitAssumedTasks.setVisibility(View.GONE);
@@ -85,7 +86,7 @@ public class OpenTasks extends Fragment {
     }
 
     private void loadOpenTasks() {
-        getTasksFromDataBase("openTasks", new CallbackArrayListTasks() {
+        ProjectTasksDatabaseCalls.getTasks("openTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
@@ -104,30 +105,6 @@ public class OpenTasks extends Fragment {
                     textViewNoOpenTasks.setVisibility(View.VISIBLE);
                 }
 
-            }
-        });
-    }
-
-    private void getTasksFromDataBase(final String collection, final CallbackArrayListTasks callbackArrayListTasks){
-        (FirebaseFirestore.getInstance())
-                .collection(collection)
-                .orderBy("stopDate", Query.Direction.DESCENDING )
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot task, @Nullable FirebaseFirestoreException e) {
-                if(!task.isEmpty()){
-                    final List<DocumentSnapshot> list = task.getDocuments();
-                    ArrayList<ProjectTask> tasks = new ArrayList<>();
-                    for(DocumentSnapshot documentSnapshot : list){
-                        ProjectTask newTask = documentSnapshot.toObject(ProjectTask.class);
-                        tasks.add(newTask);
-                        if(tasks.size()==list.size()){
-                            callbackArrayListTasks.onCallBack(tasks);
-                        }
-                    }
-                }else{
-                    callbackArrayListTasks.onCallBack(new ArrayList<ProjectTask>() );
-                }
             }
         });
     }
