@@ -29,7 +29,7 @@ public class Profile extends AppCompatActivity {
 
     TextView name;
     TextView phoneNumber;
-    TextView email;
+    TextView email, department;
     ImageView profilePicture;
     ImageButton backButton, editPhoneNumberButton;
     Button historyButton;
@@ -86,6 +86,7 @@ public class Profile extends AppCompatActivity {
         phoneNumber= (TextView) findViewById(R.id.phoneNumberTextView);
         email = (TextView) findViewById(R.id.emailTextView);
         profilePicture= (ImageView) findViewById(R.id.profilePicture);
+        department= (TextView) findViewById(R.id.departmentTextView);
 
         if(user.getLastName()!=null || user.getFirstName()!= null){
             Glide.with(getApplicationContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilePicture);
@@ -98,7 +99,7 @@ public class Profile extends AppCompatActivity {
             }
             name.setText(user.getEmail().substring(0,user.getEmail().length()-10));
         }
-
+        department.setText(user.getDepartament());
         email.setText(user.getEmail());
         historyButtonPressed(user);
         if(user.getPhoneNumber() == null){
