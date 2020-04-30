@@ -17,7 +17,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,15 +37,31 @@ public class TaskProfile extends AppCompatActivity {
     ImageButton backButton;
     ProjectTask task;
     TextView taskNameTextView, projectNameTextView,startDateTextView, deadlineTextView, descriptionTextView, noMemberAssumedYetTextView;
-    Button resourcesButton, assumptionButton, editButton, deleteButton;
+    Button resourcesButton, assumptionButton, editButton, deleteButton,progressButton;
     ListView membersWhoAssumedListView;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-    int REQUEST_CODE_EDIT_TASK =5;
+    final int REQUEST_CODE_EDIT_TASK =5;
+    final int REQUEST_CODE_EDIT_PROGRESS =6;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_profile);
+
+        assignViews();
+        manageIntent(getIntent());
+        backButtonPressed();
+        resourcesButtonPressed();
+        assumptionButtonPressed();
+        progressButtonPressed();
+        setActionsOnMembersListView();
+        setAllowanceOnViews();
+    }
+
+
+
+    private void assignViews() {
         taskNameTextView = (TextView) findViewById(R.id.taskNameTextView);
         projectNameTextView= (TextView) findViewById(R.id.projectNameTextViewTaskProfile);
         startDateTextView= (TextView) findViewById(R.id.taskStartDateTextView);
@@ -53,17 +71,10 @@ public class TaskProfile extends AppCompatActivity {
         noMemberAssumedYetTextView.setVisibility(View.GONE);
         resourcesButton = (Button) findViewById(R.id.ResourcesButton);
         assumptionButton =(Button) findViewById(R.id.assumptionButton);
+        progressButton =(Button) findViewById(R.id.progressButton);
         editButton =(Button) findViewById(R.id.editTaskButton);
         deleteButton =(Button) findViewById(R.id.deleteTaskButton);
         membersWhoAssumedListView = (ListView) findViewById(R.id.assumedTaskMembersListView);
-        manageIntent(getIntent());
-
-        backButtonPressed();
-        resourcesButtonPressed();
-        assumptionButtonPressed();
-        setActionsOnMembersListView();
-
-        setAllowanceOnViews();
     }
 
     @Override
@@ -71,6 +82,21 @@ public class TaskProfile extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==REQUEST_CODE_EDIT_TASK){
             finish();
+        }
+        if(requestCode==REQUEST_CODE_EDIT_PROGRESS){
+            task.getMembersWhoAssumed().get(getPersonalProgressIndex()).setProgress(data.getIntExtra("updatedProgress",0));
+            ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
+                @Override
+                public void callback(Boolean bool) {
+                    Toast.makeText(getApplicationContext(), bool+"openTasks",Toast.LENGTH_LONG).show();
+                }
+            });
+            ProjectTasksDatabaseCalls.updateProgressInDataBase("assumedTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
+                @Override
+                public void callback(Boolean bool) {
+                    Toast.makeText(getApplicationContext(), bool+"assumedTasks",Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 
@@ -140,7 +166,9 @@ public class TaskProfile extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(task.getMembersWhoAssumed().get(position)!=null){
-                    startActivity(new Intent(getApplicationContext(),Profile.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position).getUser()));
+                    if(!task.getMembersWhoAssumed().get(position).getUser().getEmail().equals(MainActivity.getLoggedInUser().getEmail())){
+                        startActivity(new Intent(getApplicationContext(),Profile.class).putExtra("memberFromTaskProfile",task.getMembersWhoAssumed().get(position).getUser()));
+                    }
                 }
             }
         });
@@ -247,7 +275,15 @@ public class TaskProfile extends AppCompatActivity {
     private void manageIntent(Intent intent) {
         if(intent.getParcelableExtra("openTaskFromOpenTasks")!= null) {
             task = (ProjectTask) intent.getParcelableExtra("openTaskFromOpenTasks");
+            progressButton.setVisibility(View.GONE);
             fillWithInfo();
+        }
+        if(intent.getParcelableExtra("taskFromMyTasks")!= null) {
+            task = (ProjectTask) intent.getParcelableExtra("taskFromMyTasks");
+            fillWithInfo();
+            assumptionButton.setVisibility(View.GONE);
+            editButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
         }
     }
 
@@ -285,6 +321,28 @@ public class TaskProfile extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void progressButtonPressed() {
+        progressButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(getPersonalProgressIndex()!= -1){
+                    startActivityForResult(new Intent(getApplicationContext(), MembersProgressPopUp.class).putExtra("personalProgressFromTaskProfile", task.getMembersWhoAssumed().get(getPersonalProgressIndex())), REQUEST_CODE_EDIT_PROGRESS);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Eroare de gasire.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private int getPersonalProgressIndex() {
+        for(int i=0;i< task.getMembersWhoAssumed().size();i++){
+            if(MainActivity.getLoggedInUser().getEmail().equals(task.getMembersWhoAssumed().get(i).getUser().getEmail())){
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void resourcesButtonPressed() {

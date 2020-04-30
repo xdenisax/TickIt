@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.github.ybq.android.spinkit.style.Wave;
 
@@ -13,9 +16,10 @@ import me.itangqi.waveloadingview.WaveLoadingView;
 
 public class MembersProgressPopUp extends AppCompatActivity {
 
-    SeekBar progressSeekBar;
-    WaveLoadingView progressWave;
-    AssumedTasksSituation task;
+    private SeekBar progressSeekBar;
+    private WaveLoadingView progressWave;
+    private AssumedTasksSituation task;
+    private Button saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,20 +27,30 @@ public class MembersProgressPopUp extends AppCompatActivity {
         setContentView(R.layout.activity_members_progress_pop_up);
         progressSeekBar = (SeekBar) findViewById(R.id.memberProgressSeekBar);
         progressWave = (WaveLoadingView) findViewById(R.id.memberProgressWave);
+        saveButton = (Button) findViewById(R.id.saveProgressButton);
 
         manageIntent(getIntent());
-       // setActionsOnProgressBar();
+        setActionsOnProgressBar();
+        saveProgressButtonPressed();
         setMetrics();
     }
+
+
     private void manageIntent(Intent intent) {
         if(intent.getParcelableExtra("memberFromTaskProfile")!= null) {
             fillWithInfo((AssumedTasksSituation) intent.getParcelableExtra("memberFromTaskProfile"));
             task = (AssumedTasksSituation) intent.getParcelableExtra("memberFromTaskProfile");
+            progressSeekBar.setEnabled(false);
         }
+        if(intent.getParcelableExtra("personalProgressFromTaskProfile")!= null) {
+            fillWithInfo((AssumedTasksSituation) intent.getParcelableExtra("personalProgressFromTaskProfile"));
+            task = (AssumedTasksSituation) intent.getParcelableExtra("personalProgressFromTaskProfile");
+            progressSeekBar.setEnabled(true);
+        }
+
     }
 
     private void fillWithInfo(AssumedTasksSituation memberFromTaskProfile) {
-        progressSeekBar.setEnabled(false);
         progressSeekBar.setProgress(memberFromTaskProfile.getProgress());
         progressWave.setProgressValue(memberFromTaskProfile.getProgress()*50);
         if(memberFromTaskProfile.getProgress()==0){
@@ -77,6 +91,17 @@ public class MembersProgressPopUp extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+    }
+
+    private void saveProgressButtonPressed() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                task.setProgress(progressSeekBar.getProgress());
+                setResult(RESULT_OK, new Intent().putExtra("updatedProgress", progressSeekBar.getProgress()));
+                finish();
             }
         });
     }

@@ -1,14 +1,17 @@
 package com.example.tickit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -34,8 +37,18 @@ public class MyTasks extends Fragment {
 
         noAssumedTasks.setVisibility(View.GONE);
         loadListView();
+        setActionOnListView();
 
         return view;
+    }
+
+    private void setActionOnListView() {
+        myTasksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(MainActivity.getContext(), TaskProfile.class).putExtra("taskFromMyTasks", myTasks.get(position)));
+            }
+        });
     }
 
     private void loadListView() {
@@ -43,13 +56,11 @@ public class MyTasks extends Fragment {
             @Override
             public void onCallBack(ArrayList<ProjectTask> tasks) {
                 myTasks.addAll(tasks);
-                Toast.makeText(MainActivity.getContext(),tasks.toString(),Toast.LENGTH_LONG).show();
                 getMyTasksFromDataBase("openTasks",new CallbackArrayListTasks() {
                     @Override
                     public void onCallBack(ArrayList<ProjectTask> tasks2) {
-                        myTasks.addAll(tasks2);
                         spinkitProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(MainActivity.getContext(),tasks2.toString(),Toast.LENGTH_LONG).show();
+                        myTasks.addAll(tasks2);
                         if(myTasks.size()>0){
                             myTasksListView.setAdapter(new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks));
                         }else{
@@ -67,14 +78,15 @@ public class MyTasks extends Fragment {
         ProjectTasksDatabaseCalls.getTasks(collection, new CallbackArrayListTasks() {
             @Override
             public void onCallBack(ArrayList<ProjectTask> tasks) {
+                ArrayList<ProjectTask> myTasksFromDatabase = new ArrayList<>();
                 for(ProjectTask task:tasks){
                     for(AssumedTasksSituation situation : task.getMembersWhoAssumed()){
                         if(situation.getUser().getEmail().equals(MainActivity.getLoggedInUser().getEmail())){
-                            myTasks.add(task);
+                            myTasksFromDatabase.add(task);
                         }
                     }
                 }
-                callbackArrayListTasks.onCallBack(myTasks);
+                callbackArrayListTasks.onCallBack(myTasksFromDatabase);
             }
         });
     }

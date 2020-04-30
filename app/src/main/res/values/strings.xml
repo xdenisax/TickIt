@@ -41,6 +41,7 @@
     <string name="sterge">Sterge</string>
     <string name="editeaza">Editeaza</string>
     <string name="nu_ai_niciun_task_asumat_in_acest_moment">Nu ai niciun task asumat in acest moment.</string>
+    <string name="progres">Progres</string>
 
     <string-array name="departments">
         <item>Departament</item>

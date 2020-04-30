@@ -78,6 +78,7 @@
             app:layout_constraintVertical_bias="0.75" />
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -86,35 +87,58 @@
             app:layout_constraintEnd_toEndOf="@+id/memberProgressSeekBar"
             app:layout_constraintStart_toStartOf="@+id/memberProgressSeekBar"
             app:layout_constraintTop_toBottomOf="@+id/memberProgressSeekBar"
-            app:layout_constraintVertical_bias="0.0" >
+            app:layout_constraintVertical_bias="0.0">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/colombia"
+                android:gravity="start"
                 android:text="Asumat"
-                android:fontFamily="@font/colombia"
                 android:textColor="@color/dirty_white"
-                android:textSize="23sp"
-                android:layout_weight="1"
-                android:gravity="start"/>
+                android:textSize="23sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/colombia"
+                android:gravity="center"
                 android:text="Documentat"
-                android:fontFamily="@font/colombia"
                 android:textColor="@color/dirty_white"
-                android:textSize="23sp"
-                android:layout_weight="1"
-                android:gravity="center"/>
+                android:textSize="23sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Finalizat"
-                android:fontFamily="@font/colombia"
-                android:textColor="@color/dirty_white"
-                android:textSize="23sp"
                 android:layout_weight="1"
-                android:gravity="end" />
-       </LinearLayout>
+                android:fontFamily="@font/colombia"
+                android:gravity="end"
+                android:text="Finalizat"
+                android:textColor="@color/dirty_white"
+                android:textSize="23sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/saveProgressButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/square_background"
+            android:fontFamily="@font/colombia"
+            android:foreground="@drawable/ripple_square_effect_button"
+            android:text="@string/salveaza"
+            android:textAllCaps="false"
+            android:textColor="@color/dirty_white"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            app:layout_constraintVertical_bias="1.0" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
