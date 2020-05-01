@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,8 +26,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
-    int resourceID;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private int resourceID;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private TextView taskName, projectName, deadline, assumptionStatusTextView;
+    private ProjectTask task;
+    View view;
 
     public ListViewTasksAdapter(@NonNull Context context, int resource, @NonNull ArrayList<ProjectTask> objects) {
         super(context, resource, objects);
@@ -36,14 +40,9 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ProjectTask task = getItem(position);
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        View view = inflater.inflate(resourceID,null);
-
-        TextView taskName = (TextView) view.findViewById(R.id.textViewTaskNameCard);
-        final TextView projectName = (TextView) view.findViewById(R.id.textViewProjectNameCard);
-        TextView deadline = (TextView) view.findViewById(R.id.textViewDeadlineCard);
-        TextView assumptionStatusTextView = (TextView) view.findViewById(R.id.assumptionStatusTextView);
+        task = getItem(position);
+        view = LayoutInflater.from(getContext()).inflate(resourceID,null);
+        assignViews();
 
         taskName.setText(task.getTaskName());
         assumptionStatusTextView.setText(task.getMembersWhoAssumed().size()+"/" + task.getNumberOfVolunteers() + " voluntari");
@@ -51,38 +50,59 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
         String date = dateFormat.format(task.getStopDate());
         deadline.setText(date);
 
-        getProjName(task.getProject(), new CallbackString() {
+        ProjectDatabaseCalls.getProjName(task.getProject(), new CallbackString() {
             @Override
             public void onCallBack(String value) {
                 projectName.setText(value);
+                Log.d("divisionChek",task.getTaskName() + value);
             }
         });
 
-        if(task.getStopDate().getTime() < System.currentTimeMillis()){
-            setColorGrey(view);
-        }
+        setColorsAccordingly();
+
         return view;
     }
 
-    private void setColorGrey(View view) {
-        ((TextView) view.findViewById(R.id.textViewTaskNameCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
-        ((TextView) view.findViewById(R.id.textViewProjectNameCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
-        ((TextView) view.findViewById(R.id.textViewDeadlineCard)).setTextColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
+    private void setColorsAccordingly() {
+
+        if(task.getStopDate().getTime() < System.currentTimeMillis()){
+            if(isFullyImplemented(task) && task.getMembersWhoAssumed().size()>0){
+                setColor(view.getResources().getColor(R.color.transparent_vivid_cyan));
+            }else{
+                setColor(view.getResources().getColor(R.color.red));
+            }
+        }else{
+            if(isFullyImplemented(task) && task.getMembersWhoAssumed().size()>0){
+                setColor(view.getResources().getColor(R.color.green));
+            }
+        }
     }
 
-    private void getProjName(DocumentReference docRef, final CallbackString callback) {
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    String value = documentSnapshot.getString("name");
-                    callback.onCallBack(value);
-                } else {
-                    Log.d("checkRef", "No such document");
-                }
+    private boolean isFullyImplemented(ProjectTask task) {
+        boolean isFullyImplemented = true;
+        for(AssumedTasksSituation situation : task.getMembersWhoAssumed()){
+            if(situation.getProgress()<2){
+                isFullyImplemented=false;
             }
-        });
+        }
+        return isFullyImplemented;
     }
+
+    private void assignViews() {
+        taskName = (TextView) view.findViewById(R.id.textViewTaskNameCard);
+        projectName = (TextView) view.findViewById(R.id.textViewProjectNameCard);
+        deadline = (TextView) view.findViewById(R.id.textViewDeadlineCard);
+        assumptionStatusTextView = (TextView) view.findViewById(R.id.assumptionStatusTextView);
+    }
+
+    private void setColor(int color) {
+        taskName.setTextColor(color);
+        projectName.setTextColor(color);
+        deadline.setTextColor(color);
+        assumptionStatusTextView.setTextColor(color);
+    }
+
+
 }
 
 

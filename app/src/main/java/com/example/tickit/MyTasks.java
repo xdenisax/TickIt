@@ -26,7 +26,7 @@ public class MyTasks extends Fragment {
     ListView myTasksListView;
     ProgressBar spinkitProgressBar;
     TextView noAssumedTasks;
-    ArrayList<ProjectTask> myTasks = new ArrayList<>();
+    ArrayList<ProjectTask> myTasks;
 
     public MyTasks() { }
 
@@ -54,12 +54,13 @@ public class MyTasks extends Fragment {
     private void loadListView() {
         getMyTasksFromDataBase("assumedTasks", new CallbackArrayListTasks() {
             @Override
-            public void onCallBack(ArrayList<ProjectTask> tasks) {
-                myTasks.addAll(tasks);
+            public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 getMyTasksFromDataBase("openTasks",new CallbackArrayListTasks() {
                     @Override
                     public void onCallBack(ArrayList<ProjectTask> tasks2) {
                         spinkitProgressBar.setVisibility(View.GONE);
+                        myTasks = new ArrayList<>();
+                        myTasks.addAll(tasks);
                         myTasks.addAll(tasks2);
                         if(myTasks.size()>0){
                             myTasksListView.setAdapter(new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks));
@@ -70,8 +71,6 @@ public class MyTasks extends Fragment {
                 });
             }
         });
-
-
     }
 
     private void getMyTasksFromDataBase(String collection, final CallbackArrayListTasks callbackArrayListTasks) {

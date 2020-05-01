@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ListViewAssumedTaskSituationAdapter extends   ArrayAdapter<AssumedTasksSituation> {
-    int resourceID;
+    private int resourceID;
+    private ImageView profilImageView;
+    private TextView numeTextView;
     public ListViewAssumedTaskSituationAdapter(@NonNull Context context, int resource, @NonNull ArrayList<AssumedTasksSituation> assumedTasksSituationArrayAdapter) {
         super(context, resource, assumedTasksSituationArrayAdapter);
         this.resourceID = resource;
@@ -29,14 +31,10 @@ class ListViewAssumedTaskSituationAdapter extends   ArrayAdapter<AssumedTasksSit
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         User user = getItem(position).getUser();
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        View view = inflater.inflate(resourceID,null);
+        View view = LayoutInflater.from(getContext()).inflate(resourceID,null);
+        assignViews(view);
 
-        ImageView profilImageView = (ImageView) view.findViewById(R.id.userPicture);
-        TextView numeTextView =(TextView) view.findViewById(R.id.numeTextView);
-
-
-        if(user.getLastName()!=null || user.getFirstName()!= null){
+        if(user.getLastName()!=null){
             Glide.with(getContext()).load(user.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(profilImageView);
             numeTextView.setText(user.getLastName() + " " + user.getFirstName());
         }else{
@@ -45,5 +43,10 @@ class ListViewAssumedTaskSituationAdapter extends   ArrayAdapter<AssumedTasksSit
         }
 
         return view;
+    }
+
+    private void assignViews(View view) {
+        profilImageView= (ImageView) view.findViewById(R.id.userPicture);
+        numeTextView =(TextView) view.findViewById(R.id.numeTextView);
     }
 }

@@ -2,9 +2,11 @@ package com.example.tickit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,7 +40,7 @@ public class TaskProfile extends AppCompatActivity {
     ImageButton backButton;
     ProjectTask task;
     TextView taskNameTextView, projectNameTextView,startDateTextView, deadlineTextView, descriptionTextView, noMemberAssumedYetTextView;
-    Button resourcesButton, assumptionButton, editButton, deleteButton,progressButton;
+    Button resourcesButton, assumptionButton, editButton, deleteButton,progressButton,helpButton;
     ListView membersWhoAssumedListView;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     final int REQUEST_CODE_EDIT_TASK =5;
@@ -55,10 +58,10 @@ public class TaskProfile extends AppCompatActivity {
         resourcesButtonPressed();
         assumptionButtonPressed();
         progressButtonPressed();
+        helpButtonPressed();
         setActionsOnMembersListView();
         setAllowanceOnViews();
     }
-
 
 
     private void assignViews() {
@@ -73,6 +76,7 @@ public class TaskProfile extends AppCompatActivity {
         assumptionButton =(Button) findViewById(R.id.assumptionButton);
         progressButton =(Button) findViewById(R.id.progressButton);
         editButton =(Button) findViewById(R.id.editTaskButton);
+        helpButton =(Button) findViewById(R.id.helpTaskProfile);
         deleteButton =(Button) findViewById(R.id.deleteTaskButton);
         membersWhoAssumedListView = (ListView) findViewById(R.id.assumedTaskMembersListView);
     }
@@ -83,18 +87,18 @@ public class TaskProfile extends AppCompatActivity {
         if(requestCode==REQUEST_CODE_EDIT_TASK){
             finish();
         }
-        if(requestCode==REQUEST_CODE_EDIT_PROGRESS){
+        if(requestCode==REQUEST_CODE_EDIT_PROGRESS && RESULT_OK==resultCode){
             task.getMembersWhoAssumed().get(getPersonalProgressIndex()).setProgress(data.getIntExtra("updatedProgress",0));
             ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
                 @Override
                 public void callback(Boolean bool) {
-                    Toast.makeText(getApplicationContext(), bool+"openTasks",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Progres inregistrat.",Toast.LENGTH_LONG).show();
                 }
             });
             ProjectTasksDatabaseCalls.updateProgressInDataBase("assumedTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
                 @Override
                 public void callback(Boolean bool) {
-                    Toast.makeText(getApplicationContext(), bool+"assumedTasks",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Progres inregistrat .",Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -185,7 +189,10 @@ public class TaskProfile extends AppCompatActivity {
                     if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()){
                         assumptionButton.setVisibility(View.INVISIBLE);
                         addTaskToAssumedTasksInDataBase(task);
-                        removeTaskFromOpenTasks(task);
+                        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
+                            @Override
+                            public void callback(Boolean bool) { }
+                        });
                     }else{
                         updateDatabaseEntry(task.getId(), task);
                     }
@@ -194,24 +201,7 @@ public class TaskProfile extends AppCompatActivity {
         });
     }
 
-    private void removeTaskFromOpenTasks(ProjectTask task) {
-        (FirebaseFirestore.getInstance())
-                .collection("openTasks")
-                .document(task.getId())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getApplicationContext(),"Task-ul a fost trecut cu succes in categoria Task-uri asumate in totalitate." , Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(),"Nu s-a putut trece task-ul in categoria Task-uri asumate." , Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
+
 
     private void addTaskToAssumedTasksInDataBase(ProjectTask task) {
         (FirebaseFirestore.getInstance())
@@ -276,6 +266,7 @@ public class TaskProfile extends AppCompatActivity {
         if(intent.getParcelableExtra("openTaskFromOpenTasks")!= null) {
             task = (ProjectTask) intent.getParcelableExtra("openTaskFromOpenTasks");
             progressButton.setVisibility(View.GONE);
+            helpButton.setVisibility(View.GONE);
             fillWithInfo();
         }
         if(intent.getParcelableExtra("taskFromMyTasks")!= null) {
@@ -354,6 +345,63 @@ public class TaskProfile extends AppCompatActivity {
                 }catch (ActivityNotFoundException error){
                     Toast.makeText(getApplicationContext(), "Nu am putut deschide link-ul resursei. Contacteaza liderul diviziei.", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+    }
+
+    private void helpButtonPressed() {
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(task.getMembersWhoAssumed().get(getPersonalProgressIndex()).isNeedingHelp()){
+                    Toast.makeText(getApplicationContext(), "Deja ai cerut ajutorul.", Toast.LENGTH_LONG).show();
+                }else{
+                    launchAlertDialog();
+                }
+            }
+        });
+    }
+
+    private void launchAlertDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(TaskProfile.this);
+        dialog.setTitle("Doresti sa soliciti ajutor suplimentar?");
+        dialog.setMessage("Apasa 'Da' doar in cazul in care consideri ca nu vei reusi finalizarea task-ului pana la deadline.");
+        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                task.setNumberOfVolunteers(task.getNumberOfVolunteers()+1);
+                task.getMembersWhoAssumed().get(getPersonalProgressIndex()).setNeedingHelp(true);
+                if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()-1){
+                    transferTaskFromAssumedToOpen();
+                }else{
+                    ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
+                        @Override
+                        public void callback(Boolean bool) {
+                            Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getMembersWhoAssumed().get(getPersonalProgressIndex()).isNeedingHelp(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+
+    private void transferTaskFromAssumedToOpen() {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", task, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                ProjectTasksDatabaseCalls.removeTask("assumedTasks", task, new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getNumberOfVolunteers(), Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }

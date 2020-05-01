@@ -6,10 +6,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.tickit.AssumedTasksSituation;
+import com.example.tickit.Callbacks.CallbackArrayListAssumedTasksSituation;
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
 import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.ProjectTask;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -64,25 +68,53 @@ public class ProjectTasksDatabaseCalls {
                                  instance
                                          .collection(collection)
                                          .document(projectTask.getId())
-                                         .update("membersWhoAssumed", FieldValue.arrayRemove("0"))
+                                         .update("membersWhoAssumed", projectTask.getMembersWhoAssumed())
                                          .addOnCompleteListener(new OnCompleteListener<Void>() {
                                              @Override
                                              public void onComplete(@NonNull Task<Void> task) {
-                                                 instance
-                                                         .collection(collection)
-                                                         .document(projectTask.getId())
-                                                         .update("membersWhoAssumed", FieldValue.arrayUnion(projectTask.getMembersWhoAssumed().get(memberIndex)))
-                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                             @Override
-                                                             public void onComplete(@NonNull Task<Void> task) {
-                                                                 callbackBoolean.callback(true);
-                                                             }
-                                                         });
+                                                 if(task.getResult() !=null){
+                                                     callbackBoolean.callback(true);
+                                                 }else{
+                                                     callbackBoolean.callback(false);
+                                                 }
                                              }
                                          });
+
                              }
                          }
                      }
                  });
+    }
+
+    public static void addProjectTaskInDataBase(String collection, final ProjectTask projectTask, final CallbackBoolean callbackBoolean) {
+        (FirebaseFirestore.getInstance())
+                .collection(collection)
+                .document(projectTask.getId())
+                .set(projectTask)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        callbackBoolean.callback(true);
+                    }
+                });
+    }
+
+    public static void removeTask(String collection, ProjectTask task, final CallbackBoolean callbackBoolean) {
+        (FirebaseFirestore.getInstance())
+                .collection(collection)
+                .document(task.getId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackBoolean.callback(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackBoolean.callback(true);
+                       }
+                });
     }
 }

@@ -16,9 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tickit.Callbacks.CallbackArrayListStrings;
+import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackPrjectTask;
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -169,16 +171,31 @@ public class AddTask extends AppCompatActivity {
             public void onClick(View v) {
                     buildTaskFromForm(isEditMode, new CallbackPrjectTask() {
                         @Override
-                        public void onCallBack(ProjectTask projectTask) {
+                        public void onCallBack(final ProjectTask projectTask) {
                             if(task!=null){
                                 if(task.getNumberOfVolunteers()==task.getMembersWhoAssumed().size()) {
-                                    addProjectTaskInDataBase("assumedTasks", projectTask);
+                                    ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", projectTask, new CallbackBoolean() {
+                                        @Override
+                                        public void callback(Boolean bool) {
+                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }else{
-                                    addProjectTaskInDataBase("openTasks", projectTask);
+                                    ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
+                                        @Override
+                                        public void callback(Boolean bool) {
+                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }
                                 setResult(RESULT_OK);
                             }else {
-                                addProjectTaskInDataBase("openTasks", projectTask);
+                                ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
+                                    @Override
+                                    public void callback(Boolean bool) {
+                                        Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                             finish();
                         }
@@ -187,18 +204,7 @@ public class AddTask extends AppCompatActivity {
         });
     }
 
-    private void addProjectTaskInDataBase(String collection, final ProjectTask projectTask) {
-        (FirebaseFirestore.getInstance())
-                .collection(collection)
-                .document(projectTask.getId())
-                .set(projectTask)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
+
 
     private void buildTaskFromForm(final int flag, final CallbackPrjectTask callbackPrjectTask) {
         if( validation()){

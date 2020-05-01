@@ -67,7 +67,6 @@ public class OpenTasks extends Fragment {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 spinKitAssumedTasks.setVisibility(View.GONE);
-
                     adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
                     assumedTasks.setAdapter(adapter);
                     assumedTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
