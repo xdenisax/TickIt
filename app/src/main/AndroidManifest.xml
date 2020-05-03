@@ -15,21 +15,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MembersProgressPopUp"
+            android:name=".PopUps.MembersProgressPopUp"
             android:theme="@style/AppTheme.PopUpTheme" ></activity>
-        <activity android:name=".TaskProfile" />
-        <activity android:name=".AddTask" />
+        <activity android:name=".Activities.TaskProfile" />
+        <activity android:name=".Activities.AddTask" />
         <activity
-            android:name=".AddMemberChoicePopUp"
+            android:name=".PopUps.AddMemberChoicePopUp"
             android:theme="@style/AppTheme.PopUpTheme" />
-        <activity android:name=".EditionProfile" />
-        <activity android:name=".ProjectProfile" />
+        <activity android:name=".Activities.EditionProfile" />
+        <activity android:name=".Activities.ProjectProfile" />
         <activity
-            android:name=".HistoryPopUp"
+            android:name=".PopUps.HistoryPopUp"
             android:theme="@style/AppTheme.PopUpTheme" />
-        <activity android:name=".Profile" />
-        <activity android:name=".FragmentsContainer" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.Profile" />
+        <activity android:name=".Activities.FragmentsContainer" />
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EditPopUp"
+            android:name=".PopUps.EditPopUp"
             android:theme="@style/AppTheme.PopUpTheme" />
     </application>
 

@@ -1,6 +1,6 @@
 package com.example.tickit.Callbacks;
 
-import com.example.tickit.User;
+import com.example.tickit.Classes.User;
 
 import java.util.ArrayList;
 

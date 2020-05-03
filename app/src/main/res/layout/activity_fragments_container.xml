@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/darkblue"
     android:orientation="vertical"
-    tools:context=".FragmentsContainer">
+    tools:context=".Activities.FragmentsContainer">
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"

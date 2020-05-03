@@ -1,7 +1,7 @@
 package com.example.tickit.Callbacks;
 
-import com.example.tickit.User;
+import com.example.tickit.Classes.User;
 
 public interface CallbackUser {
-    void callbackk(User user);
+    void callback(User user);
 }

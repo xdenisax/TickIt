@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "89796458058-1reckmn1iva0dnjj9dkj1khb1kqtokp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tickit",
+            "certificate_hash": "af59379a8b7c8de44bd97becb8ddaed8ba9a73e7"
+          }
+        },
+        {
           "client_id": "89796458058-0ull23adat33jpshuch65lrioonl19bn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

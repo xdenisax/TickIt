@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTask"
+    tools:context=".Activities.AddTask"
     android:background="@color/darkblue">
 
     <ImageButton
@@ -146,7 +146,7 @@
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/vivid_cyan"
         android:inputType="number|textPassword|date"
-        android:digits="0123456789/"
+        android:digits="0123456789-"
         android:textColor="@color/dirty_white"
         android:textColorHint="#46E1EFE6"
         android:textCursorDrawable="@color/dirty_white"
@@ -167,7 +167,7 @@
         android:backgroundTint="@color/vivid_cyan"
         android:hint="@string/deadline_ex_20_12_2020"
         android:inputType="number|textPassword|date"
-        android:digits="0123456789/"
+        android:digits="0123456789-"
         android:textColor="@color/dirty_white"
         android:textColorHint="#46E1EFE6"
         android:textCursorDrawable="@color/dirty_white"

@@ -1,24 +1,17 @@
 package com.example.tickit.DataBaseCalls;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.tickit.AssumedTasksSituation;
-import com.example.tickit.Callbacks.CallbackArrayListAssumedTasksSituation;
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
 import com.example.tickit.Callbacks.CallbackBoolean;
-import com.example.tickit.ProjectTask;
+import com.example.tickit.Classes.ProjectTask;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -117,4 +110,5 @@ public class ProjectTasksDatabaseCalls {
                        }
                 });
     }
+
 }
