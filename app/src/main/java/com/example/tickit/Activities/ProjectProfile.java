@@ -7,8 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.QuickContactBadge;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,8 @@ public class ProjectProfile extends AppCompatActivity {
     ImageView logo;
     Spinner edtionsSpinners;
     ImageButton backButton;
+    Button addEditionButton;
+    int REQUEST_CODE_ADD_EDITION = 20;
     int flag = 0;
 
     @Override
@@ -37,6 +41,8 @@ public class ProjectProfile extends AppCompatActivity {
 
         assignViews();
         manageIntent(getIntent());
+        setAllowanceOnViews();
+        addEditionButtonPressed();
         backButtonPressed();
         setOnSpinnerAction();
     }
@@ -47,12 +53,19 @@ public class ProjectProfile extends AppCompatActivity {
         edtionsSpinners = (Spinner) findViewById(R.id.spinnerEditions);
         descriptionTV = (TextView) findViewById(R.id.projectDescriptionTextView);
         backButton = (ImageButton) findViewById(R.id.backButtonProfileActivity);
+        addEditionButton = (Button) findViewById(R.id.addEditionButton);
     }
 
     private void manageIntent(Intent intent) {
         if(intent.getParcelableExtra("projectFromProjectsList")!= null) {
             project = (Project) intent.getParcelableExtra("projectFromProjectsList");
             fillWithInfo(project);
+        }
+    }
+
+    private void setAllowanceOnViews() {
+        if(MainActivity.getUserGrade()>2){
+            addEditionButton.setVisibility(View.GONE);
         }
     }
 
@@ -83,6 +96,15 @@ public class ProjectProfile extends AppCompatActivity {
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void addEditionButtonPressed() {
+        addEditionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getApplicationContext(), AddEdition.class), REQUEST_CODE_ADD_EDITION);
+            }
         });
     }
 

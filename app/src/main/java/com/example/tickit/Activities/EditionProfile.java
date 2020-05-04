@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,7 +50,6 @@ public class EditionProfile extends AppCompatActivity {
         coordinator1ImageView = (ImageView) findViewById(R.id.editionCoordinator1ImageView);
         coordinator2ImageView = (ImageView) findViewById(R.id.editionCoordinator2ImageView);
         backButton = (ImageButton) findViewById(R.id.backButtonEditionActivity);
-        strategyButton = (Button) findViewById(R.id.assumptionButton);
         editionMembersListView = (ListView) findViewById(R.id.editionMembersListView);
         yearTextView = (TextView) findViewById(R.id.editionYearTextView);
     }

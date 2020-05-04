@@ -77,6 +77,7 @@ public class Projects extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 if(getActivity()!=null) {
                     ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(MainActivity.getContext(), R.layout.member_card, projectsFromDataBase);
+                    adapter.notifyDataSetChanged();
                     projectListview.setAdapter(adapter);
                     projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
