@@ -52,6 +52,7 @@ public class EditionProfile extends AppCompatActivity {
         backButton = (ImageButton) findViewById(R.id.backButtonEditionActivity);
         editionMembersListView = (ListView) findViewById(R.id.editionMembersListView);
         yearTextView = (TextView) findViewById(R.id.editionYearTextView);
+        strategyButton = (Button) findViewById(R.id.strategyButton);
     }
 
     private void manageIntent(Intent intent) {

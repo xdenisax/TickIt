@@ -90,5 +90,4 @@ public class Projects extends Fragment {
         });
     }
 
-
 }

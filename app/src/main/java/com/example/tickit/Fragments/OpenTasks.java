@@ -27,6 +27,8 @@ import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.R;
 import com.example.tickit.Activities.TaskProfile;
 
+import org.apache.log4j.chainsaw.Main;
+
 import java.util.ArrayList;
 
 public class OpenTasks extends Fragment {
@@ -69,6 +71,7 @@ public class OpenTasks extends Fragment {
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
                 spinKitAssumedTasks.setVisibility(View.GONE);
                     adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
+                    adapter.notifyDataSetChanged();
                     assumedTasks.setAdapter(adapter);
                     assumedTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -89,15 +92,18 @@ public class OpenTasks extends Fragment {
         ProjectTasksDatabaseCalls.getTasks("openTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                manageNotification();
-                adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
-                openTasks.setAdapter(adapter);
-                openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
-                    }
-                });
+               // manageNotification();
+                if(MainActivity.getContext() !=null){
+                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
+                    openTasks.setAdapter(adapter);
+                    openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
+                        }
+                    });
+                }
+
 
                 spinkitOpenTasks.setVisibility(View.GONE);
                 if(tasks.size()>0){

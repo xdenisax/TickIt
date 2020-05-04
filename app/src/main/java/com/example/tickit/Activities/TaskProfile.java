@@ -1,6 +1,5 @@
 package com.example.tickit.Activities;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -30,15 +28,7 @@ import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.PopUps.MembersProgressPopUp;
 import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TaskProfile extends AppCompatActivity {
@@ -102,7 +92,7 @@ public class TaskProfile extends AppCompatActivity {
         noMemberAssumedYetTextView = (TextView) findViewById(R.id.noMemberAssumedYet);
         noMemberAssumedYetTextView.setVisibility(View.GONE);
         resourcesButton = (Button) findViewById(R.id.ResourcesButton);
-        assumptionButton =(Button) findViewById(R.id.assumptionButton);
+        assumptionButton =(Button) findViewById(R.id.strategyButton);
         progressButton =(Button) findViewById(R.id.progressButton);
         editButton =(Button) findViewById(R.id.editTaskButton);
         helpButton =(Button) findViewById(R.id.helpTaskProfile);

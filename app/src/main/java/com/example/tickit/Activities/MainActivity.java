@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static Context context;
     private static User loggedInUser;
     private static int userGrade=4;
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        context=this;
+        context=getApplicationContext();
 
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
 

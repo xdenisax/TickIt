@@ -65,7 +65,9 @@ public class MyTasks extends Fragment {
                         myTasks.addAll(tasks);
                         myTasks.addAll(tasks2);
                         if(myTasks.size()>0){
-                            myTasksListView.setAdapter(new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks));
+                            ListViewTasksAdapter adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks);
+                            adapter.notifyDataSetChanged();
+                            myTasksListView.setAdapter(adapter);
                         }else{
                             noAssumedTasks.setVisibility(View.VISIBLE);
                         }

@@ -53,7 +53,7 @@ public class ProjectProfile extends AppCompatActivity {
         edtionsSpinners = (Spinner) findViewById(R.id.spinnerEditions);
         descriptionTV = (TextView) findViewById(R.id.projectDescriptionTextView);
         backButton = (ImageButton) findViewById(R.id.backButtonProfileActivity);
-        addEditionButton = (Button) findViewById(R.id.addEditionButton);
+        addEditionButton = (Button) findViewById(R.id.addNewEditionButton);
     }
 
     private void manageIntent(Intent intent) {
@@ -77,7 +77,7 @@ public class ProjectProfile extends AppCompatActivity {
         }else{
             Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
         }
-        project.getEditions().add(0,new Edition(null,null, null,null,"Alege"));
+        project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege"));
         edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }
 
