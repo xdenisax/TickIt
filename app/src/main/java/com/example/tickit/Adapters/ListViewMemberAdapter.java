@@ -24,6 +24,7 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> implements Filtera
     int resourceID;
     private ArrayList<User> mOriginalValues; // Original Values
     private ArrayList<User> mDisplayedValues;    // Values to be displayed
+    private ArrayList<User> filteredArrayList = new ArrayList<User>();
 
     public ListViewMemberAdapter(@NonNull Context context, int resource, @NonNull ArrayList<User> objects)  {
         super(context, resource, objects);
@@ -76,7 +77,7 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> implements Filtera
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                ArrayList<User> filteredArrayList = new ArrayList<User>();
+                filteredArrayList = new ArrayList<User>();
                 if(mOriginalValues==null){
                     mOriginalValues = new ArrayList<User>(mDisplayedValues);
                 }

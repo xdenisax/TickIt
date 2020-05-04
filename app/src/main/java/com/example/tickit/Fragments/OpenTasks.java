@@ -69,7 +69,7 @@ public class OpenTasks extends Fragment {
         ProjectTasksDatabaseCalls.getTasks("assumedTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                spinKitAssumedTasks.setVisibility(View.GONE);
+                if(MainActivity.getContext()!=null){
                     adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
                     adapter.notifyDataSetChanged();
                     assumedTasks.setAdapter(adapter);
@@ -79,6 +79,9 @@ public class OpenTasks extends Fragment {
                             startActivity(new Intent(getContext(), TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
                         }
                     });
+                }
+                spinKitAssumedTasks.setVisibility(View.GONE);
+
                 if(tasks.size()>0){
                     textViewNoAssumedTasks.setVisibility(View.INVISIBLE);
                 }else{
