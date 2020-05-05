@@ -3,7 +3,9 @@ package com.example.tickit.Activities;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,7 +36,7 @@ import java.util.List;
 
 public class AddEdition extends AppCompatActivity {
 
-    EditText editionStartDate, editionStopDate, searchCoordinators;
+    EditText editionStartDate, editionStopDate, searchCoordinators, editionNumber;
     ListView membersListView;
     Button addEditionButton;
     ImageButton deleteSelectedCoordinatorsButton;
@@ -63,6 +65,7 @@ public class AddEdition extends AppCompatActivity {
         addEditionButton = (Button) findViewById(R.id.addEditionButton);
         deleteSelectedCoordinatorsButton = (ImageButton) findViewById(R.id.deleteSelectedCoordinatorsButton);
         selectedCoordinators = (TextView) findViewById(R.id.selectedCoordinators);
+        editionNumber=(EditText) findViewById(R.id.editionNumber);
     }
 
     private void searchListViewMembers() {
@@ -130,7 +133,15 @@ public class AddEdition extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(validation()){
-                    Edition newEdition =  new Edition(coordinator1,coordinator2,null,null, DateProcessing.getDate(editionStartDate),DateProcessing.getDate(editionStopDate), editionStopDate.getText().toString().substring(6));
+                    Edition newEdition =  new Edition(coordinator1,
+                            coordinator2,
+                            null,
+                            null,
+                            DateProcessing.getDate(editionStartDate),
+                            DateProcessing.getDate(editionStopDate),
+                            editionStopDate.getText().toString().substring(6),
+                            editionNumber.getText().toString());
+                    setResult(Activity.RESULT_OK, new Intent().putExtra("newAddedEdition", newEdition));
                     finish();
                 }
             }
@@ -138,6 +149,10 @@ public class AddEdition extends AppCompatActivity {
     }
 
     private boolean validation() {
+        if(editionNumber.getText().toString().length()<1){
+            makeToast("Introduceti numarul editiei");
+            return false;
+        }
         if(!DateProcessing.dateValidation(editionStartDate)){
             makeToast("Ziua, luna sau anul nu sunt intr-un format corect. ex: 02-05-2020");
             return false;
@@ -164,7 +179,16 @@ public class AddEdition extends AppCompatActivity {
         dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Edition newEdition =  new Edition(coordinator1,coordinator2,null,null, DateProcessing.getDate(editionStartDate),DateProcessing.getDate(editionStopDate), editionStopDate.getText().toString().substring(6));
+                Edition newEdition =  new Edition(
+                        coordinator1,
+                        coordinator2,
+                        null,
+                        null,
+                        DateProcessing.getDate(editionStartDate),
+                        DateProcessing.getDate(editionStopDate),
+                        editionStopDate.getText().toString().substring(6),
+                        editionNumber.getText().toString());
+                setResult(Activity.RESULT_OK, new Intent().putExtra("newAddedEdition", newEdition));
                 finish();
             }
         }).setNegativeButton("Nu", new DialogInterface.OnClickListener() {
@@ -173,6 +197,7 @@ public class AddEdition extends AppCompatActivity {
                 dialog.cancel();
             }
         });
+
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }

@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -19,13 +20,15 @@ public class Project implements Parcelable {
     private String description;
     private String imageLink;
     private ArrayList<Edition> editions;
+    private String id;
 
     public Project() { }
 
-    public Project(final String Name, final String Description, final String imgLink, final ArrayList<Edition> Editions) {
-        getPhotoUri(imgLink, new CallbackString(){
+    public Project(final String Id, final String Name, final String Description, final String imgLink, final ArrayList<Edition> Editions) {
+        ProjectDatabaseCalls.getPhotoUri(imgLink, new CallbackString(){
             @Override
             public void onCallBack(String value) {
+                id= Id;
                 name = Name;
                 description = Description;
                 imageLink=value;
@@ -34,27 +37,12 @@ public class Project implements Parcelable {
         });
     }
 
-    private void getPhotoUri(String imageLink, final CallbackString callbackString){
-        StorageReference mImageStorage = FirebaseStorage.getInstance().getReference();
-        StorageReference ref = mImageStorage.child("TickIt").child("ProjectsLogo").child(imageLink);
-
-        ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-            @Override
-            public void onComplete(@NonNull Task<Uri> task) {
-                if (task.isSuccessful()) {
-                    Uri downUri = task.getResult();
-                    String imageUrl = downUri.toString();
-                    callbackString.onCallBack(imageUrl);
-                }
-            }
-        });
-
-    }
     protected Project(Parcel in) {
         name = in.readString();
         description = in.readString();
         imageLink = in.readString();
         editions = in.createTypedArrayList(Edition.CREATOR);
+        id = in.readString();
     }
 
     public static final Creator<Project> CREATOR = new Creator<Project>() {
@@ -101,6 +89,14 @@ public class Project implements Parcelable {
         this.editions = editions;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Project{" +
@@ -108,6 +104,7 @@ public class Project implements Parcelable {
                 ", description='" + description + '\'' +
                 ", imageLink='" + imageLink + '\'' +
                 ", editions=" + editions +
+                ", id='" + id + '\'' +
                 '}';
     }
 
@@ -122,5 +119,6 @@ public class Project implements Parcelable {
         dest.writeString(description);
         dest.writeString(imageLink);
         dest.writeTypedList(editions);
+        dest.writeString(id);
     }
 }

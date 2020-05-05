@@ -1,5 +1,6 @@
 package com.example.tickit.Activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -18,9 +19,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Adapters.SpinnerYearAdapter;
+import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Classes.Edition;
 import com.example.tickit.Classes.Project;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.R;
+
+import java.util.ArrayList;
 
 public class ProjectProfile extends AppCompatActivity {
 
@@ -45,6 +50,35 @@ public class ProjectProfile extends AppCompatActivity {
         addEditionButtonPressed();
         backButtonPressed();
         setOnSpinnerAction();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(REQUEST_CODE_ADD_EDITION==requestCode && resultCode==RESULT_OK){
+            if(data!=null){
+                ProjectDatabaseCalls.saveEdition(project, addNewEditionToLocalProject(data),  new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        if (bool) {
+                            Toast.makeText(getApplicationContext(), "S-a adaugat cu succes noua editie in baza de date.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Nu s-a reusit adaugarea editiei in baza de date. Verificati si reincercati.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }else{
+                Toast.makeText(getApplicationContext(), "Nu s-a adaugat o editie noua.",Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private Edition addNewEditionToLocalProject(Intent data) {
+        ArrayList<Edition> updatedEditions= project.getEditions();
+        Edition newEdition = (Edition) data.getParcelableExtra("newAddedEdition");
+        updatedEditions.add(newEdition);
+        project.setEditions(updatedEditions);
+        return  newEdition;
     }
 
     private void assignViews() {
@@ -77,7 +111,7 @@ public class ProjectProfile extends AppCompatActivity {
         }else{
             Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
         }
-        project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege"));
+        project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege",null));
         edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }
 

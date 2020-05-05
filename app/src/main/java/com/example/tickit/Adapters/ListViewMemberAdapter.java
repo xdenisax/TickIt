@@ -35,7 +35,11 @@ public class ListViewMemberAdapter extends ArrayAdapter<User> implements Filtera
 
     @Override
     public int getCount() {
-        return mDisplayedValues.size();
+        if(mDisplayedValues!=null){
+            return mDisplayedValues.size();
+        }else{
+            return 0;
+        }
     }
 
     @Override

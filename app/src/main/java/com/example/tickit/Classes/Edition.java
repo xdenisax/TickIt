@@ -14,10 +14,11 @@ public class Edition implements Parcelable {
     private Date startDate;
     private Date stopDate;
     private String year;
+    private String editionNumber;
 
     public Edition(){}
 
-    public Edition(User coordinator1, User coordinator2, ArrayList<User> members, String strategy, Date stopDate, Date startDate, String year) {
+    public Edition(User coordinator1, User coordinator2, ArrayList<User> members, String strategy, Date stopDate, Date startDate, String year, String editionNumber) {
         this.coordinator1 = coordinator1;
         this.coordinator2 = coordinator2;
         this.members = members;
@@ -25,8 +26,8 @@ public class Edition implements Parcelable {
         this.startDate = startDate;
         this.stopDate =startDate;
         this.year = year;
+        this.editionNumber = editionNumber;
     }
-
 
     protected Edition(Parcel in) {
         coordinator1 = in.readParcelable(User.class.getClassLoader());
@@ -34,20 +35,7 @@ public class Edition implements Parcelable {
         members = in.createTypedArrayList(User.CREATOR);
         strategy = in.readString();
         year = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(coordinator1, flags);
-        dest.writeParcelable(coordinator2, flags);
-        dest.writeTypedList(members);
-        dest.writeString(strategy);
-        dest.writeString(year);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+        editionNumber = in.readString();
     }
 
     public static final Creator<Edition> CREATOR = new Creator<Edition>() {
@@ -118,6 +106,14 @@ public class Edition implements Parcelable {
         this.stopDate = stopDate;
     }
 
+    public String getEditionNumber() {
+        return editionNumber;
+    }
+
+    public void setEditionNumber(String editionNumber) {
+        this.editionNumber = editionNumber;
+    }
+
     @Override
     public String toString() {
         return "Edition{" +
@@ -128,6 +124,22 @@ public class Edition implements Parcelable {
                 ", startDate=" + startDate +
                 ", stopDate=" + stopDate +
                 ", year='" + year + '\'' +
+                ", editionNumber='" + editionNumber + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(coordinator1, flags);
+        dest.writeParcelable(coordinator2, flags);
+        dest.writeTypedList(members);
+        dest.writeString(strategy);
+        dest.writeString(year);
+        dest.writeString(editionNumber);
     }
 }

@@ -47,6 +47,7 @@
     <string name="adauga_editie">Adauga editie</string>
     <string name="ultima_zi_a_editiei_ex_05_04_2020">Ultima zi a editiei (ex: 05-04-2020)</string>
     <string name="cauta_coordonatorii_dupa_email">Cauta coordonatorii dupa email</string>
+    <string name="numar_editie_ex_10">Numar editie (ex: 10)</string>
 
     <string-array name="departments">
         <item>Departament</item>

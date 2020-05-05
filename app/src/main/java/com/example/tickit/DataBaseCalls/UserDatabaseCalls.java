@@ -10,6 +10,7 @@ import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Callbacks.CallbackArrayListMandates;
 import com.example.tickit.Callbacks.CallbackArrayListUser;
 import com.example.tickit.Callbacks.CallbackBoolean;
+import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackMandate;
 import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Callbacks.CallbackUser;
@@ -163,6 +164,19 @@ public class UserDatabaseCalls {
                                 }
                             });
                         }
+                    }
+                });
+    }
+
+    public static void getUserReference(User user, final CallbackDocumentReference callbackDocumentReference){
+       instance
+               .collection(COLLECTION_NAME)
+               .document(user.getEmail())
+               .get()
+               .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        callbackDocumentReference.callback(task.getResult().getReference());
                     }
                 });
     }
