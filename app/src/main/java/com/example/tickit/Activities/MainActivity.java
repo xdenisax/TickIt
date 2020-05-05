@@ -1,5 +1,4 @@
 package com.example.tickit.Activities;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -9,16 +8,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.tickit.Callbacks.CallbackArrayListMandates;
-import com.example.tickit.Callbacks.CallbackBoolean;
-import com.example.tickit.Callbacks.CallbackMandate;
-import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Callbacks.CallbackUser;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
 import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.R;
-import com.example.tickit.Utils.DateProcessing;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -26,18 +20,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -124,23 +108,18 @@ public class MainActivity extends AppCompatActivity {
         userGrade=4;
         for(Mandate mandate: loggedInUser.getMandates()){
             if(mandate.getPosition()!=null){
-                if(checkIfInMandate(System.currentTimeMillis(), mandate.getEndDate()) && userGrade>mandate.getGrade()){
+                if(checkIfInMandate(System.currentTimeMillis(), mandate.getStop_date()) && userGrade>mandate.getGrade()){
                     userGrade=mandate.getGrade();
                 }
             }
         }
     }
 
-    private boolean checkIfInMandate(long currentTimeMillis, String endDate) {
-        try {
+    private boolean checkIfInMandate(long currentTimeMillis,Date endDate) {
             Date currentDate = new Date();
             currentDate.setTime(currentTimeMillis);
 
-            return currentDate.before(DateProcessing.dateFormat.parse(endDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
+            return currentDate.before(endDate);
     }
 
     public static User getLoggedInUser() {

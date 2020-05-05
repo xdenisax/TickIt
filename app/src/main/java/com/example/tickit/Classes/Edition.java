@@ -3,7 +3,12 @@ package com.example.tickit.Classes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.tickit.Utils.DateProcessing;
+
+import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Edition implements Parcelable {
@@ -24,10 +29,11 @@ public class Edition implements Parcelable {
         this.members = members;
         this.strategy = strategy;
         this.startDate = startDate;
-        this.stopDate =startDate;
+        this.stopDate =stopDate;
         this.year = year;
         this.editionNumber = editionNumber;
     }
+
 
     protected Edition(Parcel in) {
         coordinator1 = in.readParcelable(User.class.getClassLoader());
@@ -36,6 +42,25 @@ public class Edition implements Parcelable {
         strategy = in.readString();
         year = in.readString();
         editionNumber = in.readString();
+        startDate = (Date) in.readSerializable();
+        stopDate = (Date) in.readSerializable();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(coordinator1, flags);
+        dest.writeParcelable(coordinator2, flags);
+        dest.writeTypedList(members);
+        dest.writeString(strategy);
+        dest.writeString(year);
+        dest.writeString(editionNumber);
+        dest.writeSerializable(startDate);
+        dest.writeSerializable(stopDate);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Edition> CREATOR = new Creator<Edition>() {
@@ -128,18 +153,4 @@ public class Edition implements Parcelable {
                 '}';
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(coordinator1, flags);
-        dest.writeParcelable(coordinator2, flags);
-        dest.writeTypedList(members);
-        dest.writeString(strategy);
-        dest.writeString(year);
-        dest.writeString(editionNumber);
-    }
 }

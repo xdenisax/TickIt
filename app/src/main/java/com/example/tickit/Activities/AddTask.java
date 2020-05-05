@@ -1,6 +1,5 @@
 package com.example.tickit.Activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -28,16 +27,8 @@ import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +38,6 @@ public class AddTask extends AppCompatActivity {
     ImageButton backButton;
     Button saveButton;
     Spinner spinnerProject, divisionsSpinner;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     ProjectTask task;
     TextView title;
     int isEditMode =0;
@@ -100,8 +90,8 @@ public class AddTask extends AppCompatActivity {
         taskNameEditText.setText(task.getTaskName());
         taskDescriptionEditText.setText(task.getTaskDescription());
         taskResourceEditText.setText(task.getTaskResource());
-        startDateTaskEditText.setText(dateFormat.format(task.getStartDate()));
-        stopDateTaskEditText.setText(dateFormat.format(task.getStopDate()));
+        startDateTaskEditText.setText(DateProcessing.dateFormat.format(task.getStartDate()));
+        stopDateTaskEditText.setText(DateProcessing.dateFormat.format(task.getStopDate()));
         numberOfMemberEditText.setText(String.valueOf(task.getNumberOfVolunteers()));
     }
 
@@ -121,20 +111,31 @@ public class AddTask extends AppCompatActivity {
         final ArrayList<String> projects = new ArrayList<>();
         projects.add("Proiect");
         boolean isBeBC=false;
-        for (Mandate mandate : MainActivity.getLoggedInUser().getMandates()){
+        for (final Mandate mandate : MainActivity.getLoggedInUser().getMandates()){
             if(isOnGoing(mandate)  ) {
-                if(mandate.getProjectName().equals("BE-BC")) {
-                    isBeBC=true;
-                    ProjectDatabaseCalls.getProjectsNames(new CallbackArrayListStrings() {
-                        @Override
-                        public void onCallback(ArrayList<String> strings) {
-                            projects.addAll(strings);
-                            callbackArrayListStrings.onCallback(projects);
+                ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
+                    @Override
+                    public void onCallBack(String value) {
+                        if(value.equals("BE-BC")) {
+                            Log.d("filteredList", value+"");
+                            ProjectDatabaseCalls.getProjectsNames(new CallbackArrayListStrings() {
+                                @Override
+                                public void onCallback(ArrayList<String> strings) {
+                                    projects.addAll(strings);
+                                    callbackArrayListStrings.onCallback(projects);
+                                }
+                            });
+                        }else{
+                            ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
+                                @Override
+                                public void onCallBack(String value) {
+                                    projects.add(value);
+                                }
+                            });
                         }
-                    });
-                }else{
-                    projects.add(mandate.getProjectName());
-                }
+                    }
+                });
+
             }
         }
         if(!isBeBC) {
@@ -143,16 +144,7 @@ public class AddTask extends AppCompatActivity {
     }
 
     private boolean isOnGoing(Mandate mandate) {
-        try {
-            SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd-MM-yyyy");
-            Date endDate = dateFormat2.parse(mandate.getEndDate());
-            return System.currentTimeMillis() < endDate.getTime();
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "Nu am putut obtine data de sfarsit pentru proiectul "+ mandate.getProjectName(), Toast.LENGTH_LONG).show();
-        }
-        return false;
+        return System.currentTimeMillis() < mandate.getStop_date().getTime();
     }
 
     private void saveButtonPressed() {
@@ -204,7 +196,7 @@ public class AddTask extends AppCompatActivity {
                     @Override
                     public void callback(DocumentReference documentReference) {
                         callbackPrjectTask.onCallBack(
-                                new ProjectTask((taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (dateFormat.format(new Date().getTime())).replace("/", "")).replace(" ", ""),
+                                new ProjectTask((taskNameEditText.getText().toString() + spinnerProject.getSelectedItem().toString() + (DateProcessing.dateFormat.format(new Date().getTime())).replace("/", "")).replace(" ", ""),
                                         taskNameEditText.getText().toString(),
                                         taskDescriptionEditText.getText().toString(),
                                         documentReference,

@@ -3,11 +3,12 @@ package com.example.tickit.Utils;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateProcessing {
+public class DateProcessing implements Serializable {
     public static  SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     public static  boolean dateValidation(EditText date) {

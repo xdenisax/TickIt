@@ -21,9 +21,14 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Adapters.SpinnerYearAdapter;
 import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Classes.Edition;
+import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.Project;
+import com.example.tickit.Classes.User;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
+import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.R;
+import com.example.tickit.Utils.DateProcessing;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -57,7 +62,9 @@ public class ProjectProfile extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(REQUEST_CODE_ADD_EDITION==requestCode && resultCode==RESULT_OK){
             if(data!=null){
-                ProjectDatabaseCalls.saveEdition(project, addNewEditionToLocalProject(data),  new CallbackBoolean() {
+                Edition newEdition = (Edition) data.getParcelableExtra("newAddedEdition");
+                addNewEditionToLocalProject(newEdition);
+                ProjectDatabaseCalls.saveEdition(project, newEdition,  new CallbackBoolean() {
                     @Override
                     public void callback(Boolean bool) {
                         if (bool) {
@@ -67,18 +74,30 @@ public class ProjectProfile extends AppCompatActivity {
                         }
                     }
                 });
+                addMandates(newEdition);
             }else{
                 Toast.makeText(getApplicationContext(), "Nu s-a adaugat o editie noua.",Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private Edition addNewEditionToLocalProject(Intent data) {
+    private void addMandates(Edition newEdition) {
+        Mandate mandate  = new Mandate(
+                (FirebaseFirestore.getInstance()).collection("projects").document(project.getId()),
+                "Coordonator",
+                newEdition.getStartDate(),
+                newEdition.getStopDate(),
+                2);
+        UserDatabaseCalls.addMandate(newEdition.getCoordinator1().getEmail(), mandate);
+        if(newEdition.getCoordinator2()!=null){
+            UserDatabaseCalls.addMandate(newEdition.getCoordinator2().getEmail(), mandate);
+        }
+    }
+
+    private void addNewEditionToLocalProject( Edition newEdition) {
         ArrayList<Edition> updatedEditions= project.getEditions();
-        Edition newEdition = (Edition) data.getParcelableExtra("newAddedEdition");
         updatedEditions.add(newEdition);
         project.setEditions(updatedEditions);
-        return  newEdition;
     }
 
     private void assignViews() {
@@ -124,7 +143,10 @@ public class ProjectProfile extends AppCompatActivity {
                     if (project.getEditions().get(position) == null) {
                         Toast.makeText(getApplicationContext(), "Nu exista informatii despre acest proiect momentan.", Toast.LENGTH_LONG).show();
                     } else {
-                        startActivity(new Intent(getApplicationContext(), EditionProfile.class).putExtra("editionFromProjectProfile", project.getEditions().get(position)));
+                        startActivity(new Intent(getApplicationContext(), EditionProfile.class)
+                                .putExtra("editionFromProjectProfile", project.getEditions().get(position))
+                                .putExtra("projectNameFromProjectProfile", project.getName())
+                                .putExtra("projectIdFromProjectProfile", project.getId()));
                     }
                 }
             }

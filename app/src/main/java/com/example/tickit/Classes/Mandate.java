@@ -3,30 +3,51 @@ package com.example.tickit.Classes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Date;
+
 public class Mandate implements Parcelable {
 
-    private String projectName;
+    private DocumentReference project_name;
     private String position;
-    private String startDate;
-    private String endDate;
+    private Date start_date;
+    private Date stop_date;
     private int grade;
+
 
     public Mandate() { }
 
-    public Mandate(String projectName, String position, String startDate, String endDate, int grade) {
-        this.projectName=projectName;
+    public Mandate(DocumentReference projectName, String position, Date startDate, Date endDate, int grade) {
+        this.project_name =projectName;
         this.position = position;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.start_date = startDate;
+        this.stop_date = endDate;
         this.grade = grade;
     }
 
+
     protected Mandate(Parcel in) {
-        projectName= in.readString();
+        project_name = FirebaseFirestore.getInstance().document((String) in.readSerializable());
         position = in.readString();
-        startDate = in.readString();
-        endDate = in.readString();
         grade = in.readInt();
+        start_date = (Date) in.readSerializable();
+        stop_date = (Date) in.readSerializable();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(project_name.getPath());
+        dest.writeString(position);
+        dest.writeInt(grade);
+        dest.writeSerializable(start_date);
+        dest.writeSerializable(stop_date);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Mandate> CREATOR = new Creator<Mandate>() {
@@ -41,12 +62,12 @@ public class Mandate implements Parcelable {
         }
     };
 
-    public String getProjectName() {
-        return this.projectName;
+    public DocumentReference getProject_name() {
+        return project_name;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setProject_name(DocumentReference project_name) {
+        this.project_name = project_name;
     }
 
     public String getPosition() {
@@ -57,20 +78,20 @@ public class Mandate implements Parcelable {
         this.position = position;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public Date getStart_date() {
+        return start_date;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
     }
 
-    public String getEndDate() {
-        return endDate;
+    public Date getStop_date() {
+        return stop_date;
     }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
+    public void setStop_date(Date stop_date) {
+        this.stop_date = stop_date;
     }
 
     public int getGrade() {
@@ -84,25 +105,13 @@ public class Mandate implements Parcelable {
     @Override
     public String toString() {
         return "Mandate{" +
-                "projectName='" + projectName + '\'' +
+                "projectName='" + project_name + '\'' +
                 ", position='" + position + '\'' +
-                ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
+                ", startDate='" + start_date + '\'' +
+                ", endDate='" + stop_date + '\'' +
                 ", grade=" + grade +
                 '}';
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(projectName);
-        dest.writeString(position);
-        dest.writeString(startDate);
-        dest.writeString(endDate);
-        dest.writeInt(grade);
-    }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Callbacks.CallbackArrayListEditions;
@@ -28,17 +29,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProjectDatabaseCalls {
@@ -82,30 +87,29 @@ public class ProjectDatabaseCalls {
 
     public static void getProjects(final CallbackArrayListProjects callbackArrayListProjects){
         final ArrayList<Project> projectsFromDataBase = new ArrayList<>();
-        instance.collection("projects").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull final Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (final QueryDocumentSnapshot document : task.getResult()) {
-                        getEditions(document, new CallbackArrayListEditions() {
-                            @Override
-                            public void callback(ArrayList<Edition> editions) {
-                                Project project = document.toObject(Project.class);
-                                project.setId(document.getId());
-                                project.setEditions(editions);
-                                Log.d("filteredList",project.getName());
-                                projectsFromDataBase.add(project);
-                                if(projectsFromDataBase.size()==task.getResult().size() -1){
-                                    callbackArrayListProjects.callback(projectsFromDataBase);
+        instance
+                .collection("projects")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        final List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        for(final DocumentSnapshot document: list){
+                            getEditions(document, new CallbackArrayListEditions() {
+                                @Override
+                                public void callback(ArrayList<Edition> editions) {
+                                    Project project = document.toObject(Project.class);
+                                    project.setId(document.getId());
+                                    project.setEditions(editions);
+                                    projectsFromDataBase.add(project);
+                                    if(projectsFromDataBase.size()==list.size() -1){
+                                        callbackArrayListProjects.callback(projectsFromDataBase);
+                                    }
                                 }
-                            }
-                        });
+                            });
+
+                        }
                     }
-                } else {
-                    Log.d("projectsCheck", "Error getting documents.", task.getException());
-                }
-            }
-        });
+                });
     }
 
     public static void getDocumentReferenceProject(String projectName, final CallbackDocumentReference callbackDocumentReference) {
@@ -121,41 +125,38 @@ public class ProjectDatabaseCalls {
                 });
     }
 
-    private static void getEditions(QueryDocumentSnapshot document, final CallbackArrayListEditions callbackArrayListEditions){
-        String subCollectionID= document.getString("name").substring(0,1).toLowerCase()
-                +document.getString("name").substring(1).replace(" ","")
-                + "Editions";
+    private static void getEditions(DocumentSnapshot document, final CallbackArrayListEditions callbackArrayListEditions){
+        String subCollectionID= getSubCollectionName(document);
         final ArrayList<Edition> editions = new ArrayList<Edition>();
 
         instance
                 .collection("projects")
                 .document(document.getId())
                 .collection(subCollectionID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull final Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                initializeEdition(document, new CallbackEdition() {
-                                    @Override
-                                    public void callback(Edition edition) {
-                                        editions.add(edition);
-                                        if (editions.size() == task.getResult().size()) {
-                                            callbackArrayListEditions.callback(editions);
-                                        }
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        final List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot document :list) {
+                            initializeEdition(document, new CallbackEdition() {
+                                @Override
+                                public void callback(Edition edition) {
+                                    Log.d("filteredList", edition.getCoordinator1().toString() );
+                                    if(edition.getCoordinator2()!=null){
+                                        Log.d("filteredList", edition.getCoordinator2().toString() );
                                     }
-                                });
-                            }
-                        } else {
-                            Log.d("projectCheck", "Error getting documents: ", task.getException());
+                                    editions.add(edition);
+                                    if (editions.size() == list.size()) {
+                                        callbackArrayListEditions.callback(editions);
+                                    }
+                                }
+                            });
                         }
                     }
                 });
-
     }
 
-    private static void initializeEdition(final QueryDocumentSnapshot document, final CallbackEdition callbackEdition) {
+    private static void initializeEdition(final DocumentSnapshot document, final CallbackEdition callbackEdition) {
         final Edition edition = new Edition();
         UserDatabaseCalls.getUser(document.getDocumentReference("coordinator1"),  new CallbackUser() {
             @Override
@@ -181,7 +182,7 @@ public class ProjectDatabaseCalls {
                                         members.add(user);
                                         if(members.size() == documentReferences.size()){
                                             edition.setMembers(members);
-                                            Log.d("filteredList", String.valueOf(document.get("year"))+"     "+edition.getCoordinator1().getEmail()+edition.getCoordinator2().getEmail());
+                                            Log.d("filteredList", String.valueOf(document.get("year"))+"     "+edition.getStartDate() + " " + edition.getStopDate());
                                             callbackEdition.callback(edition);
                                         }
                                     }
@@ -198,7 +199,7 @@ public class ProjectDatabaseCalls {
     }
 
     public static void saveEdition(final Project project, final Edition edition, final CallbackBoolean callbackBoolean){
-        final String subCollectionRef =project.getName().substring(0,1).toLowerCase() +project.getName().substring(1).replace(" ","") + "Editions";
+        final String subCollectionRef = getSubCollectionName(project.getName());
         Log.d("filteredList", edition.toString());
         final Map<String, Object> editionMap = new HashMap<>();
 
@@ -234,13 +235,19 @@ public class ProjectDatabaseCalls {
         });
     }
 
-    private static void updateDatesEdition(Project project, Edition edition, String subCollectionRef) {
+    public static void updateEditionStrategy(String projectName, String projectID, Edition edition, final CallbackBoolean callbackBoolean){
         instance
                 .collection(COLLECTION_NAME)
-                .document(project.getId())
-                .collection(subCollectionRef)
+                .document(projectID)
+                .collection(getSubCollectionName(projectName))
                 .document(edition.getEditionNumber())
-                .update("startDate", "");
+                .update("strategy", edition.getStrategy())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        callbackBoolean.callback(true);
+                    }
+                });
     }
 
     public static void getPhotoUri(String imageLink, final CallbackString callbackString){
@@ -258,5 +265,17 @@ public class ProjectDatabaseCalls {
             }
         });
 
+    }
+
+    private static String getSubCollectionName(DocumentSnapshot document){
+        return  document.getString("name").substring(0,1).toLowerCase()
+                +document.getString("name").substring(1).replace(" ","")
+                + "Editions";
+    }
+
+    private static String getSubCollectionName(String document){
+        return  document.substring(0,1).toLowerCase()
+                +document.substring(1).replace(" ","")
+                + "Editions";
     }
 }

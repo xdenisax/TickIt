@@ -39,7 +39,7 @@ public class AddEdition extends AppCompatActivity {
     EditText editionStartDate, editionStopDate, searchCoordinators, editionNumber;
     ListView membersListView;
     Button addEditionButton;
-    ImageButton deleteSelectedCoordinatorsButton;
+    ImageButton deleteSelectedCoordinatorsButton, backButton;
     TextView selectedCoordinators;
     String str="";
     ListViewMemberAdapter adapter;
@@ -55,6 +55,7 @@ public class AddEdition extends AppCompatActivity {
         setListenerOnListView();
         deleteSelectedCoordinatorsButtonPressed();
         addEditionButtonPressed();
+        backButtonPressed();
     }
 
     private void assignViews() {
@@ -64,6 +65,7 @@ public class AddEdition extends AppCompatActivity {
         membersListView = (ListView) findViewById(R.id.searchCoordinatorListview);
         addEditionButton = (Button) findViewById(R.id.addEditionButton);
         deleteSelectedCoordinatorsButton = (ImageButton) findViewById(R.id.deleteSelectedCoordinatorsButton);
+        backButton = (ImageButton) findViewById(R.id.backButtonAddEdition);
         selectedCoordinators = (TextView) findViewById(R.id.selectedCoordinators);
         editionNumber=(EditText) findViewById(R.id.editionNumber);
     }
@@ -144,6 +146,16 @@ public class AddEdition extends AppCompatActivity {
                     setResult(Activity.RESULT_OK, new Intent().putExtra("newAddedEdition", newEdition));
                     finish();
                 }
+            }
+        });
+    }
+
+    private void backButtonPressed() {
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeToast("Nu a fost adaugata o editie noua.");
+                finish();
             }
         });
     }

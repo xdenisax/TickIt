@@ -1,7 +1,11 @@
 package com.example.tickit.Activities;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,10 +21,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Adapters.ListViewMemberAdapter;
+import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Classes.Edition;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
+import com.example.tickit.PopUps.AddStrategyPopUp;
 import com.example.tickit.R;
+import com.example.tickit.Utils.DateProcessing;
 
 import java.util.ArrayList;
 
@@ -31,6 +39,9 @@ public class EditionProfile extends AppCompatActivity {
     ImageView coordinator1ImageView,coordinator2ImageView;
     Button strategyButton;
     ImageButton backButton;
+    String projectName, projectId;
+
+    int REQUEST_CODE_ADD_STRATEGY=21;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,25 @@ public class EditionProfile extends AppCompatActivity {
         strategyButtonPressed();
         backButtonPressed();
         coordinatorsPressed();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE_ADD_STRATEGY&& resultCode==RESULT_OK && data!=null){
+            if(data.getStringExtra("strategyLink")==null){
+                Toast.makeText(getApplicationContext(), "Nu s-a primit link-ul.", Toast.LENGTH_LONG).show();
+            }else{
+                edition.setStrategy(data.getStringExtra("strategyLink"));
+                ProjectDatabaseCalls.updateEditionStrategy(projectName, projectId, edition, new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        Toast.makeText(getApplicationContext(), "S-a adaugat strategia in baza de date.", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            }
+        }
     }
 
     private void assignViews() {
@@ -58,6 +88,8 @@ public class EditionProfile extends AppCompatActivity {
     private void manageIntent(Intent intent) {
         if(intent.getParcelableExtra("editionFromProjectProfile")!= null) {
             edition = (Edition) intent.getParcelableExtra("editionFromProjectProfile");
+            projectId = intent.getStringExtra("projectIdFromProjectProfile");
+            projectName = intent.getStringExtra("projectNameFromProjectProfile");
             fillWithInfo(edition);
         }
     }
@@ -116,9 +148,36 @@ public class EditionProfile extends AppCompatActivity {
         strategyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(edition.getStrategy())));
+                if(edition.getStrategy()==null){
+                    if(MainActivity.getUserGrade() <3){
+                        launchAlertBox();
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Inca nu a fost incarcata strategia.", Toast.LENGTH_LONG).show();
+                    }
+                }else{
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(edition.getStrategy())));
+                }
             }
         });
+    }
+
+    private void launchAlertBox() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(EditionProfile.this);
+        dialog.setTitle("Doriti adaugarea strategiei?");
+        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivityForResult(new Intent(getApplicationContext(), AddStrategyPopUp.class), REQUEST_CODE_ADD_STRATEGY);
+            }
+        }).setNegativeButton("Nu", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
     }
 
     private void setActionOnMembersListView(ListView editionMembersListView) {

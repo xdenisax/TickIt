@@ -14,8 +14,7 @@ import androidx.annotation.Nullable;
 import com.example.tickit.R;
 
 public class EditPopUp extends Activity {
-    Button save;
-    Button cancel;
+    Button save, cancel;
     EditText phoneNumberEditText;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,13 +22,19 @@ public class EditPopUp extends Activity {
         setContentView(R.layout.activity_edit_pop_up);
 
         setMetrics();
-        setActionsOnSaveButton(save);
-        setActionsOnCancelButton(cancel);
+        assignViews();
+        setActionsOnSaveButton();
+        setActionsOnCancelButton();
 
     }
 
-    private void setActionsOnCancelButton(Button cancel) {
+    private void assignViews() {
         cancel = (Button) findViewById(R.id.cancelPopUp);
+        save = (Button) findViewById(R.id.savePhoneNumberPopUp);
+        phoneNumberEditText = (EditText)findViewById(R.id.phoneNumberEditText);
+    }
+
+    private void setActionsOnCancelButton() {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,9 +44,7 @@ public class EditPopUp extends Activity {
         });
     }
 
-    private void setActionsOnSaveButton(Button save) {
-        save = (Button) findViewById(R.id.savePhoneNumberPopUp);
-        phoneNumberEditText = (EditText)findViewById(R.id.phoneNumberEditText);
+    private void setActionsOnSaveButton() {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

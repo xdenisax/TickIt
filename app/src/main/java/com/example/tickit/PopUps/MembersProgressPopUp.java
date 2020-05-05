@@ -40,6 +40,7 @@ public class MembersProgressPopUp extends AppCompatActivity {
         if(intent.getParcelableExtra("memberFromTaskProfile")!= null) {
             fillWithInfo((AssumedTasksSituation) intent.getParcelableExtra("memberFromTaskProfile"));
             task = (AssumedTasksSituation) intent.getParcelableExtra("memberFromTaskProfile");
+            saveButton.setVisibility(View.GONE);
             progressSeekBar.setEnabled(false);
         }
         if(intent.getParcelableExtra("personalProgressFromTaskProfile")!= null) {
