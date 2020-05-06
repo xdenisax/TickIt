@@ -57,11 +57,16 @@ public class EditionProfile extends AppCompatActivity {
 
         assignViews();
         setAllowanceOnViews();
-        manageIntent(getIntent());
         strategyButtonPressed();
         backButtonPressed();
         addMembersButtonPressed();
         coordinatorsPressed();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        manageIntent(getIntent());
     }
 
     @Override
@@ -83,12 +88,22 @@ public class EditionProfile extends AppCompatActivity {
         }
 
         if(requestCode == REQUEST_CODE_ADD_MEMBERS && resultCode==RESULT_OK && data!=null ){
-            if(data.getParcelableArrayListExtra("newlyAddedMembers")==null){
+            if(data.getParcelableArrayListExtra("newlyAddedMembers")==null && data.getParcelableArrayListExtra("newlyAddedDivisionLead")==null ){
                 Toast.makeText(getApplicationContext(), "Nu s-a primit lista cu noii membri. Mai incearaca o data.", Toast.LENGTH_LONG).show();
             }else{
-                ArrayList<User> newlyAddedMembers = data.getParcelableArrayListExtra("newlyAddedMembers");
+                ArrayList<User> newlyAddedMembers = new ArrayList<>();
+                boolean isDivisionLeads = false;
+                if(data.getParcelableArrayListExtra("newlyAddedDivisionLead")!=null ){
+                    isDivisionLeads=true;
+                    newlyAddedMembers = data.getParcelableArrayListExtra("newlyAddedDivisionLead");
+                    Log.d("filteredList", String.valueOf(newlyAddedMembers));
+                }
+                if(data.getParcelableArrayListExtra("newlyAddedMembers")!=null ){
+                    isDivisionLeads=false;
+                    newlyAddedMembers = data.getParcelableArrayListExtra("newlyAddedMembers");
+                }
                 setNewMembers(newlyAddedMembers);
-                addMandates(newlyAddedMembers);
+                addMandates(newlyAddedMembers, isDivisionLeads);
                 ProjectDatabaseCalls.addEditionMembers(newlyAddedMembers, projectName,projectId,edition);
                 Toast.makeText(getApplicationContext(), "S-au adaugat membrii.", Toast.LENGTH_LONG).show();
             }
@@ -103,14 +118,16 @@ public class EditionProfile extends AppCompatActivity {
         loadListView();
     }
 
-    private void addMandates(ArrayList<User> users) {
+    private void addMandates(ArrayList<User> users, boolean isDivisionLeads) {
         for(User user:users){
             Mandate mandate  = new Mandate(
                     (FirebaseFirestore.getInstance()).collection("projects").document(projectId),
-                    "Membru",
+                    null,
                     edition.getStartDate(),
                     edition.getStopDate(),
                     2);
+            if(isDivisionLeads){ mandate.setPosition("Lider de divizie"); }
+            else{ mandate.setPosition("Membru"); }
             UserDatabaseCalls.addMandate(user.getEmail(), mandate);
         }
     }

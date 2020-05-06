@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -36,6 +37,7 @@ public class AddMemberProject extends AppCompatActivity {
     ListViewMemberAdapter adapter;
     ArrayList<User > alreadyMembers;
     ArrayList<User> newlyAddedMembers;
+    CheckBox isDivisionLead;
     String addedMembersString="";
 
     @Override
@@ -76,6 +78,7 @@ public class AddMemberProject extends AppCompatActivity {
         selectedMembers = (TextView) findViewById(R.id.selectedMembers);
         saveMembersButton = (Button ) findViewById(R.id.addMembersButton);
         memberListView = (ListView)findViewById(R.id.searchMembersListView);
+        isDivisionLead = (CheckBox) findViewById(R.id.isDivisionLeadCheckbox);
     }
 
     private void loadListView() {
@@ -154,8 +157,13 @@ public class AddMemberProject extends AppCompatActivity {
             public void onClick(View v) {
                 if(newlyAddedMembers!=null){
                     if(newlyAddedMembers.size()>0){
-                        setResult(RESULT_OK, new Intent().putParcelableArrayListExtra("newlyAddedMembers", newlyAddedMembers));
-                        finish();
+                        if(isDivisionLead.isChecked()){
+                            setResult(RESULT_OK, new Intent().putParcelableArrayListExtra("newlyAddedDivisionLead", newlyAddedMembers));
+                            finish();
+                        }else{
+                            setResult(RESULT_OK, new Intent().putParcelableArrayListExtra("newlyAddedMembers", newlyAddedMembers));
+                            finish();
+                        }
                     }else{
                         Toast.makeText(getApplicationContext(), "Nu s-a selectat niciun membru. ", Toast.LENGTH_LONG).show();
                     }

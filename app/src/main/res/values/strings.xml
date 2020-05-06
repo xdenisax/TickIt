@@ -51,6 +51,7 @@
     <string name="link_strategie">Link strategie</string>
     <string name="adauga_membri">Adauga membri</string>
     <string name="cauta_membrii_dupa_email">Cauta membrii dupa email.</string>
+    <string name="lider_de_divizie">Lider de divizie</string>
 
     <string-array name="departments">
         <item>Departament</item>

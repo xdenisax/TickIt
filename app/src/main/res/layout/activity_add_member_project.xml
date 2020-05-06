@@ -45,6 +45,26 @@
         app:layout_constraintTop_toBottomOf="@+id/backButtonAddMembers"
         app:layout_constraintVertical_bias="0.0" />
 
+    <CheckBox
+        android:id="@+id/isDivisionLeadCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/addMembersButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddMembers"
+        app:layout_constraintVertical_bias="0.0"
+        android:text="@string/lider_de_divizie"
+        android:fontFamily="@font/colombia"
+        android:textColor="@color/dirty_white"
+        android:textSize="23sp"
+        android:buttonTint="@color/vivid_cyan" />
+
     <TextView
         android:id="@+id/selectedMembers"
         android:layout_width="0dp"
@@ -87,21 +107,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:padding="5dp"
-        android:drawableStart="@drawable/search"
         android:background="@drawable/square_background"
+        android:drawableStart="@drawable/search"
         android:hint="@string/cauta_membrii_dupa_email"
         android:inputType="textEmailAddress"
+        android:padding="5dp"
         android:textColor="@color/dirty_white"
         android:textColorHint="#46E1EFE6"
         android:textCursorDrawable="@color/dirty_white"
         app:layout_constraintBottom_toTopOf="@+id/addMembersButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddMembers"
+        app:layout_constraintTop_toBottomOf="@+id/isDivisionLeadCheckbox"
         app:layout_constraintVertical_bias="0.0" />
 
     <ListView
