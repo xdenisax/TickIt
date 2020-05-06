@@ -15,35 +15,33 @@
             android:orientation="vertical"
             android:layout_weight="1"
             android:paddingLeft="60dp">
+
             <TextView
                 android:id="@+id/positionTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/colombia"
-                android:textSize="35sp"
                 android:textColor="@color/vivid_cyan"
-                android:text="Membru"/>
+                android:textSize="35sp" />
 
             <TextView
                 android:id="@+id/projectNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/dirty_white"
-                android:textSize="20sp"
                 android:fontFamily="@font/colombia"
-                android:text="Tap That Job"/>
+                android:textColor="@color/dirty_white"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/editionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/dirty_white"
-            android:textSize="50sp"
+            android:layout_gravity="center_vertical"
             android:fontFamily="@font/colombia"
             android:paddingRight="60dp"
-            android:layout_gravity="center_vertical"
-            android:text="2019"/>
+            android:textColor="@color/dirty_white"
+            android:textSize="50sp" />
 
     </LinearLayout>
     <TextView

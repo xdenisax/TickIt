@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".Activities.AddMemberProject"
     android:background="@color/darkblue">
 
     <ImageButton
-        android:id="@+id/backButtonAddEdition"
+        android:id="@+id/backButtonAddMembers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -26,7 +26,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/titleTextViewAddEdition"
+        android:id="@+id/titleTextViewAddMembers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -35,78 +35,18 @@
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
         android:gravity="center"
-        android:text="@string/adauga_editie"
+        android:text="@string/adauga_membri"
         android:textColor="@color/dirty_white"
         android:textSize="45sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/backButtonAddEdition"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
-        android:id="@+id/editionStartDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="@color/vivid_cyan"
-        android:digits="0123456789-"
-        android:hint="@string/ziua_de_start_ex_01_12_2020"
-        android:inputType="number|textPassword|date"
-        android:textColor="@color/dirty_white"
-        android:textColorHint="#46E1EFE6"
-        android:textCursorDrawable="@color/dirty_white"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editionNumber"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
-        android:id="@+id/editionNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="@color/vivid_cyan"
-        android:hint="@string/numar_editie_ex_10"
-        android:inputType="number"
-        android:textColor="@color/dirty_white"
-        android:textColorHint="#46E1EFE6"
-        android:textCursorDrawable="@color/dirty_white"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddEdition"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
-        android:id="@+id/editionStopDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="@color/vivid_cyan"
-        android:digits="0123456789-"
-        android:hint="@string/ultima_zi_a_editiei_ex_05_04_2020"
-        android:inputType="number|textPassword|date"
-        android:textColor="@color/dirty_white"
-        android:textColorHint="#46E1EFE6"
-        android:textCursorDrawable="@color/dirty_white"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editionStartDate"
+        app:layout_constraintTop_toBottomOf="@+id/backButtonAddMembers"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/selectedCoordinators"
+        android:id="@+id/selectedMembers"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -114,18 +54,18 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:fontFamily="@font/colombia"
-        android:text="@string/coordonatori"
+        android:text="@string/membri"
         android:textColor="@color/dirty_white"
         android:textSize="23sp"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
-        app:layout_constraintEnd_toStartOf="@+id/deleteSelectedCoordinatorsButton"
+        app:layout_constraintBottom_toTopOf="@+id/addMembersButton"
+        app:layout_constraintEnd_toStartOf="@+id/deleteSelectedMembersButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchBarEditTextAddEdition"
+        app:layout_constraintTop_toBottomOf="@+id/searchBarEditTextAddMembers"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageButton
-        android:id="@+id/deleteSelectedCoordinatorsButton"
+        android:id="@+id/deleteSelectedMembersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -135,49 +75,51 @@
         android:background="@drawable/circle_background_small"
         android:src="@drawable/ic_delete_black_24dp"
         android:foreground="@drawable/ripple_round_effect_button"
-        app:layout_constraintBottom_toTopOf="@+id/searchCoordinatorListview"
+        app:layout_constraintBottom_toTopOf="@+id/selectedMembers"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchBarEditTextAddEdition" />
+        app:layout_constraintTop_toBottomOf="@+id/selectedMembers" />
+
 
     <EditText
-        android:id="@+id/searchBarEditTextAddEdition"
+        android:id="@+id/searchBarEditTextAddMembers"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/vivid_cyan"
+        android:padding="5dp"
         android:drawableStart="@drawable/search"
-        android:hint="@string/cauta_coordonatorii_dupa_email"
+        android:background="@drawable/square_background"
+        android:hint="@string/cauta_membrii_dupa_email"
         android:inputType="textEmailAddress"
         android:textColor="@color/dirty_white"
         android:textColorHint="#46E1EFE6"
         android:textCursorDrawable="@color/dirty_white"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
+        app:layout_constraintBottom_toTopOf="@+id/addMembersButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editionStopDate"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddMembers"
         app:layout_constraintVertical_bias="0.0" />
 
     <ListView
-        android:id="@+id/searchCoordinatorListview"
+        android:id="@+id/searchMembersListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/addEditionButton"
+        app:layout_constraintBottom_toTopOf="@+id/addMembersButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectedCoordinators" />
+        app:layout_constraintTop_toBottomOf="@+id/selectedMembers" />
 
 
     <Button
-        android:id="@+id/addEditionButton"
+        android:id="@+id/addMembersButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -194,7 +136,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddEdition"
+        app:layout_constraintTop_toBottomOf="@+id/titleTextViewAddMembers"
         app:layout_constraintVertical_bias="1.0" />
 
 

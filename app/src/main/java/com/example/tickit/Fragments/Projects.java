@@ -60,9 +60,14 @@ public class Projects extends Fragment {
         view=inflater.inflate(R.layout.fragment_projects, container, false);
         assignViews();
 
-        loadListView();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadListView();
     }
 
     private void assignViews() {

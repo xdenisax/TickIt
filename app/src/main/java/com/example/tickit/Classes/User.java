@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class User implements Parcelable {
@@ -136,5 +137,18 @@ public class User implements Parcelable {
         dest.writeString(profilePicture);
         dest.writeString(departament);
         dest.writeTypedList(mandates);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return email.equals(user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, phoneNumber, email, profilePicture, departament, mandates);
     }
 }

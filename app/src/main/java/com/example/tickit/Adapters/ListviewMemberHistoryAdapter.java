@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,7 +43,9 @@ public class ListviewMemberHistoryAdapter extends ArrayAdapter<Mandate> {
             @Override
             public void onCallBack(String value) {
                 ((TextView) view.findViewById(R.id.projectNameTextView)).setText(value);
-            }
+                    Toast.makeText(getContext(), value, Toast.LENGTH_LONG).show();
+                }
+
         });
         return view;
     }

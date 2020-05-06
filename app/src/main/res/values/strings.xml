@@ -49,6 +49,8 @@
     <string name="cauta_coordonatorii_dupa_email">Cauta coordonatorii dupa email</string>
     <string name="numar_editie_ex_10">Numar editie (ex: 10)</string>
     <string name="link_strategie">Link strategie</string>
+    <string name="adauga_membri">Adauga membri</string>
+    <string name="cauta_membrii_dupa_email">Cauta membrii dupa email.</string>
 
     <string-array name="departments">
         <item>Departament</item>

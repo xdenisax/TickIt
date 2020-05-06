@@ -134,6 +134,45 @@ public class UserDatabaseCalls {
 
     }
 
+    public static void getMembersOutsideProject(final ArrayList<User> alreadyProjectMembers, final CallbackArrayListUser callbackArrayListUser){
+        instance
+                .collection(COLLECTION_NAME)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull final Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            final ArrayList<User> users = new ArrayList<>();
+                            for(QueryDocumentSnapshot d: task.getResult()){
+                                if(alreadyProjectMembers!=null){
+                                            getUser(d, new CallbackUser() {
+                                                @Override
+                                                public void callback(final User userFromFirestore) {
+                                                    if (!alreadyProjectMembers.contains(userFromFirestore)) {
+                                                        users.add(userFromFirestore);
+                                                        if(users.size()==task.getResult().size()-alreadyProjectMembers.size()){
+                                                            callbackArrayListUser.callback(users);
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                }else{
+                                    getUser(d, new CallbackUser() {
+                                        @Override
+                                        public void callback(final User userFromFirestore) {
+                                            users.add(userFromFirestore);
+                                            if(users.size()==task.getResult().size()){
+                                                callbackArrayListUser.callback(users);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
     public static void getMandates(final String userID, final CallbackArrayListMandates callbackArrayListMandates) {
         instance
                 .collection("users")

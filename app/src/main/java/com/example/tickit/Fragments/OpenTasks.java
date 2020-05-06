@@ -48,10 +48,15 @@ public class OpenTasks extends Fragment {
         assignViews();
         addTaskButtonPressed(view);
         setAllowanceOnAddTaskButton(view);
-        loadOpenTasks();
-        loadAssumedTasks();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadOpenTasks();
+        loadAssumedTasks();
     }
 
     private void assignViews() {

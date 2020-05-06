@@ -65,6 +65,12 @@ public class Members extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadListView();
+    }
+
     private void assignViews() {
         listview = (ListView) view.findViewById(R.id.membriListView);
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);

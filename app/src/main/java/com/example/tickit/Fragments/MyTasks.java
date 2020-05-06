@@ -38,10 +38,15 @@ public class MyTasks extends Fragment {
         assignViews(view);
 
         noAssumedTasks.setVisibility(View.GONE);
-        loadListView();
-        setActionOnListView();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadListView();
+        setActionOnListView();
     }
 
     private void setActionOnListView() {

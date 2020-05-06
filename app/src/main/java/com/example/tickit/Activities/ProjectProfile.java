@@ -81,6 +81,11 @@ public class ProjectProfile extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
     private void addMandates(Edition newEdition) {
         Mandate mandate  = new Mandate(
                 (FirebaseFirestore.getInstance()).collection("projects").document(project.getId()),

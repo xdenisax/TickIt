@@ -14,9 +14,11 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PopUps.AddStrategyPopUp"
-            android:theme="@style/AppTheme.PopUpTheme"></activity>
-        <activity android:name=".Activities.AddEdition"></activity>
+        <activity android:name=".Activities.AddMemberProject"></activity>
+        <activity
+            android:name=".PopUps.AddStrategyPopUp"
+            android:theme="@style/AppTheme.PopUpTheme" />
+        <activity android:name=".Activities.AddEdition" />
         <activity
             android:name=".PopUps.MembersProgressPopUp"
             android:theme="@style/AppTheme.PopUpTheme" />

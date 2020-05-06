@@ -31,6 +31,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -141,10 +142,6 @@ public class ProjectDatabaseCalls {
                             initializeEdition(document, new CallbackEdition() {
                                 @Override
                                 public void callback(Edition edition) {
-                                    Log.d("filteredList", edition.getCoordinator1().toString() );
-                                    if(edition.getCoordinator2()!=null){
-                                        Log.d("filteredList", edition.getCoordinator2().toString() );
-                                    }
                                     editions.add(edition);
                                     if (editions.size() == list.size()) {
                                         callbackArrayListEditions.callback(editions);
@@ -175,18 +172,22 @@ public class ProjectDatabaseCalls {
                         final ArrayList<DocumentReference> documentReferences = (ArrayList<DocumentReference>) document.get("members");
                         if(documentReferences!=null){
                             final ArrayList<User> members = new ArrayList<>();
-                            for(final DocumentReference docRef: documentReferences){
-                                UserDatabaseCalls.getUser(docRef, new CallbackUser() {
-                                    @Override
-                                    public void callback(User user) {
-                                        members.add(user);
-                                        if(members.size() == documentReferences.size()){
-                                            edition.setMembers(members);
-                                            Log.d("filteredList", String.valueOf(document.get("year"))+"     "+edition.getStartDate() + " " + edition.getStopDate());
-                                            callbackEdition.callback(edition);
+                            if(documentReferences.size()<1){
+                                edition.setMembers(members);
+                                callbackEdition.callback(edition);
+                            }else{
+                                for(final DocumentReference docRef: documentReferences){
+                                    UserDatabaseCalls.getUser(docRef, new CallbackUser() {
+                                        @Override
+                                        public void callback(User user) {
+                                            members.add(user);
+                                            if(members.size() == documentReferences.size()){
+                                                edition.setMembers(members);
+                                                callbackEdition.callback(edition);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }else{
                             edition.setMembers(null);
@@ -248,6 +249,27 @@ public class ProjectDatabaseCalls {
                         callbackBoolean.callback(true);
                     }
                 });
+    }
+
+    public static void addEditionMembers(ArrayList<User> newlyAddedUsers, String projectName, String projectID, Edition edition){
+        for(User user : newlyAddedUsers){
+            instance
+                    .collection(COLLECTION_NAME)
+                    .document(projectID)
+                    .collection(getSubCollectionName(projectName))
+                    .document(edition.getEditionNumber())
+                    .update("members", FieldValue.arrayUnion(instance.collection("users").document(user.getEmail())));
+        }
+
+    }
+
+    public static void  removeEditionMember(String email, String projectName, String projectID, Edition edition){
+        instance
+                .collection(COLLECTION_NAME)
+                .document(projectID)
+                .collection(getSubCollectionName(projectName))
+                .document(edition.getEditionNumber())
+                .update("members", FieldValue.arrayRemove(instance.collection("users").document(email)));
     }
 
     public static void getPhotoUri(String imageLink, final CallbackString callbackString){
