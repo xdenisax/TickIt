@@ -93,9 +93,9 @@ public class ProjectProfile extends AppCompatActivity {
                 newEdition.getStartDate(),
                 newEdition.getStopDate(),
                 2);
-        UserDatabaseCalls.addMandate(newEdition.getCoordinator1().getEmail(), mandate);
+        UserDatabaseCalls.addMandate(newEdition.getCoordinator1().getEmail(), mandate, project.getName());
         if(newEdition.getCoordinator2()!=null){
-            UserDatabaseCalls.addMandate(newEdition.getCoordinator2().getEmail(), mandate);
+            UserDatabaseCalls.addMandate(newEdition.getCoordinator2().getEmail(), mandate, project.getName());
         }
     }
 

@@ -111,7 +111,7 @@ public class AddTask extends AppCompatActivity {
         final ArrayList<String> projects = new ArrayList<>();
         projects.add("Proiect");
         boolean isBeBC=false;
-        for (final Mandate mandate : MainActivity.getLoggedInUser().getMandates()){
+        for (final Mandate mandate : ((GlobalVariables) getApplicationContext()).getLoggedInUser().getMandates()){
             if(isOnGoing(mandate)  ) {
                 ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
                     @Override
@@ -234,7 +234,7 @@ public class AddTask extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Alegeti proiectul pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
             return false;
         } else {
-            if(!divisionsSpinner.getSelectedItem().equals(MainActivity.getLoggedInUser().getDepartament())&& isEditMode ==0){
+            if(!divisionsSpinner.getSelectedItem().equals(((GlobalVariables) getApplicationContext()).getLoggedInUser().getDepartament())&& isEditMode ==0){
                 Toast.makeText(getApplicationContext(), "Divizia aleasa nu corespunde cu divizia ta.", Toast.LENGTH_LONG).show();
                 return false;
             }else{

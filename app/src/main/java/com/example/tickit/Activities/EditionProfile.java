@@ -103,7 +103,7 @@ public class EditionProfile extends AppCompatActivity {
                     newlyAddedMembers = data.getParcelableArrayListExtra("newlyAddedMembers");
                 }
                 setNewMembers(newlyAddedMembers);
-                addMandates(newlyAddedMembers, isDivisionLeads);
+                addMandates(newlyAddedMembers, isDivisionLeads, projectName);
                 ProjectDatabaseCalls.addEditionMembers(newlyAddedMembers, projectName,projectId,edition);
                 Toast.makeText(getApplicationContext(), "S-au adaugat membrii.", Toast.LENGTH_LONG).show();
             }
@@ -118,7 +118,7 @@ public class EditionProfile extends AppCompatActivity {
         loadListView();
     }
 
-    private void addMandates(ArrayList<User> users, boolean isDivisionLeads) {
+    private void addMandates(ArrayList<User> users, boolean isDivisionLeads, String projectName) {
         for(User user:users){
             Mandate mandate  = new Mandate(
                     (FirebaseFirestore.getInstance()).collection("projects").document(projectId),
@@ -128,7 +128,7 @@ public class EditionProfile extends AppCompatActivity {
                     2);
             if(isDivisionLeads){ mandate.setPosition("Lider de divizie"); }
             else{ mandate.setPosition("Membru"); }
-            UserDatabaseCalls.addMandate(user.getEmail(), mandate);
+            UserDatabaseCalls.addMandate(user.getEmail(), mandate, projectName);
         }
     }
 
@@ -145,7 +145,7 @@ public class EditionProfile extends AppCompatActivity {
     }
 
     private void setAllowanceOnViews() {
-        if(MainActivity.getUserGrade()>3){
+        if(((GlobalVariables) getApplicationContext()).getUserGrade()>3){
             addMembersButton.setVisibility(View.GONE);
         }
     }
@@ -162,9 +162,14 @@ public class EditionProfile extends AppCompatActivity {
     private void fillWithInfo(Edition edition) {
         yearTextView.setText(edition.getYear());
         coordinator1TextView.setText(edition.getCoordinator1().getLastName() + " " + edition.getCoordinator1().getFirstName());
-        coordinator2TextView.setText(edition.getCoordinator2().getLastName() + " " + edition.getCoordinator2().getFirstName());
+        if(edition.getCoordinator2()!=null){
+            coordinator2TextView.setText(edition.getCoordinator2().getLastName() + " " + edition.getCoordinator2().getFirstName());
+            Glide.with(getApplicationContext()).load(edition.getCoordinator2().getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(coordinator2ImageView);
+        }else{
+            coordinator2TextView.setVisibility(View.GONE);
+            coordinator2ImageView.setVisibility(View.GONE);
+        }
         Glide.with(getApplicationContext()).load(edition.getCoordinator1().getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(coordinator1ImageView);
-        Glide.with(getApplicationContext()).load(edition.getCoordinator2().getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(coordinator2ImageView);
         loadListView();
         setActionOnMembersListView(editionMembersListView);
     }
@@ -220,7 +225,7 @@ public class EditionProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(edition.getStrategy()==null){
-                    if(MainActivity.getUserGrade() <3){
+                    if(((GlobalVariables) getApplicationContext()).getUserGrade() <3){
                         launchAlertBox( null);
                     }else{
                         Toast.makeText(getApplicationContext(), "Inca nu a fost incarcata strategia.", Toast.LENGTH_LONG).show();
@@ -271,6 +276,7 @@ public class EditionProfile extends AppCompatActivity {
                             edition.getMembers().remove(edition.getMembers().indexOf(user));
                             loadListView();
                             ProjectDatabaseCalls.removeEditionMember(user.getEmail(), projectName,projectId,edition);
+                            UserDatabaseCalls.deleteMandate(user.getEmail(), projectName, edition);
                         }
                     })
                     .setNegativeButton("Nu", new DialogInterface.OnClickListener() {

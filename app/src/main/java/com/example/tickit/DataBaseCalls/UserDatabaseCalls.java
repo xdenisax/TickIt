@@ -11,8 +11,10 @@ import com.example.tickit.Callbacks.CallbackArrayListUser;
 import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackMandate;
 import com.example.tickit.Callbacks.CallbackUser;
+import com.example.tickit.Classes.Edition;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
+import com.example.tickit.Utils.DateProcessing;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -56,11 +58,9 @@ public class UserDatabaseCalls {
                         getUser(d, new CallbackUser() {
                             @Override
                             public void callback(final User userFromFirestore) {
-                                if (!userFromFirestore.getEmail().equals(MainActivity.getLoggedInUser().getEmail())) {
-                                    users.add(userFromFirestore);
-                                    if(users.size()==list.size()-1){
-                                        callbackArrayListUser.callback(users);
-                                    }
+                                users.add(userFromFirestore);
+                                if(users.size()==list.size()){
+                                    callbackArrayListUser.callback(users);
                                 }
                             }
                         });
@@ -83,27 +83,32 @@ public class UserDatabaseCalls {
     }
 
     public static void getUser(final DocumentReference documentReference, final CallbackUser callbackUser){
-        getMandates(documentReference.getId(), new CallbackArrayListMandates() {
-            @Override
-            public void callback(final ArrayList<Mandate> mandates) {
-                documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            if(task.getResult().exists()){
-                                User user = task.getResult().toObject(User.class);
-                                user.setEmail(task.getResult().getId());
-                                user.setMandates(mandates);
-                                callbackUser.callback(user);
-                            }else{
-                                callbackUser.callback(null);
-                            }
+        if(documentReference!=null){
+            getMandates(documentReference.getId(), new CallbackArrayListMandates() {
+                @Override
+                public void callback(final ArrayList<Mandate> mandates) {
+                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                if(task.getResult().exists()){
+                                    User user = task.getResult().toObject(User.class);
+                                    user.setEmail(task.getResult().getId());
+                                    user.setMandates(mandates);
+                                    callbackUser.callback(user);
+                                }else{
+                                    callbackUser.callback(null);
+                                }
 
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
+        }else{
+            callbackUser.callback(null);
+        }
+
     }
 
     public static void getUserByID(final String userID, final CallbackUser callbackUser) {
@@ -202,16 +207,21 @@ public class UserDatabaseCalls {
     }
 
     public static void getUserReference(User user, final CallbackDocumentReference callbackDocumentReference){
-       instance
-               .collection(COLLECTION_NAME)
-               .document(user.getEmail())
-               .get()
-               .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        callbackDocumentReference.callback(task.getResult().getReference());
-                    }
-                });
+        if(user != null){
+            instance
+                    .collection(COLLECTION_NAME)
+                    .document(user.getEmail())
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            callbackDocumentReference.callback(task.getResult().getReference());
+                        }
+                    });
+        }else{
+            callbackDocumentReference.callback(null);
+        }
+
     }
 
     public static void initializeMandate(final QueryDocumentSnapshot document, final CallbackMandate callbackMandate) {
@@ -226,11 +236,13 @@ public class UserDatabaseCalls {
                 callbackMandate.callback(mandate);
     }
 
-    public static void addMandate(String userEmail, Mandate mandate){
+    public static void addMandate(String userEmail, Mandate mandate, String projectName){
         instance.collection(COLLECTION_NAME)
                 .document(userEmail)
                 .collection(SUBCOLLECTION_NAME)
-                .document()
+                .document(
+                                projectName.replace(" ", "")
+                                + DateProcessing.dateFormat.format(mandate.getStart_date()).replace(" ", ""))
                 .set(mandate);
     }
 
@@ -243,5 +255,14 @@ public class UserDatabaseCalls {
 
     public static void updatePhoneNumber(String phoneNumber) {
         instance.collection("users").document(MainActivity.getLoggedInUser().getEmail()).update("phoneNumber", phoneNumber);
+    }
+
+    public static void deleteMandate(String email, String projectName, Edition edition) {
+        instance.collection(COLLECTION_NAME)
+                .document(email)
+                .collection(SUBCOLLECTION_NAME)
+                .document(projectName.replace(" ", "")
+                                + DateProcessing.dateFormat.format(edition.getStartDate()).replace(" ", ""))
+                .delete();
     }
 }

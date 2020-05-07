@@ -82,15 +82,18 @@ public class Members extends Fragment {
             @Override
             public void callback(final ArrayList<User> users) {
                 progressBar.setVisibility(View.GONE);
-                ListViewMemberAdapter adapter =new ListViewMemberAdapter(MainActivity.getContext(),R.layout.member_card,users);
-                adapter.notifyDataSetChanged();
-                listview.setAdapter(adapter);
-                listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", users.get(position)));
-                    }
-                });
+                if(MainActivity.getContext()!=null){
+                    ListViewMemberAdapter adapter =new ListViewMemberAdapter(MainActivity.getContext(),R.layout.member_card,users);
+                    adapter.notifyDataSetChanged();
+                    listview.setAdapter(adapter);
+                    listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", users.get(position)));
+                        }
+                    });
+                }
+
             }
         });
     }

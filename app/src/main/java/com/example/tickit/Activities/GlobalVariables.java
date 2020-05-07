@@ -1,18 +1,15 @@
 package com.example.tickit.Activities;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.example.tickit.Classes.User;
 
-public class GlobalVariables {
+public class GlobalVariables extends Application {
     private Context context;
     private User loggedInUser;
     private int userGrade;
 
-    public GlobalVariables(Context context, User loggedInUser) {
-        this.context = context;
-        this.loggedInUser = loggedInUser;
-    }
 
     public Context getContext() {
         return context;

@@ -211,7 +211,9 @@ public class ProjectDatabaseCalls {
                     @Override
                     public void callback(DocumentReference documentReference2) {
                         editionMap.put("coordinator1",documentReference1);
-                        editionMap.put("coordinator2",documentReference2);
+                        if(documentReference2!=null){
+                            editionMap.put("coordinator2",documentReference2);
+                        }
                         editionMap.put("members", edition.getMembers());
                         editionMap.put("strategy", edition.getStrategy());
                         editionMap.put("year", edition.getYear());

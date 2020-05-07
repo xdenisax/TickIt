@@ -31,15 +31,14 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
-    private static Context context;
     private static User loggedInUser;
-    private static int userGrade=4;
+    //private static int userGrade=4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        context=getApplicationContext();
+        ((GlobalVariables) getApplicationContext()).setContext(this);
 
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
 
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     if(user.getFirstName()==null ){
                         UserDatabaseCalls.updateUserInfoIfNew(loggedInUser);
                     }else {
+                        ((GlobalVariables) getApplicationContext()).setLoggedInUser(user);
                         loggedInUser=user;
                         setUserGrade();
                     }
@@ -105,11 +105,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUserGrade() {
-        userGrade=4;
+        ((GlobalVariables) getApplicationContext()).setUserGrade(4);
         for(Mandate mandate: loggedInUser.getMandates()){
             if(mandate.getPosition()!=null){
-                if(checkIfInMandate(System.currentTimeMillis(), mandate.getStop_date()) && userGrade>mandate.getGrade()){
-                    userGrade=mandate.getGrade();
+                if(checkIfInMandate(System.currentTimeMillis(), mandate.getStop_date()) && ((GlobalVariables) getApplicationContext()).getUserGrade()>mandate.getGrade()){
+                    ((GlobalVariables) getApplicationContext()).setUserGrade(mandate.getGrade());
                 }
             }
         }
@@ -122,21 +122,21 @@ public class MainActivity extends AppCompatActivity {
             return currentDate.before(endDate);
     }
 
-    public static User getLoggedInUser() {
-        return loggedInUser;
-    }
-
-    public static void setLoggedInUser(User user) {
-        loggedInUser=user;
-    }
-
-    public static int getUserGrade() {
-        return userGrade;
-    }
-
-    public static Context getContext() {
-        return context;
-    }
+//    public static User getLoggedInUser() {
+//        return loggedInUser;
+//    }
+//
+//    public static void setLoggedInUser(User user) {
+//        loggedInUser=user;
+//    }
+//
+//    public static int getUserGrade() {
+//        return userGrade;
+//    }
+//
+//    public static Context getContext() {
+//        return context;
+//    }
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();

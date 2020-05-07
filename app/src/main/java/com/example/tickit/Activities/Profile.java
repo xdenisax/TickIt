@@ -40,7 +40,7 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        user = MainActivity.getLoggedInUser();
+        user = ((GlobalVariables) getApplicationContext()).getLoggedInUser();
         assignViews();
         fillWithInfo( true);
         manageIntent(getIntent());
@@ -55,7 +55,7 @@ public class Profile extends AppCompatActivity {
         if(requestCode == 1){
             if(resultCode == Activity.RESULT_OK){
                 user.setPhoneNumber( data.getStringExtra("phoneNumberModified"));
-                MainActivity.setLoggedInUser(user);
+                ((GlobalVariables) getApplicationContext()).setLoggedInUser(user);
                 UserDatabaseCalls.updatePhoneNumber(user.getPhoneNumber());
                 fillWithInfo(true);
                 Toast.makeText(getApplicationContext(), getString(R.string.numar_de_telefon_actualiza),Toast.LENGTH_LONG).show();
