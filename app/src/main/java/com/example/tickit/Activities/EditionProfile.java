@@ -36,6 +36,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.apache.log4j.chainsaw.Main;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Map;
 
 public class EditionProfile extends AppCompatActivity {
     Edition edition;
@@ -54,19 +56,19 @@ public class EditionProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edition_profile);
-
         assignViews();
-        setAllowanceOnViews();
-        strategyButtonPressed();
-        backButtonPressed();
-        addMembersButtonPressed();
-        coordinatorsPressed();
+        manageIntent(getIntent());
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        manageIntent(getIntent());
+        setAllowanceOnViews();
+        strategyButtonPressed();
+        backButtonPressed();
+        addMembersButtonPressed();
+        coordinatorsPressed();
     }
 
     @Override
@@ -122,12 +124,14 @@ public class EditionProfile extends AppCompatActivity {
         for(User user:users){
             Mandate mandate  = new Mandate(
                     (FirebaseFirestore.getInstance()).collection("projects").document(projectId),
-                    null,
+                    "Membru",
                     edition.getStartDate(),
                     edition.getStopDate(),
-                    2);
-            if(isDivisionLeads){ mandate.setPosition("Lider de divizie"); }
-            else{ mandate.setPosition("Membru"); }
+                    4);
+            if(isDivisionLeads){
+                mandate.setPosition("Lider de divizie");
+                mandate.setGrade(3);
+            }
             UserDatabaseCalls.addMandate(user.getEmail(), mandate, projectName);
         }
     }
@@ -142,11 +146,12 @@ public class EditionProfile extends AppCompatActivity {
         yearTextView = (TextView) findViewById(R.id.editionYearTextView);
         strategyButton = (Button) findViewById(R.id.strategyButton);
         addMembersButton = (ImageButton) findViewById(R.id.addMembersEditionProfile);
+        addMembersButton.setVisibility(View.GONE);
     }
 
     private void setAllowanceOnViews() {
-        if(((GlobalVariables) getApplicationContext()).getUserGrade()>3){
-            addMembersButton.setVisibility(View.GONE);
+        if(isAtLeast(3)){
+            addMembersButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -225,7 +230,7 @@ public class EditionProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(edition.getStrategy()==null){
-                    if(((GlobalVariables) getApplicationContext()).getUserGrade() <3){
+                    if(isAtLeast(2)){
                         launchAlertBox( null);
                     }else{
                         Toast.makeText(getApplicationContext(), "Inca nu a fost incarcata strategia.", Toast.LENGTH_LONG).show();
@@ -297,13 +302,27 @@ public class EditionProfile extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(),Profile.class).putExtra("memberFromEditionProfile", edition.getMembers().get(position)));
             }
         });
-        editionMembersListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                launchAlertBox(edition.getMembers().get(position));
-                return true;
-            }
-        });
+        if(isAtLeast(3)){
+            editionMembersListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    launchAlertBox(edition.getMembers().get(position));
+                    return true;
+                }
+            });
+        }
     }
 
+    private boolean isAtLeast(int grade){
+        if(MainActivity.getUserGrade() < 2){
+            return true;
+        }else{
+            if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
+                return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
+                        && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);
+            }else{
+                return false;
+            }
+        }
+    }
 }

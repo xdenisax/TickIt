@@ -139,8 +139,8 @@ public class AddEdition extends AppCompatActivity {
                             coordinator2,
                             null,
                             null,
-                            DateProcessing.getDate(editionStartDate),
                             DateProcessing.getDate(editionStopDate),
+                            DateProcessing.getDate(editionStartDate),
                             editionStopDate.getText().toString().substring(6),
                             editionNumber.getText().toString());
                     setResult(Activity.RESULT_OK, new Intent().putExtra("newAddedEdition", newEdition));

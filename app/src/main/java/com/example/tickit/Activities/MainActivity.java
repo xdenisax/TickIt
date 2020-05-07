@@ -8,9 +8,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.tickit.Callbacks.CallbackBoolean;
+import com.example.tickit.Callbacks.CallbackMapStrinnMandate;
+import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Callbacks.CallbackUser;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -23,22 +27,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
+    private static Context context;
     SignInButton googleSignInButton;
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount account;
     GoogleSignInOptions gso;
     private static User loggedInUser;
-    //private static int userGrade=4;
+    private static int userGrade=4;
+    private static Map<String, Mandate> currentMandates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((GlobalVariables) getApplicationContext()).setContext(this);
+        context=this;
 
         googleSignInButton = (SignInButton) findViewById(R.id.googleSignInButton);
 
@@ -92,51 +100,78 @@ public class MainActivity extends AppCompatActivity {
                     signOut();
                 }else{
                     if(user.getFirstName()==null ){
-                        UserDatabaseCalls.updateUserInfoIfNew(loggedInUser);
+                        UserDatabaseCalls.updateUserInfoIfNew(loggedInUser, new CallbackBoolean() {
+                            @Override
+                            public void callback(Boolean bool) {
+                                startActivity(new Intent(getApplicationContext(), activity).putExtra("userLoggedInFromMainActivity", loggedInUser.getEmail()));
+                            }
+
+                        });
                     }else {
-                        ((GlobalVariables) getApplicationContext()).setLoggedInUser(user);
                         loggedInUser=user;
-                        setUserGrade();
+                        setUsersCurrentMandates(new CallbackMapStrinnMandate() {
+                            @Override
+                            public void callback(Map<String, Mandate> map) {
+                                startActivity(new Intent(getApplicationContext(), activity).putExtra("userLoggedInFromMainActivity", loggedInUser.getEmail()));
+                            }
+                        });
                     }
-                    startActivity(new Intent(getApplicationContext(), activity).putExtra("userLoggedInFromMainActivity", loggedInUser.getEmail()));
                 }
             }
         });
     }
 
-    private void setUserGrade() {
-        ((GlobalVariables) getApplicationContext()).setUserGrade(4);
-        for(Mandate mandate: loggedInUser.getMandates()){
-            if(mandate.getPosition()!=null){
-                if(checkIfInMandate(System.currentTimeMillis(), mandate.getStop_date()) && ((GlobalVariables) getApplicationContext()).getUserGrade()>mandate.getGrade()){
-                    ((GlobalVariables) getApplicationContext()).setUserGrade(mandate.getGrade());
-                }
+    private void setUsersCurrentMandates(final CallbackMapStrinnMandate callbackMapStringInteger) {
+        userGrade=4;
+        if(loggedInUser.getMandates()!=null) {
+            currentMandates = new HashMap<>();
+            for (final Mandate mandate : loggedInUser.getMandates()) {
+                ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
+                    @Override
+                    public void onCallBack(String value) {
+                        if (checkIfInMandate(System.currentTimeMillis(), mandate.getStop_date())) {
+                            currentMandates.put(value+mandate.getStop_date(), mandate);
+                            if (userGrade > mandate.getGrade()) {
+                                userGrade = mandate.getGrade();
+                            }
+                        }
+                        if (loggedInUser.getMandates().indexOf(mandate) == loggedInUser.getMandates().size() - 1) {
+                            callbackMapStringInteger.callback(currentMandates);
+                        }
+                    }
+                });
             }
+        }else{
+            callbackMapStringInteger.callback(null);
         }
     }
 
-    private boolean checkIfInMandate(long currentTimeMillis,Date endDate) {
+    public static Map<String, Mandate> getCurrentMandates() {
+        return currentMandates;
+    }
+
+    private boolean checkIfInMandate(long currentTimeMillis, Date endDate) {
             Date currentDate = new Date();
             currentDate.setTime(currentTimeMillis);
 
             return currentDate.before(endDate);
     }
 
-//    public static User getLoggedInUser() {
-//        return loggedInUser;
-//    }
-//
-//    public static void setLoggedInUser(User user) {
-//        loggedInUser=user;
-//    }
-//
-//    public static int getUserGrade() {
-//        return userGrade;
-//    }
-//
-//    public static Context getContext() {
-//        return context;
-//    }
+    public static User getLoggedInUser() {
+        return loggedInUser;
+    }
+
+    public static void setLoggedInUser(User user) {
+        loggedInUser=user;
+    }
+
+    public static int getUserGrade() {
+        return userGrade;
+    }
+
+    public static Context getContext() {
+        return context;
+    }
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();

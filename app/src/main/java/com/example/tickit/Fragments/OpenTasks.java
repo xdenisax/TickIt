@@ -17,19 +17,27 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tickit.Adapters.ListViewTasksAdapter;
 import com.example.tickit.Activities.AddTask;
+import com.example.tickit.Callbacks.CallbackArrayListStrings;
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
+import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.Classes.Mandate;
+import com.example.tickit.Classes.Project;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.R;
 import com.example.tickit.Activities.TaskProfile;
+import com.google.firebase.firestore.DocumentReference;
 
 import org.apache.log4j.chainsaw.Main;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class OpenTasks extends Fragment {
     ImageButton addTaskButton;
@@ -47,7 +55,6 @@ public class OpenTasks extends Fragment {
 
         assignViews();
         addTaskButtonPressed(view);
-        setAllowanceOnAddTaskButton(view);
 
         return view;
     }
@@ -57,6 +64,7 @@ public class OpenTasks extends Fragment {
         super.onStart();
         loadOpenTasks();
         loadAssumedTasks();
+        setAllowanceOnAddTaskButton(view);
     }
 
     private void assignViews() {
@@ -74,6 +82,9 @@ public class OpenTasks extends Fragment {
         ProjectTasksDatabaseCalls.getTasks("assumedTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
+                for(ProjectTask task: tasks){
+                    isMemberOnProject(task.getProject());
+                }
                 if(MainActivity.getContext()!=null){
                     adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
                     adapter.notifyDataSetChanged();
@@ -101,8 +112,14 @@ public class OpenTasks extends Fragment {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
                // manageNotification();
+                ArrayList<ProjectTask> tasksOnMyProject =new ArrayList<>();
+                for(ProjectTask task:tasks){
+                    if(isMemberOnProject(task.getProject())){
+                        tasksOnMyProject.add(task);
+                    }
+                }
                 if(MainActivity.getContext() !=null){
-                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
+                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasksOnMyProject);
                     openTasks.setAdapter(adapter);
                     openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -114,7 +131,7 @@ public class OpenTasks extends Fragment {
 
 
                 spinkitOpenTasks.setVisibility(View.GONE);
-                if(tasks.size()>0){
+                if(tasksOnMyProject.size()>0){
                     textViewNoOpenTasks.setVisibility(View.INVISIBLE);
                 }else{
                     textViewNoOpenTasks.setVisibility(View.VISIBLE);
@@ -149,7 +166,7 @@ public class OpenTasks extends Fragment {
 
     private void setAllowanceOnAddTaskButton( View view) {
         addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
-        if(MainActivity.getUserGrade()==4){
+        if(MainActivity.getUserGrade()>=4){
             addTaskButton.setVisibility(View.GONE);
         }else{
             addTaskButton.setOnClickListener(new View.OnClickListener() {
@@ -160,5 +177,31 @@ public class OpenTasks extends Fragment {
             });
         }
     }
+
+
+    private boolean isMemberOnProject(DocumentReference projectName) {
+        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
+            if(mandateEntry.getKey().contains("BE-BC")){
+                return true;
+            }else{
+                if(mandateEntry.getValue().getProject_name().equals(projectName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+//    private boolean isAtLeast(int grade){
+//        if(MainActivity.getUserGrade() < 2){
+//            return true;
+//        }else{
+//            if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
+//                return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
+//                        && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);
+//            }else{
+//                return false;
+//            }
+//        }
+//    }
 
 }

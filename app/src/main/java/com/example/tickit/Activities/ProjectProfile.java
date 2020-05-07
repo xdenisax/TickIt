@@ -122,7 +122,7 @@ public class ProjectProfile extends AppCompatActivity {
     }
 
     private void setAllowanceOnViews() {
-        if(MainActivity.getUserGrade()>2){
+        if(MainActivity.getUserGrade()>=2){
             addEditionButton.setVisibility(View.GONE);
         }
     }

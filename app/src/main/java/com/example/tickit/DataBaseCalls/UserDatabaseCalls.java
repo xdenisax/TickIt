@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Callbacks.CallbackArrayListMandates;
 import com.example.tickit.Callbacks.CallbackArrayListUser;
+import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackMandate;
 import com.example.tickit.Callbacks.CallbackUser;
@@ -30,6 +31,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.security.auth.callback.Callback;
 
 public class UserDatabaseCalls {
     private static final String COLLECTION_NAME="users";
@@ -246,11 +249,21 @@ public class UserDatabaseCalls {
                 .set(mandate);
     }
 
-    public static void updateUserInfoIfNew(User loggedInUser) {
-        instance.collection("users").document(loggedInUser.getEmail()).update("firstName",loggedInUser.getFirstName());
-        instance.collection("users").document(loggedInUser.getEmail()).update("lastName",loggedInUser.getLastName());
-        instance.collection("users").document(loggedInUser.getEmail()).update("phoneNumber",loggedInUser.getPhoneNumber());
-        instance.collection("users").document(loggedInUser.getEmail()).update("profilePicture",loggedInUser.getProfilePicture());
+    public static void updateUserInfoIfNew(User loggedInUser, final CallbackBoolean callbackBoolean) {
+        instance
+                .collection("users")
+                .document(loggedInUser.getEmail())
+                .update(
+                        "firstName",loggedInUser.getFirstName(),
+                "lastName",loggedInUser.getLastName(),
+                "phoneNumber",loggedInUser.getPhoneNumber(),
+                "profilePicture",loggedInUser.getProfilePicture())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        callbackBoolean.callback(true);
+                    }
+                });
     }
 
     public static void updatePhoneNumber(String phoneNumber) {

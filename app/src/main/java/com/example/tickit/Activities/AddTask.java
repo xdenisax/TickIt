@@ -29,9 +29,12 @@ import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
 import com.google.firebase.firestore.DocumentReference;
 
+import org.apache.log4j.chainsaw.Main;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 public class AddTask extends AppCompatActivity {
     EditText taskNameEditText, taskDescriptionEditText, taskResourceEditText, startDateTaskEditText, stopDateTaskEditText, numberOfMemberEditText;
@@ -66,6 +69,7 @@ public class AddTask extends AppCompatActivity {
         taskResourceEditText= (EditText) findViewById(R.id.taskResourceEditText);
         startDateTaskEditText= (EditText) findViewById(R.id.taskStartDate);
         stopDateTaskEditText = (EditText) findViewById(R.id.taskStopDate);
+        saveButton = (Button) findViewById(R.id.saveTaskButton);
         numberOfMemberEditText = (EditText) findViewById(R.id.taskMaxNoOfVolunteers);
     }
 
@@ -101,6 +105,7 @@ public class AddTask extends AppCompatActivity {
             public void onCallback(ArrayList<String> strings) {
                 String[] projects =  new String[strings.size()];
                 projects= strings.toArray(new String[0]);
+                Toast.makeText(getApplicationContext(),projects.toString(),Toast.LENGTH_LONG).show();
                 spinnerProject.setAdapter(new SpinnerStringAdapter(getApplicationContext(), projects));
                 divisionsSpinner.setAdapter(new SpinnerStringAdapter(getApplicationContext(), getResources().getStringArray(R.array.departments)));
             }
@@ -111,13 +116,13 @@ public class AddTask extends AppCompatActivity {
         final ArrayList<String> projects = new ArrayList<>();
         projects.add("Proiect");
         boolean isBeBC=false;
-        for (final Mandate mandate : ((GlobalVariables) getApplicationContext()).getLoggedInUser().getMandates()){
-            if(isOnGoing(mandate)  ) {
-                ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
+        final int[] count={0};
+        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
+            count[0]++;
+            ProjectDatabaseCalls.getProjectName(mandateEntry.getValue().getProject_name(), new CallbackString() {
                     @Override
                     public void onCallBack(String value) {
                         if(value.equals("BE-BC")) {
-                            Log.d("filteredList", value+"");
                             ProjectDatabaseCalls.getProjectsNames(new CallbackArrayListStrings() {
                                 @Override
                                 public void onCallback(ArrayList<String> strings) {
@@ -126,29 +131,19 @@ public class AddTask extends AppCompatActivity {
                                 }
                             });
                         }else{
-                            ProjectDatabaseCalls.getProjectName(mandate.getProject_name(), new CallbackString() {
-                                @Override
-                                public void onCallBack(String value) {
-                                    projects.add(value);
+                            if(mandateEntry.getValue().getGrade()<4 && !projects.contains(value)) {
+                                projects.add(value);
+                                if (count[0] == MainActivity.getCurrentMandates().size()) {
+                                    callbackArrayListStrings.onCallback(projects);
                                 }
-                            });
+                            }
                         }
                     }
                 });
-
-            }
         }
-        if(!isBeBC) {
-            callbackArrayListStrings.onCallback(projects);
-        }
-    }
-
-    private boolean isOnGoing(Mandate mandate) {
-        return System.currentTimeMillis() < mandate.getStop_date().getTime();
     }
 
     private void saveButtonPressed() {
-        saveButton = (Button) findViewById(R.id.saveTaskButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,7 +229,7 @@ public class AddTask extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Alegeti proiectul pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
             return false;
         } else {
-            if(!divisionsSpinner.getSelectedItem().equals(((GlobalVariables) getApplicationContext()).getLoggedInUser().getDepartament())&& isEditMode ==0){
+            if(!divisionsSpinner.getSelectedItem().equals(MainActivity.getLoggedInUser().getDepartament())&& isEditMode ==0){
                 Toast.makeText(getApplicationContext(), "Divizia aleasa nu corespunde cu divizia ta.", Toast.LENGTH_LONG).show();
                 return false;
             }else{
