@@ -9,16 +9,16 @@
 
     <application
         android:name=".Activities.GlobalVariables"
-        android:hardwareAccelerated="true"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/sisc_logo250"
         android:label="@string/app_name"
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
-        <activity android:name=".Activities.AddMemberProject"></activity>
+        <activity android:name=".Activities.AddProject"
+            android:theme="@style/AppTheme.PopUpTheme" />
+        <activity android:name=".Activities.AddMemberProject" />
         <activity
             android:name=".PopUps.AddStrategyPopUp"
             android:theme="@style/AppTheme.PopUpTheme" />

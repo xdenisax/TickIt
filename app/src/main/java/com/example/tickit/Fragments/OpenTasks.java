@@ -78,13 +78,24 @@ public class OpenTasks extends Fragment {
         textViewNoAssumedTasks.setVisibility(View.GONE);
     }
 
+    private void setAllowanceOnAddTaskButton( View view) {
+        addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
+        if(MainActivity.getUserGrade()>=4){
+            addTaskButton.setVisibility(View.GONE);
+        }else{
+            addTaskButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getContext(), AddTask.class));
+                }
+            });
+        }
+    }
+
     private void loadAssumedTasks() {
-        ProjectTasksDatabaseCalls.getTasks("assumedTasks", new CallbackArrayListTasks() {
+        getTasksOnMyProject("assumedTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                for(ProjectTask task: tasks){
-                    isMemberOnProject(task.getProject());
-                }
                 if(MainActivity.getContext()!=null){
                     adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
                     adapter.notifyDataSetChanged();
@@ -96,30 +107,19 @@ public class OpenTasks extends Fragment {
                         }
                     });
                 }
-                spinKitAssumedTasks.setVisibility(View.GONE);
 
-                if(tasks.size()>0){
-                    textViewNoAssumedTasks.setVisibility(View.INVISIBLE);
-                }else{
-                    textViewNoAssumedTasks.setVisibility(View.VISIBLE);
-                }
+                manageLoadingViews(spinKitAssumedTasks, tasks.size(), textViewNoAssumedTasks);
+
             }
         });
     }
 
     private void loadOpenTasks() {
-        ProjectTasksDatabaseCalls.getTasks("openTasks", new CallbackArrayListTasks() {
+        getTasksOnMyProject("openTasks", new CallbackArrayListTasks() {
             @Override
             public void onCallBack(final ArrayList<ProjectTask> tasks) {
-               // manageNotification();
-                ArrayList<ProjectTask> tasksOnMyProject =new ArrayList<>();
-                for(ProjectTask task:tasks){
-                    if(isMemberOnProject(task.getProject())){
-                        tasksOnMyProject.add(task);
-                    }
-                }
                 if(MainActivity.getContext() !=null){
-                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasksOnMyProject);
+                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks);
                     openTasks.setAdapter(adapter);
                     openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -129,16 +129,49 @@ public class OpenTasks extends Fragment {
                     });
                 }
 
-
-                spinkitOpenTasks.setVisibility(View.GONE);
-                if(tasksOnMyProject.size()>0){
-                    textViewNoOpenTasks.setVisibility(View.INVISIBLE);
-                }else{
-                    textViewNoOpenTasks.setVisibility(View.VISIBLE);
-                }
-
+                manageLoadingViews(spinkitOpenTasks, tasks.size(), textViewNoOpenTasks);
             }
         });
+    }
+
+    private void getTasksOnMyProject(String collection, final CallbackArrayListTasks callbackArrayListTasks){
+        ProjectTasksDatabaseCalls.getTasks(collection, new CallbackArrayListTasks() {
+            @Override
+            public void onCallBack(final ArrayList<ProjectTask> tasks) {
+                ArrayList<ProjectTask> tasksOnMyProject =new ArrayList<>();
+                for(ProjectTask task:tasks){
+                    if(isMemberOnProject(task.getProject())){
+                        tasksOnMyProject.add(task);
+                    }
+                    if(tasks.indexOf(task) == tasks.size()-1){
+                        callbackArrayListTasks.onCallBack(tasksOnMyProject);
+                    }
+                }
+            }
+        });
+    }
+
+    private boolean isMemberOnProject(DocumentReference projectName) {
+        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
+            if(mandateEntry.getKey().contains("BE-BC")){
+                return true;
+            }else{
+                if(mandateEntry.getValue().getProject_name().equals(projectName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void manageLoadingViews(ProgressBar spinKit, int size, TextView textViewNoTasks) {
+        spinKit.setVisibility(View.GONE);
+
+        if(size>0){
+            textViewNoTasks.setVisibility(View.INVISIBLE);
+        }else{
+            textViewNoTasks.setVisibility(View.VISIBLE);
+        }
     }
 
     private void manageNotification() {
@@ -164,44 +197,5 @@ public class OpenTasks extends Fragment {
         });
     }
 
-    private void setAllowanceOnAddTaskButton( View view) {
-        addTaskButton = (ImageButton) view.findViewById(R.id.addTasksButton);
-        if(MainActivity.getUserGrade()>=4){
-            addTaskButton.setVisibility(View.GONE);
-        }else{
-            addTaskButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(getContext(), AddTask.class));
-                }
-            });
-        }
-    }
-
-
-    private boolean isMemberOnProject(DocumentReference projectName) {
-        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
-            if(mandateEntry.getKey().contains("BE-BC")){
-                return true;
-            }else{
-                if(mandateEntry.getValue().getProject_name().equals(projectName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-//    private boolean isAtLeast(int grade){
-//        if(MainActivity.getUserGrade() < 2){
-//            return true;
-//        }else{
-//            if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
-//                return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
-//                        && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);
-//            }else{
-//                return false;
-//            }
-//        }
-//    }
 
 }

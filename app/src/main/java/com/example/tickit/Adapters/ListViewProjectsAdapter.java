@@ -73,8 +73,6 @@ public class ListViewProjectsAdapter extends ArrayAdapter<Project> {
                     Uri downUri = task.getResult();
                     String imageUrl = downUri.toString();
                     callbackString.onCallBack(imageUrl);
-                }else{
-                    Toast.makeText(getContext(), "Nu s-a putut obtine imaginea proiectului.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

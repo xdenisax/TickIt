@@ -52,6 +52,10 @@
     <string name="adauga_membri">Adauga membri</string>
     <string name="cauta_membrii_dupa_email">Cauta membrii dupa email.</string>
     <string name="lider_de_divizie">Lider de divizie</string>
+    <string name="adauga_proiect">Adauga proiect</string>
+    <string name="nume_proiect">Nume proiect</string>
+    <string name="descriere_proiect">Descriere proiect</string>
+    <string name="adauga_imagine">Adauga imagine</string>
 
     <string-array name="departments">
         <item>Departament</item>

@@ -21,6 +21,7 @@ import com.example.tickit.Adapters.ListViewAssumedTaskSituationAdapter;
 import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Classes.AssumedTasksSituation;
+import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.Classes.User;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
@@ -28,8 +29,10 @@ import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.PopUps.MembersProgressPopUp;
 import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class TaskProfile extends AppCompatActivity {
     ImageButton backButton;
@@ -139,7 +142,7 @@ public class TaskProfile extends AppCompatActivity {
     }
 
     private void setAllowanceOnViews() {
-        if(MainActivity.getUserGrade()<=3) {
+        if(isMemberOnProject(task.getProject())<4) {
             membersWhoAssumedListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -151,13 +154,22 @@ public class TaskProfile extends AppCompatActivity {
             });
         }
 
-        if(MainActivity.getUserGrade()<=3 && task.getDivision().equals(MainActivity.getLoggedInUser().getDepartament())){
+        if(isMemberOnProject(task.getProject()) < 4 && task.getDivision().equals(MainActivity.getLoggedInUser().getDepartament())){
             deleteButton.setVisibility(View.VISIBLE);
             editButton.setVisibility(View.VISIBLE);
         }else{
             deleteButton.setVisibility(View.INVISIBLE);
             editButton.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private int isMemberOnProject(DocumentReference projectName) {
+        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
+            if(mandateEntry.getKey().contains("BE-BC") || mandateEntry.getValue().getProject_name().equals(projectName)){
+                return mandateEntry.getValue().getGrade();
+            }
+        }
+        return 5;
     }
 
     private void setActionsOnMembersListView() {
@@ -174,22 +186,19 @@ public class TaskProfile extends AppCompatActivity {
     }
 
     private boolean validation() {
-        if(MainActivity.getLoggedInUser().getDepartament().equals(task.getDivision())){
-            if(task.getMembersWhoAssumed().size()<task.getNumberOfVolunteers()){
-                if(!hasMemberAssumedAlready(task.getMembersWhoAssumed(),MainActivity.getLoggedInUser())){
-                    return true;
-                }else{
-                    Toast.makeText(getApplicationContext(), "Deja ti-ai asumat acest task.",Toast.LENGTH_LONG).show();
-                    return false;
-                }
-            }else{
-                Toast.makeText(getApplicationContext(), "Nu mai sunt locuri disponibile pentru acest task.", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        }else{
-            Toast.makeText(getApplicationContext(), "Task-ul nu este destinat diviziei tale.",Toast.LENGTH_LONG).show();
+        if(!MainActivity.getLoggedInUser().getDepartament().equals(task.getDivision())) {
+            Toast.makeText(getApplicationContext(), "Task-ul nu este destinat diviziei tale.", Toast.LENGTH_LONG).show();
             return false;
         }
+        if(task.getMembersWhoAssumed().size()>=task.getNumberOfVolunteers()){
+            Toast.makeText(getApplicationContext(), "Nu mai sunt locuri disponibile pentru acest task.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if(hasMemberAssumedAlready(task.getMembersWhoAssumed(),MainActivity.getLoggedInUser())) {
+            Toast.makeText(getApplicationContext(), "Deja ti-ai asumat acest task.",Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
     private boolean hasMemberAssumedAlready(ArrayList<AssumedTasksSituation> membersWhoAssumed, User loggedInUser) {
@@ -199,6 +208,70 @@ public class TaskProfile extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    private int getPersonalProgressIndex() {
+        for(int i=0;i< task.getMembersWhoAssumed().size();i++){
+            if(MainActivity.getLoggedInUser().getEmail().equals(task.getMembersWhoAssumed().get(i).getUser().getEmail())){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void launchAlertDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(TaskProfile.this);
+        dialog.setTitle("Doresti sa soliciti ajutor suplimentar?");
+        dialog.setMessage("Apasa 'Da' doar in cazul in care consideri ca nu vei reusi finalizarea task-ului pana la deadline.");
+        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                task.setNumberOfVolunteers(task.getNumberOfVolunteers()+1);
+                task.getMembersWhoAssumed().get(getPersonalProgressIndex()).setNeedingHelp(true);
+                if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()-1){
+                    transferTaskFromAssumedToOpen();
+                }else{
+                    ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
+                        @Override
+                        public void callback(Boolean bool) {
+                            Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getMembersWhoAssumed().get(getPersonalProgressIndex()).isNeedingHelp(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+
+    private void transferTaskFromAssumedToOpen() {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", task, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                ProjectTasksDatabaseCalls.removeTask("assumedTasks", task, new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getNumberOfVolunteers(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void transferTaskFromOpenToAssumed() {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", task, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) { }
+        });
+        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) { }
+        });
     }
 
     private void assumptionButtonPressed() {
@@ -211,14 +284,7 @@ public class TaskProfile extends AppCompatActivity {
                     membersWhoAssumedListView.setAdapter(new ListViewAssumedTaskSituationAdapter(getApplicationContext(),R.layout.member_card,task.getMembersWhoAssumed()));
                     if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()){
                         assumptionButton.setVisibility(View.INVISIBLE);
-                        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", task, new CallbackBoolean() {
-                            @Override
-                            public void callback(Boolean bool) { }
-                        });
-                        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
-                            @Override
-                            public void callback(Boolean bool) { }
-                        });
+                        transferTaskFromOpenToAssumed();
                     }else{
                         ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
                             @Override
@@ -226,43 +292,6 @@ public class TaskProfile extends AppCompatActivity {
                         });
                     }
                 }
-            }
-        });
-    }
-
-    private int getPersonalProgressIndex() {
-        for(int i=0;i< task.getMembersWhoAssumed().size();i++){
-            if(MainActivity.getLoggedInUser().getEmail().equals(task.getMembersWhoAssumed().get(i).getUser().getEmail())){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private void editButtonPressed(){
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(getApplicationContext(),AddTask.class).putExtra("taskFromTaskProfile",task), REQUEST_CODE_EDIT_TASK);
-            }
-        });
-    }
-
-    private void deleteButtonPressed(){
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProjectTasksDatabaseCalls.removeTask("assumedTasks", task, new CallbackBoolean() {
-                    @Override
-                    public void callback(Boolean bool) {
-                        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
-                            @Override
-                            public void callback(Boolean bool) {
-                                finish();
-                            }
-                        });
-                    }
-                });
             }
         });
     }
@@ -306,46 +335,30 @@ public class TaskProfile extends AppCompatActivity {
         });
     }
 
-    private void launchAlertDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(TaskProfile.this);
-        dialog.setTitle("Doresti sa soliciti ajutor suplimentar?");
-        dialog.setMessage("Apasa 'Da' doar in cazul in care consideri ca nu vei reusi finalizarea task-ului pana la deadline.");
-        dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+    private void deleteButtonPressed(){
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                task.setNumberOfVolunteers(task.getNumberOfVolunteers()+1);
-                task.getMembersWhoAssumed().get(getPersonalProgressIndex()).setNeedingHelp(true);
-                if(task.getMembersWhoAssumed().size()==task.getNumberOfVolunteers()-1){
-                    transferTaskFromAssumedToOpen();
-                }else{
-                    ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
-                        @Override
-                        public void callback(Boolean bool) {
-                            Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getMembersWhoAssumed().get(getPersonalProgressIndex()).isNeedingHelp(), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        AlertDialog alertDialog = dialog.create();
-        alertDialog.show();
-    }
-
-    private void transferTaskFromAssumedToOpen() {
-        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", task, new CallbackBoolean() {
-            @Override
-            public void callback(Boolean bool) {
+            public void onClick(View v) {
                 ProjectTasksDatabaseCalls.removeTask("assumedTasks", task, new CallbackBoolean() {
                     @Override
                     public void callback(Boolean bool) {
-                        Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getNumberOfVolunteers(), Toast.LENGTH_LONG).show();
+                        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
+                            @Override
+                            public void callback(Boolean bool) {
+                                finish();
+                            }
+                        });
                     }
                 });
+            }
+        });
+    }
+
+    private void editButtonPressed(){
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getApplicationContext(),AddTask.class).putExtra("taskFromTaskProfile",task), REQUEST_CODE_EDIT_TASK);
             }
         });
     }

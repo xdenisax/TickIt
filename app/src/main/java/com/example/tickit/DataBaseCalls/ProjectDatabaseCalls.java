@@ -24,6 +24,7 @@ import com.example.tickit.Classes.Project;
 import com.example.tickit.Classes.User;
 import com.example.tickit.Utils.DateProcessing;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -38,6 +39,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.sql.Time;
@@ -50,6 +52,25 @@ import java.util.Map;
 public class ProjectDatabaseCalls {
     private static String COLLECTION_NAME = "projects";
     private static FirebaseFirestore instance = FirebaseFirestore.getInstance();
+
+    public static void addProject(Project project, final CallbackBoolean callbackBoolean){
+        instance
+                .collection(COLLECTION_NAME)
+                .document(project.getId())
+                .set(project)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        callbackBoolean.callback(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackBoolean.callback(false);
+                    }
+                });
+    }
 
     public static void getProjectName(DocumentReference docRef, final CallbackString callback) {
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -127,7 +148,7 @@ public class ProjectDatabaseCalls {
     }
 
     private static void getEditions(DocumentSnapshot document, final CallbackArrayListEditions callbackArrayListEditions){
-        String subCollectionID= getSubCollectionName(document);
+        final String subCollectionID= getSubCollectionName(document);
         final ArrayList<Edition> editions = new ArrayList<Edition>();
 
         instance
@@ -138,13 +159,16 @@ public class ProjectDatabaseCalls {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         final List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                        for (DocumentSnapshot document :list) {
+                        for (final DocumentSnapshot document :list) {
                             initializeEdition(document, new CallbackEdition() {
                                 @Override
                                 public void callback(Edition edition) {
                                     editions.add(edition);
                                     if (editions.size() == list.size()) {
                                         callbackArrayListEditions.callback(editions);
+                                    }
+                                    if(list.indexOf(document)==list.size()-1 && editions.size() != list.size()) {
+                                        Log.d("projects", subCollectionID);
                                     }
                                 }
                             });
@@ -289,6 +313,24 @@ public class ProjectDatabaseCalls {
             }
         });
 
+    }
+
+    public static void uploadPhoto(Uri imageUri, String imageName, final CallbackBoolean callbackBoolean){
+        StorageReference ref = FirebaseStorage.getInstance().getReference().child("TickIt").child("ProjectsLogo").child(imageName);
+        ref
+                .putFile(imageUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        callbackBoolean.callback(true);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callbackBoolean.callback(false);
+                    }
+                });
     }
 
     private static String getSubCollectionName(DocumentSnapshot document){

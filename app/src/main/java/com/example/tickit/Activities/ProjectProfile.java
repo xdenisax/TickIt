@@ -84,6 +84,7 @@ public class ProjectProfile extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        edtionsSpinners.setSelection(0);
     }
 
     private void addMandates(Edition newEdition) {

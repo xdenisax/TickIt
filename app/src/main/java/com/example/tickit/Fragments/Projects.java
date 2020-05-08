@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.example.tickit.Activities.AddProject;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Adapters.ListViewProjectsAdapter;
 import com.example.tickit.Callbacks.CallbackArrayListEditions;
@@ -51,6 +53,8 @@ public class Projects extends Fragment {
     ListView projectListview;
     ProgressBar progressBar;
     View view;
+    ImageButton addProjectButton;
+
 
     public Projects() { }
 
@@ -59,7 +63,8 @@ public class Projects extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_projects, container, false);
         assignViews();
-
+        setAllowanceOnViews();
+        addProjectButtonPressed();
 
         return view;
     }
@@ -70,9 +75,25 @@ public class Projects extends Fragment {
         loadListView();
     }
 
+    private void setAllowanceOnViews() {
+        if(MainActivity.getUserGrade()>=2){
+            addProjectButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void addProjectButtonPressed() {
+        addProjectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), AddProject.class));
+            }
+        });
+    }
+
     private void assignViews() {
         projectListview = (ListView) view.findViewById(R.id.projectsListvView);
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
+        addProjectButton= (ImageButton) view.findViewById(R.id.addProjectsButton);
     }
 
     private void loadListView() {

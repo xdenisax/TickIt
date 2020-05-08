@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class EditionProfile extends AppCompatActivity {
     Edition edition;
-    TextView coordinator1TextView, coordinator2TextView,yearTextView;
+    TextView coordinator1TextView, coordinator2TextView,yearTextView, editionNumberTextView;
     ListView editionMembersListView;
     ImageView coordinator1ImageView,coordinator2ImageView;
     Button strategyButton;
@@ -143,7 +143,9 @@ public class EditionProfile extends AppCompatActivity {
         coordinator2ImageView = (ImageView) findViewById(R.id.editionCoordinator2ImageView);
         backButton = (ImageButton) findViewById(R.id.backButtonEditionActivity);
         editionMembersListView = (ListView) findViewById(R.id.editionMembersListView);
+        editionNumberTextView = (TextView) findViewById(R.id.editionNumberTextView);
         yearTextView = (TextView) findViewById(R.id.editionYearTextView);
+
         strategyButton = (Button) findViewById(R.id.strategyButton);
         addMembersButton = (ImageButton) findViewById(R.id.addMembersEditionProfile);
         addMembersButton.setVisibility(View.GONE);
@@ -165,11 +167,22 @@ public class EditionProfile extends AppCompatActivity {
     }
 
     private void fillWithInfo(Edition edition) {
-        yearTextView.setText(edition.getYear());
-        coordinator1TextView.setText(edition.getCoordinator1().getLastName() + " " + edition.getCoordinator1().getFirstName());
+        yearTextView.setText(projectName+ " " +edition.getYear());
+        if(edition.getCoordinator1().getLastName()==null){
+            coordinator1TextView.setText(edition.getCoordinator1().getEmail());
+            coordinator1ImageView.setVisibility(View.GONE);
+        }else{
+            coordinator1TextView.setText(edition.getCoordinator1().getLastName() + " " + edition.getCoordinator1().getFirstName());
+        }
+        editionNumberTextView.setText("editia "+ edition.getEditionNumber());
         if(edition.getCoordinator2()!=null){
-            coordinator2TextView.setText(edition.getCoordinator2().getLastName() + " " + edition.getCoordinator2().getFirstName());
-            Glide.with(getApplicationContext()).load(edition.getCoordinator2().getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(coordinator2ImageView);
+            if(edition.getCoordinator2().getLastName()==null){
+                coordinator2TextView.setText(edition.getCoordinator2().getEmail());
+                coordinator2ImageView.setVisibility(View.GONE);
+            }else{
+                coordinator2TextView.setText(edition.getCoordinator2().getLastName() + " " + edition.getCoordinator2().getFirstName());
+                Glide.with(getApplicationContext()).load(edition.getCoordinator2().getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(coordinator2ImageView);
+            }
         }else{
             coordinator2TextView.setVisibility(View.GONE);
             coordinator2ImageView.setVisibility(View.GONE);

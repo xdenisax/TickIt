@@ -25,16 +25,11 @@ public class Project implements Parcelable {
     public Project() { }
 
     public Project(final String Id, final String Name, final String Description, final String imgLink, final ArrayList<Edition> Editions) {
-        ProjectDatabaseCalls.getPhotoUri(imgLink, new CallbackString(){
-            @Override
-            public void onCallBack(String value) {
                 id= Id;
                 name = Name;
                 description = Description;
-                imageLink=value;
+                imageLink=imgLink;
                 editions = Editions;
-            }
-        });
     }
 
     protected Project(Parcel in) {
