@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Adapters.SpinnerYearAdapter;
 import com.example.tickit.Callbacks.CallbackBoolean;
+import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Classes.Edition;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.Project;
@@ -131,11 +132,17 @@ public class ProjectProfile extends AppCompatActivity {
     private void fillWithInfo(Project project) {
         nameTV.setText(project.getName());
         descriptionTV.setText(project.getDescription());
-        if(project.getImageLink()!=null){
-            Glide.with(getApplicationContext()).load(Uri.parse(project.getImageLink())).apply(RequestOptions.fitCenterTransform()).into(logo);
-        }else{
-            Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
-        }
+        ProjectDatabaseCalls.getPhotoUri(project.getImageLink(), new CallbackString() {
+            @Override
+            public void onCallBack(String value) {
+                if(value!=null){
+                    Glide.with(getApplicationContext()).load(Uri.parse(value)).apply(RequestOptions.fitCenterTransform()).into(logo);
+                }else{
+                    Glide.with(getApplicationContext()).load(R.drawable.account_cyan).apply(RequestOptions.centerInsideTransform()).into(logo);
+                }
+            }
+        });
+
         project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege",null));
         edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }

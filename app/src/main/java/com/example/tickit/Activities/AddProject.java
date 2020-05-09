@@ -92,8 +92,10 @@ public class AddProject extends AppCompatActivity {
                             }
                         }
                     });
+                    finish();
                 }
             }
+
         });
     }
 
@@ -102,7 +104,7 @@ public class AddProject extends AppCompatActivity {
             @Override
             public void callback(Boolean bool) {
                 if(bool){
-                    Toast.makeText(getApplicationContext(), "S-a incarcat imaginea imaginea. Mai incercati.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "S-a incarcat imaginea imaginea.", Toast.LENGTH_LONG).show();
                 }else{
                     Toast.makeText(getApplicationContext(), "Nu s-a putut incarca imaginea. Mai incercati.", Toast.LENGTH_LONG).show();
                 }

@@ -16,6 +16,7 @@ import com.example.tickit.Callbacks.CallbackBoolean;
 import com.example.tickit.Callbacks.CallbackDocumentReference;
 import com.example.tickit.Callbacks.CallbackEdition;
 import com.example.tickit.Callbacks.CallbackMandate;
+import com.example.tickit.Callbacks.CallbackProject;
 import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Callbacks.CallbackUser;
 import com.example.tickit.Classes.Edition;
@@ -132,6 +133,25 @@ public class ProjectDatabaseCalls {
                         }
                     }
                 });
+    }
+
+    public static void getProject(final DocumentReference documentReference, final CallbackProject callbackProject){
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull final Task<DocumentSnapshot> task) {
+                if(task.isSuccessful() && task.getResult()!=null && task.getResult().exists()){
+                    getEditions(task.getResult(), new CallbackArrayListEditions() {
+                        @Override
+                        public void callback(ArrayList<Edition> editions) {
+                            Project project=task.getResult().toObject(Project.class);
+                            project.setEditions(editions);
+                            callbackProject.callback(project);
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     public static void getDocumentReferenceProject(String projectName, final CallbackDocumentReference callbackDocumentReference) {
@@ -298,7 +318,7 @@ public class ProjectDatabaseCalls {
                 .update("members", FieldValue.arrayRemove(instance.collection("users").document(email)));
     }
 
-    public static void getPhotoUri(String imageLink, final CallbackString callbackString){
+    public static void getPhotoUri(final String imageLink, final CallbackString callbackString){
         StorageReference mImageStorage = FirebaseStorage.getInstance().getReference();
         StorageReference ref = mImageStorage.child("TickIt").child("ProjectsLogo").child(imageLink);
 
@@ -331,6 +351,10 @@ public class ProjectDatabaseCalls {
                         callbackBoolean.callback(false);
                     }
                 });
+    }
+
+    public static void deleteProject(DocumentReference documentReference){
+        documentReference.delete();
     }
 
     private static String getSubCollectionName(DocumentSnapshot document){
