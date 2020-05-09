@@ -278,4 +278,8 @@ public class UserDatabaseCalls {
                                 + DateProcessing.dateFormat.format(edition.getStartDate()).replace(" ", ""))
                 .delete();
     }
+
+    public static void deleteMember(DocumentReference documentReference) {
+        documentReference.delete();
+    }
 }

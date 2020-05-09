@@ -1,10 +1,15 @@
 package com.example.tickit.Fragments;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,11 +29,14 @@ import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Callbacks.CallbackUser;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Classes.Mandate;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.PopUps.AddMemberChoicePopUp;
 import com.example.tickit.Activities.Profile;
 import com.example.tickit.R;
 import com.example.tickit.Classes.User;
+import com.example.tickit.RecyclerViewAdapters.MemberAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -36,6 +44,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -48,19 +57,19 @@ public class Members extends Fragment {
     private User loggedInUser = MainActivity.getLoggedInUser();
     private ProgressBar progressBar;
     private ImageButton addMemberButton;
-    private ListView listview;
-    View view;
+    private View view;
+    private RecyclerView recyclerView;
+    private MemberAdapter adapter;
 
-    public Members() {
-    }
+    public Members() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
         assignViews();
-        setAllowanceAddMembersButton(view);
-        loadListView();
+        setAllowanceAddMembersButton();
+        setUpRecyclerView();
 
         return view;
     }
@@ -68,37 +77,22 @@ public class Members extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        loadListView();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 
     private void assignViews() {
-        listview = (ListView) view.findViewById(R.id.membriListView);
+        recyclerView = (RecyclerView) view.findViewById(R.id.membersRecyclerView);
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
         addMemberButton = (view.findViewById(R.id.addMembersButton));
     }
 
-    private void loadListView() {
-        UserDatabaseCalls.getUsers(new CallbackArrayListUser() {
-            @Override
-            public void callback(final ArrayList<User> users) {
-                progressBar.setVisibility(View.GONE);
-                if(MainActivity.getContext()!=null){
-                    ListViewMemberAdapter adapter =new ListViewMemberAdapter(MainActivity.getContext(),R.layout.member_card,users);
-                    adapter.notifyDataSetChanged();
-                    listview.setAdapter(adapter);
-                    listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", users.get(position)));
-                        }
-                    });
-                }
-
-            }
-        });
-    }
-
-    private void setAllowanceAddMembersButton(View view) {
+    private void setAllowanceAddMembersButton() {
         if(MainActivity.getUserGrade()>1){
             addMemberButton.setVisibility(View.GONE);
         }else{
@@ -110,6 +104,63 @@ public class Members extends Fragment {
             });
         }
     }
+
+    private void setUpRecyclerView() {
+        Query query = FirebaseFirestore.getInstance().collection("users");
+        FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .build();
+        adapter=new MemberAdapter(options);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+
+        setClickListeners(adapter);
+    }
+
+    private void setClickListeners(MemberAdapter adapter) {
+        adapter.setOnItemClickListener(new MemberAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(DocumentReference memberReference, int position) {
+                UserDatabaseCalls.getUser(memberReference, new CallbackUser() {
+                    @Override
+                    public void callback(User user) {
+                        startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", user));
+                    }
+                });
+            }
+        });
+        if(MainActivity.getUserGrade()<2){
+            adapter.setOnItemLongClickListener(new MemberAdapter.OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(DocumentReference memberReference, int position) {
+                    launchAlertDialog(memberReference, getContext());
+                }
+            });
+        }
+    }
+
+    private void launchAlertDialog(final DocumentReference documentReference, Context context) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setTitle("Doriti stergerea membrului?")
+                .setMessage("Atentie! Stergerea este ireversibila.");
+        dialog
+                .setPositiveButton("Da", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        UserDatabaseCalls.deleteMember(documentReference);
+                    }
+                })
+                .setNegativeButton("Nu", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+
 
 
 }

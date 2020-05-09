@@ -175,7 +175,7 @@ public class Profile extends AppCompatActivity {
                     if(user.getMandates().size()<1){
                         Toast.makeText(getApplicationContext(), "Utilizatorul nu are nicio activitate pana in acest moment.", Toast.LENGTH_LONG).show();
                     }else{
-                        startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putParcelableArrayListExtra("membersHistoryFromProfile", user.getMandates()));
+                        startActivity(new Intent(getApplicationContext(), HistoryPopUp.class).putExtra("memberEmailFromProfile", user.getEmail()));
                     }
                 }
             }

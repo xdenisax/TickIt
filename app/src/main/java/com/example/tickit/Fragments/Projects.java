@@ -61,16 +61,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Projects extends Fragment {
-    ListView projectListview;
     private ProjectAdapter adapter;
     private RecyclerView recyclerView;
-    ProgressBar progressBar;
-    View view;
-    ImageButton addProjectButton;
-
+    private ProgressBar progressBar;
+    private View view;
+    private ImageButton addProjectButton;
 
     public Projects() { }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,9 +80,34 @@ public class Projects extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+    private void assignViews() {
+        progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
+        addProjectButton= (ImageButton) view.findViewById(R.id.addProjectsButton);
+        recyclerView = (RecyclerView) view.findViewById(R.id.projectsRecyclerView);
+    }
+
+    private void setAllowanceOnViews() {
+        if(MainActivity.getUserGrade()>=2){
+            addProjectButton.setVisibility(View.GONE);
+        }
+    }
+
     private void setUpRecyclerView() {
         Query query = FirebaseFirestore.getInstance().collection("projects");
-        FirestoreRecyclerOptions<Project> projectOptions = new FirestoreRecyclerOptions.Builder<Project>()
+        FirestoreRecyclerOptions<Project> projectOptions = new FirestoreRecyclerOptions
+                .Builder<Project>()
                 .setQuery(query, Project.class)
                 .build();
         adapter = new ProjectAdapter(projectOptions);
@@ -93,6 +115,10 @@ public class Projects extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
+        setClicksOnAdapter(adapter);
+    }
+
+    private void setClicksOnAdapter(ProjectAdapter adapter) {
         adapter.setOnItemClickListener(new ProjectAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DocumentReference projectReference, int position) {
@@ -105,30 +131,13 @@ public class Projects extends Fragment {
             }
         });
 
-        adapter.setOnItemLongClickListener(new ProjectAdapter.OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(DocumentReference projectReference, int position) {
-                launchAlertDialog(projectReference, getContext());
-            }
-        });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-      //  loadListView();
-        adapter.startListening();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
-
-    private void setAllowanceOnViews() {
-        if(MainActivity.getUserGrade()>=2){
-            addProjectButton.setVisibility(View.GONE);
+        if(MainActivity.getUserGrade()<2){
+            adapter.setOnItemLongClickListener(new ProjectAdapter.OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(DocumentReference projectReference, int position) {
+                    launchAlertDialog(projectReference, getContext());
+                }
+            });
         }
     }
 
@@ -139,13 +148,6 @@ public class Projects extends Fragment {
                 startActivity(new Intent(getContext(), AddProject.class));
             }
         });
-    }
-
-    private void assignViews() {
-       // projectListview = (ListView) view.findViewById(R.id.projectsListvView);
-        progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
-        addProjectButton= (ImageButton) view.findViewById(R.id.addProjectsButton);
-        recyclerView = (RecyclerView) view.findViewById(R.id.projectsRecyclerView);
     }
 
     private void launchAlertDialog(final DocumentReference documentReference, Context context) {
@@ -168,25 +170,5 @@ public class Projects extends Fragment {
         alertDialog.show();
     }
 
-    private void loadListView() {
-        ProjectDatabaseCalls.getProjects(new CallbackArrayListProjects() {
-            @Override
-            public void callback(final ArrayList<Project> projectsFromDataBase) {
-                progressBar.setVisibility(View.GONE);
-                if(getActivity()!=null) {
-                    ListViewProjectsAdapter adapter = new ListViewProjectsAdapter(MainActivity.getContext(), R.layout.member_card, projectsFromDataBase);
-                    adapter.notifyDataSetChanged();
-                    projectListview.requestLayout();
-                    projectListview.setAdapter(adapter);
-                    projectListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList", projectsFromDataBase.get(position)));
-                        }
-                    });
-                }
-            }
-        });
-    }
 
 }

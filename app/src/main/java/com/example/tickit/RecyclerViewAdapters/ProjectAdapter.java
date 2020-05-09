@@ -80,32 +80,13 @@ public class ProjectAdapter extends FirestoreRecyclerAdapter<Project, ProjectAda
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(getAdapterPosition()!=RecyclerView.NO_POSITION && listener!=null){
+                    if(getAdapterPosition()!=RecyclerView.NO_POSITION && longClickListener!=null){
                         longClickListener.onItemLongClick(getSnapshots().getSnapshot(getAdapterPosition()).getReference(), getAdapterPosition());
-                        //deleteItem(getAdapterPosition());
                     }
-                    //launchAlertDialog(position, itemView.getContext());
                     return true;
                 }
             });
-
-            //setLongClick(itemView, getAdapterPosition());
         }
-    }
-
-    private void setLongClick(final View itemView, final int position) {
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                deleteItem(position);
-                //launchAlertDialog(position, itemView.getContext());
-                return true;
-            }
-        });
-    }
-
-    public void deleteItem(int position){
-        getSnapshots().getSnapshot(position).getReference().delete();
     }
 
     public interface OnItemClickListener{
