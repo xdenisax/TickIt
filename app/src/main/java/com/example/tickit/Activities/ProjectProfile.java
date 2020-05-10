@@ -52,6 +52,7 @@ public class ProjectProfile extends AppCompatActivity {
 
         assignViews();
         manageIntent(getIntent());
+        Toast.makeText(getApplicationContext(), project.getId()+project.getName(), Toast.LENGTH_LONG).show();
         setAllowanceOnViews();
         addEditionButtonPressed();
         backButtonPressed();
@@ -143,7 +144,12 @@ public class ProjectProfile extends AppCompatActivity {
             }
         });
 
-        project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege",null));
+        if(project.getEditions()!=null){
+            project.getEditions().add(0,new Edition(null,null, null,null, null, null, "Alege",null));
+        }else{
+            project.setEditions(new ArrayList<Edition>());
+            project.getEditions().add(new Edition(null,null, null,null, null, null, "Alege",null));
+        }
         edtionsSpinners.setAdapter(new SpinnerYearAdapter(getApplicationContext(),project.getEditions()));
     }
 

@@ -65,4 +65,22 @@
         <item>Imagine si promovare</item>
         <item>IT</item>
     </string-array>
+
+    <string-array name="BEFunctions">
+        <item>Director Educational</item>
+        <item>Director Fundraising</item>
+        <item>Director Human Resources</item>
+        <item>Director Imagine si Promovare</item>
+        <item>Director IT</item>
+    </string-array>
+
+    <string-array name="BCFunctions">
+        <item>Presedinte</item>
+        <item>Secretar General</item>
+        <item>Vicepresedinte Proiecte</item>
+        <item>Vicepresedinte Relatii Academice</item>
+        <item>Vicepresedinte Interne</item>
+        <item>Vicepresedinte Externe</item>
+        <item>Cenzor</item>
+    </string-array>
 </resources>

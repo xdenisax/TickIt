@@ -16,6 +16,7 @@ import com.example.tickit.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.MemberHolder> {
 
@@ -59,7 +60,7 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position!= RecyclerView.NO_POSITION && listener!=null){
-                        listener.onItemClick(getSnapshots().getSnapshot(position).getReference(), position);
+                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
                     }
                 }
             });
@@ -67,7 +68,7 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
                 @Override
                 public boolean onLongClick(View v) {
                     if(getAdapterPosition()!=RecyclerView.NO_POSITION && longClickListener!=null){
-                        longClickListener.onItemLongClick(getSnapshots().getSnapshot(getAdapterPosition()).getReference(), getAdapterPosition());
+                        longClickListener.onItemLongClick(getSnapshots().getSnapshot(getAdapterPosition()), getAdapterPosition());
                     }
                     return true;
                 }
@@ -75,9 +76,8 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
         }
     }
 
-
     public interface OnItemLongClickListener{
-        void onItemLongClick(DocumentReference memberReference, int position);
+        void onItemLongClick(DocumentSnapshot memberReference, int position);
     }
 
     public void setOnItemLongClickListener(MemberAdapter.OnItemLongClickListener listener){
@@ -85,7 +85,7 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
     }
 
     public interface OnItemClickListener{
-        void onItemClick(DocumentReference memberReference, int position);
+        void onItemClick(DocumentSnapshot memberReference, int position);
     }
 
     public void setOnItemClickListener(MemberAdapter.OnItemClickListener listener){

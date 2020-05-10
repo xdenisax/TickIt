@@ -6,9 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,20 +23,36 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tickit.Activities.ProjectProfile;
 import com.example.tickit.Adapters.ListViewTasksAdapter;
 import com.example.tickit.Activities.AddTask;
 import com.example.tickit.Callbacks.CallbackArrayListStrings;
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
+import com.example.tickit.Callbacks.CallbackProject;
 import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.Project;
+import com.example.tickit.Classes.User;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.R;
 import com.example.tickit.Activities.TaskProfile;
+import com.example.tickit.RecyclerViewAdapters.MemberAdapter;
+import com.example.tickit.RecyclerViewAdapters.ProjectAdapter;
+import com.example.tickit.RecyclerViewAdapters.TasksAdapter;
+import com.firebase.ui.auth.util.data.TaskFailureLogger;
+import com.firebase.ui.common.ChangeEventType;
+import com.firebase.ui.firestore.ChangeEventListener;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.ObservableSnapshotArray;
+import com.google.android.gms.common.api.internal.TaskApiCall;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 
 import org.apache.log4j.chainsaw.Main;
 
@@ -40,12 +60,14 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class OpenTasks extends Fragment {
-    ImageButton addTaskButton;
-    ListView openTasks, assumedTasks;
-    ProgressBar spinkitOpenTasks, spinKitAssumedTasks;
-    ListViewTasksAdapter adapter;
-    TextView textViewNoOpenTasks, textViewNoAssumedTasks;
-    View view;
+    private ImageButton addTaskButton;
+    private ListView openTasks, assumedTasks;
+    private ProgressBar spinkitOpenTasks, spinKitAssumedTasks;
+   // private ListViewTasksAdapter adapter;
+    private TextView textViewNoOpenTasks, textViewNoAssumedTasks;
+    private RecyclerView openTasksRecyclerView, assumedTasksRecyclerView;
+    private TasksAdapter adapterOpenTasks, adapterAssumedTasks;
+    private View view;
     public OpenTasks() {
     }
 
@@ -56,20 +78,34 @@ public class OpenTasks extends Fragment {
         assignViews();
         addTaskButtonPressed(view);
 
+//        loadOpenTasks();
+//        loadAssumedTasks();
+        setAllowanceOnAddTaskButton(view);
+        setUpOpenTasksRecyclerView();
+        setUpAssumedTasksRecyclerView();
+
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        loadOpenTasks();
-        loadAssumedTasks();
-        setAllowanceOnAddTaskButton(view);
+        adapterOpenTasks.startListening();
+        adapterAssumedTasks.startListening();
+        manageLoadingViews(spinKitAssumedTasks, adapterAssumedTasks.getItemCount(), textViewNoAssumedTasks);
+        manageLoadingViews(spinkitOpenTasks, adapterOpenTasks.getItemCount(), textViewNoOpenTasks);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapterAssumedTasks.stopListening();
+        adapterOpenTasks.stopListening();
     }
 
     private void assignViews() {
-        openTasks = (ListView) view.findViewById(R.id.openTasksListView);
-        assumedTasks = (ListView) view.findViewById(R.id.assumedTasksListView);
+        assumedTasksRecyclerView=(RecyclerView) view.findViewById(R.id.assumedTasksRecyclerView);
+        openTasksRecyclerView=(RecyclerView) view.findViewById(R.id.openTasksRecyclerview);
         spinkitOpenTasks = (ProgressBar) view.findViewById(R.id.spin_kitOpenTasks);
         spinKitAssumedTasks  = (ProgressBar) view.findViewById(R.id.spin_kitAssumedTasks);
         textViewNoOpenTasks = (TextView) view.findViewById(R.id.textViewNoOpenTasks);
@@ -92,83 +128,56 @@ public class OpenTasks extends Fragment {
         }
     }
 
-    private void loadAssumedTasks() {
-        getTasksOnMyProject("assumedTasks", new CallbackArrayListTasks() {
-            @Override
-            public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                if(MainActivity.getContext()!=null){
-                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks );
-                    adapter.notifyDataSetChanged();
-                    assumedTasks.setAdapter(adapter);
-                    assumedTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            startActivity(new Intent(getContext(), TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
-                        }
-                    });
-                }
-
-                manageLoadingViews(spinKitAssumedTasks, tasks.size(), textViewNoAssumedTasks);
-
-            }
-        });
-    }
-
-    private void loadOpenTasks() {
-        getTasksOnMyProject("openTasks", new CallbackArrayListTasks() {
-            @Override
-            public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                if(MainActivity.getContext() !=null){
-                    adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, tasks);
-                    openTasks.setAdapter(adapter);
-                    openTasks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            startActivity(new Intent(getContext(),TaskProfile.class).putExtra("openTaskFromOpenTasks",tasks.get(position)));
-                        }
-                    });
-                }
-
-                manageLoadingViews(spinkitOpenTasks, tasks.size(), textViewNoOpenTasks);
-            }
-        });
-    }
-
-    private void getTasksOnMyProject(String collection, final CallbackArrayListTasks callbackArrayListTasks){
-        ProjectTasksDatabaseCalls.getTasks(collection, new CallbackArrayListTasks() {
-            @Override
-            public void onCallBack(final ArrayList<ProjectTask> tasks) {
-                ArrayList<ProjectTask> tasksOnMyProject =new ArrayList<>();
-                for(ProjectTask task:tasks){
-                    if(isMemberOnProject(task.getProject())){
-                        tasksOnMyProject.add(task);
-                    }
-                    if(tasks.indexOf(task) == tasks.size()-1){
-                        callbackArrayListTasks.onCallBack(tasksOnMyProject);
-                    }
-                }
-            }
-        });
-    }
-
-    private boolean isMemberOnProject(DocumentReference projectName) {
-        for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
-            if(mandateEntry.getKey().contains("BE-BC")){
-                return true;
-            }else{
-                if(mandateEntry.getValue().getProject_name().equals(projectName)) {
-                    return true;
-                }
-            }
+    private void setUpOpenTasksRecyclerView(){
+        Query query;
+        if(MainActivity.getMandateProjects()==null){
+            query= FirebaseFirestore.getInstance().collection("openTasks");
+        }else{
+            query = FirebaseFirestore.getInstance().collection("openTasks").whereIn("project", MainActivity.getMandateProjects());
         }
-        return false;
+
+        FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                .setQuery(query, ProjectTask.class)
+                .build();
+        adapterOpenTasks=new TasksAdapter(options);
+        openTasksRecyclerView.setHasFixedSize(true);
+        openTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        openTasksRecyclerView.setAdapter(adapterOpenTasks);
+
+        setClickListeners(adapterOpenTasks);
     }
 
-    private void manageLoadingViews(ProgressBar spinKit, int size, TextView textViewNoTasks) {
-        spinKit.setVisibility(View.GONE);
+    private void setUpAssumedTasksRecyclerView(){
+        Query query;
+        if(MainActivity.getMandateProjects()==null){
+             query= FirebaseFirestore.getInstance().collection("assumedTasks");
+        }else{
+            query = FirebaseFirestore.getInstance().collection("assumedTasks").whereIn("project", MainActivity.getMandateProjects());
+        }
+        final FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                .setQuery(query, ProjectTask.class)
+                .build();
+        adapterAssumedTasks=new TasksAdapter(options);
+        assumedTasksRecyclerView.setHasFixedSize(true);
+        assumedTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        assumedTasksRecyclerView.setAdapter(adapterAssumedTasks);
 
+        setClickListeners(adapterAssumedTasks);
+    }
+
+    private void setClickListeners(TasksAdapter adapter) {
+        adapter.setOnItemClickListener(new TasksAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(final DocumentSnapshot documentSnapshot, int position) {
+                startActivity(new Intent(getContext(), TaskProfile.class).putExtra("openTaskFromOpenTasks", documentSnapshot.toObject(ProjectTask.class)));
+            }
+        });
+    }
+
+    public static void manageLoadingViews(ProgressBar spinKit,int size , TextView textViewNoTasks) {
+        spinKit.setVisibility(View.GONE);
         if(size>0){
-            textViewNoTasks.setVisibility(View.INVISIBLE);
+            textViewNoTasks.setVisibility(View.GONE);
         }else{
             textViewNoTasks.setVisibility(View.VISIBLE);
         }

@@ -25,7 +25,9 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -171,6 +173,18 @@ public class MainActivity extends AppCompatActivity {
 
     public static Context getContext() {
         return context;
+    }
+
+    public static ArrayList<DocumentReference>getMandateProjects(){
+        ArrayList<DocumentReference> projects = new ArrayList<>();
+        for(Mandate mandate : loggedInUser.getMandates()){
+            if(mandate.getProject_name().getPath().equals("bebc/be-bc")){
+                Log.d("projects", mandate.getProject_name().getPath());
+                return null;
+            }
+            projects.add(mandate.getProject_name());
+        }
+        return projects;
     }
 
     private void signIn() {

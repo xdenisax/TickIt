@@ -260,9 +260,9 @@ public class EditionProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivityForResult(new Intent(getApplicationContext(), AddMemberProject.class)
-                        .putParcelableArrayListExtra("membersOfEdition",edition.getMembers())
-                        .putExtra("coordinator1", edition.getCoordinator1())
-                        .putExtra("coordinator2", edition.getCoordinator2())
+                                .putParcelableArrayListExtra("membersOfEdition",edition.getMembers())
+                                .putExtra("coordinator1", edition.getCoordinator1())
+                                .putExtra("coordinator2", edition.getCoordinator2())
                         ,REQUEST_CODE_ADD_MEMBERS);
             }
         });

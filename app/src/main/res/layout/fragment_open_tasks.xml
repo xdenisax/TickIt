@@ -7,6 +7,57 @@
     android:background="@color/darkblue"
     tools:context=".Fragments.OpenTasks">
 
+    <TextView
+        android:id="@+id/textViewNoOpenTasks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/colombia"
+        android:text="@string/nu_sunt_task_uri_deschise_in_acest_moment"
+        android:textColor="@color/dirty_white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/openTasksRecyclerview"
+        app:layout_constraintEnd_toEndOf="@+id/openTasksRecyclerview"
+        app:layout_constraintStart_toStartOf="@+id/openTasksRecyclerview"
+        app:layout_constraintTop_toTopOf="@+id/openTasksRecyclerview"
+        app:layout_constraintVertical_bias="0.100000024" />
+
+    <TextView
+        android:id="@+id/textViewNoAssumedTasks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/colombia"
+        android:text="@string/nu_sunt_task_uri_asumate_pana_in_acest_moment"
+        android:textColor="@color/dirty_white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintStart_toStartOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintTop_toTopOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintVertical_bias="0.100000024" />
+
+    <TextView
+        android:id="@+id/textViewTitleOpenTasks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/colombia"
+        android:text="@string/task_uri_deschise"
+        android:textColor="@color/brownish_yellow"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
+        app:layout_constraintVertical_bias="0.0" />
+
     <ImageButton
         android:id="@+id/addTasksButton"
         android:layout_width="wrap_content"
@@ -17,7 +68,7 @@
         android:background="@drawable/circle_background_medium"
         android:foreground="@drawable/ripple_round_effect_button"
         android:src="@drawable/add_task"
-        app:layout_constraintBottom_toTopOf="@+id/openTasksListView"
+        app:layout_constraintBottom_toTopOf="@+id/openTasksRecyclerview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/textViewTitleOpenTasks"
@@ -30,10 +81,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:SpinKit_Color="@color/vivid_cyan"
-        app:layout_constraintBottom_toBottomOf="@+id/openTasksListView"
-        app:layout_constraintEnd_toEndOf="@+id/openTasksListView"
-        app:layout_constraintStart_toStartOf="@+id/openTasksListView"
-        app:layout_constraintTop_toTopOf="@+id/openTasksListView" />
+        app:layout_constraintBottom_toBottomOf="@+id/openTasksRecyclerview"
+        app:layout_constraintEnd_toEndOf="@+id/openTasksRecyclerview"
+        app:layout_constraintStart_toStartOf="@+id/openTasksRecyclerview"
+        app:layout_constraintTop_toTopOf="@+id/openTasksRecyclerview" />
 
 
     <com.github.ybq.android.spinkit.SpinKitView
@@ -43,10 +94,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:SpinKit_Color="@color/vivid_cyan"
-        app:layout_constraintBottom_toBottomOf="@+id/assumedTasksListView"
-        app:layout_constraintEnd_toEndOf="@+id/assumedTasksListView"
-        app:layout_constraintStart_toStartOf="@+id/assumedTasksListView"
-        app:layout_constraintTop_toTopOf="@+id/assumedTasksListView" />
+        app:layout_constraintBottom_toBottomOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintEnd_toEndOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintStart_toStartOf="@+id/assumedTasksRecyclerView"
+        app:layout_constraintTop_toTopOf="@+id/assumedTasksRecyclerView" />
 
     <TextView
         android:id="@+id/taskNameTextView"
@@ -68,8 +119,37 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ListView
-        android:id="@+id/openTasksListView"
+    <!--    <ListView-->
+<!--        android:id="@+id/openTasksListView"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/textViewTitleAssumedTasks"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="1.0"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textViewTitleOpenTasks"/>-->
+
+<!--    <ListView-->
+<!--        android:id="@+id/assumedTasksListView"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textViewTitleAssumedTasks">-->
+
+<!--    </ListView>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/openTasksRecyclerview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -78,12 +158,11 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/textViewTitleAssumedTasks"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitleOpenTasks"/>
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitleOpenTasks" />
 
-    <ListView
-        android:id="@+id/assumedTasksListView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/assumedTasksRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -93,28 +172,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitleAssumedTasks">
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitleAssumedTasks" >
 
-    </ListView>
-
-    <TextView
-        android:id="@+id/textViewTitleOpenTasks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="@font/colombia"
-        android:text="@string/task_uri_deschise"
-        android:textColor="@color/brownish_yellow"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskNameTextView"
-        app:layout_constraintVertical_bias="0.0" />
+    </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
         android:id="@+id/textViewTitleAssumedTasks"
@@ -134,29 +194,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/taskNameTextView" />
 
-    <TextView
-        android:id="@+id/textViewNoOpenTasks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/colombia"
-        android:textColor="@color/dirty_white"
-        android:textSize="20sp"
-        android:text="@string/nu_sunt_task_uri_deschise_in_acest_moment"
-        app:layout_constraintBottom_toBottomOf="@+id/openTasksListView"
-        app:layout_constraintEnd_toEndOf="@+id/openTasksListView"
-        app:layout_constraintStart_toStartOf="@+id/openTasksListView"
-        app:layout_constraintTop_toTopOf="@+id/openTasksListView" />
-
-    <TextView
-        android:id="@+id/textViewNoAssumedTasks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/colombia"
-        android:textColor="@color/dirty_white"
-        android:textSize="20sp"
-        android:text="@string/nu_sunt_task_uri_asumate_pana_in_acest_moment"
-        app:layout_constraintBottom_toBottomOf="@+id/assumedTasksListView"
-        app:layout_constraintEnd_toEndOf="@+id/assumedTasksListView"
-        app:layout_constraintStart_toStartOf="@+id/assumedTasksListView"
-        app:layout_constraintTop_toTopOf="@+id/assumedTasksListView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

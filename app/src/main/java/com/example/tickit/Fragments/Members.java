@@ -48,6 +48,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Member;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,20 +122,15 @@ public class Members extends Fragment {
     private void setClickListeners(MemberAdapter adapter) {
         adapter.setOnItemClickListener(new MemberAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(DocumentReference memberReference, int position) {
-                UserDatabaseCalls.getUser(memberReference, new CallbackUser() {
-                    @Override
-                    public void callback(User user) {
-                        startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", user));
-                    }
-                });
+            public void onItemClick(DocumentSnapshot memberReference, int position) {
+                startActivity(new Intent(getContext(), Profile.class).putExtra("userFromMembersList", memberReference.toObject(User.class)));
             }
         });
         if(MainActivity.getUserGrade()<2){
             adapter.setOnItemLongClickListener(new MemberAdapter.OnItemLongClickListener() {
                 @Override
-                public void onItemLongClick(DocumentReference memberReference, int position) {
-                    launchAlertDialog(memberReference, getContext());
+                public void onItemLongClick(DocumentSnapshot memberReference, int position) {
+                    launchAlertDialog(memberReference.getReference(), getContext());
                 }
             });
         }

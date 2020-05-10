@@ -179,6 +179,9 @@ public class ProjectDatabaseCalls {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         final List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        if(list.size()<1){
+                            callbackArrayListEditions.callback(null);
+                        }
                         for (final DocumentSnapshot document :list) {
                             initializeEdition(document, new CallbackEdition() {
                                 @Override
@@ -363,7 +366,7 @@ public class ProjectDatabaseCalls {
                 + "Editions";
     }
 
-    private static String getSubCollectionName(String document){
+    public static String getSubCollectionName(String document){
         return  document.substring(0,1).toLowerCase()
                 +document.substring(1).replace(" ","")
                 + "Editions";

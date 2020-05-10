@@ -121,10 +121,11 @@ public class Projects extends Fragment {
     private void setClicksOnAdapter(ProjectAdapter adapter) {
         adapter.setOnItemClickListener(new ProjectAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(DocumentReference projectReference, int position) {
+            public void onItemClick(final DocumentReference projectReference, int position) {
                 ProjectDatabaseCalls.getProject(projectReference, new CallbackProject() {
                     @Override
                     public void callback(Project project) {
+                        project.setId(projectReference.getId());
                         startActivity(new Intent(getContext(), ProjectProfile.class).putExtra("projectFromProjectsList", project));
                     }
                 });
