@@ -6,6 +6,7 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DateProcessing implements Serializable {
@@ -34,6 +35,13 @@ public class DateProcessing implements Serializable {
             }
 
         }
+    }
+
+    public static Date getNextYearDate(){
+        Calendar cal = Calendar.getInstance();
+        Date today = cal.getTime();
+        cal.add(Calendar.YEAR, 1); // to get previous year add -1
+        return  cal.getTime();
     }
 
     public static  Date getDate(EditText date) {

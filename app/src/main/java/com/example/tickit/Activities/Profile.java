@@ -20,14 +20,19 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.PopUps.EditPopUp;
 import com.example.tickit.PopUps.HistoryPopUp;
 import com.example.tickit.R;
+import com.example.tickit.Utils.DateProcessing;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.Calendar;
 
 public class Profile extends AppCompatActivity {
     int REQUEST_CODE_MEMBERS_LIST = 1;
@@ -205,9 +210,9 @@ public class Profile extends AppCompatActivity {
     private void launchBoardAlertDialog() {
         final String[] birouri = new String[2]; birouri[0] = "Biroul de conducere"; birouri[1] = "Biroul executiv";
 
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         dialogBuilder.setTitle("Alegeti ramura Biroului.");
-        dialogBuilder.setSingleChoiceItems(birouri, 1, new DialogInterface.OnClickListener() {
+        dialogBuilder.setSingleChoiceItems(birouri, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 launchFunctionAlertDialog(which);
@@ -223,7 +228,7 @@ public class Profile extends AppCompatActivity {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setTitle("Alegeti functia.");
         if (which == 0) {
-            dialogBuilder.setSingleChoiceItems( getResources().getStringArray(R.array.BCFunctions), 1, new DialogInterface.OnClickListener() {
+            dialogBuilder.setSingleChoiceItems( getResources().getStringArray(R.array.BCFunctions), -1, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     launchConfirmationAlertDialog(which, 0);
@@ -232,7 +237,7 @@ public class Profile extends AppCompatActivity {
             });
         }
         if (which == 1) {
-            dialogBuilder.setSingleChoiceItems( getResources().getStringArray(R.array.BEFunctions), 1, new DialogInterface.OnClickListener() {
+            dialogBuilder.setSingleChoiceItems( getResources().getStringArray(R.array.BEFunctions), -1, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     launchConfirmationAlertDialog(which, 1);
@@ -244,24 +249,30 @@ public class Profile extends AppCompatActivity {
         dialog.show();
     }
 
-    private void launchConfirmationAlertDialog(int whichFunction, int whichBirou) {
+    private void launchConfirmationAlertDialog(int whichFunction, final int whichBirou) {
         final String key = RandomStringUtils.randomAlphanumeric(5);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setTitle("Confirmare");
+        String function = "functie";
         if(whichBirou==0){
-            dialogBuilder.setMessage("Pentru a confirma intarea in mandatul de "+ getResources().getStringArray(R.array.BCFunctions)[whichBirou] +" a membrului " + user.getLastName()  + " " + user.getFirstName() + " completati textul "+ key+" in campul de mai jos." );
+            function= getResources().getStringArray(R.array.BCFunctions)[whichBirou];
         }
         if(whichBirou==1){
-            dialogBuilder.setMessage("Pentru a confirma intarea in mandatul de "+ getResources().getStringArray(R.array.BEFunctions)[whichBirou] +" a membrului " + user.getLastName()  + " " + user.getFirstName() + " completati textul "+ key+" in campul de mai jos." );
+            function= getResources().getStringArray(R.array.BEFunctions)[whichBirou];
         }
+
+        dialogBuilder.setMessage("Pentru a confirma intarea in mandatul de "+ function +" a membrului " + user.getLastName()  + " " + user.getFirstName() + " completati textul "+ key+" in campul de mai jos." );
+
 
         final EditText keyInput = new EditText(this);
         dialogBuilder.setView(keyInput);
 
+        final String finalFunction = function;
         dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(key.equals(keyInput.getText().toString())){
+                    addMandate(finalFunction, whichBirou);
                     Toast.makeText(getApplicationContext(), "S-a add", Toast.LENGTH_LONG).show();
                 }
                 if(!key.equals(keyInput.getText().toString())){
@@ -283,5 +294,15 @@ public class Profile extends AppCompatActivity {
         dialog.show();
     }
 
+    private void addMandate(String position, int grade){
+        Mandate mandate = new Mandate(
+                (FirebaseFirestore.getInstance()).collection("bebc").document("be-bc"),
+                position,
+                Calendar.getInstance().getTime(),
+                DateProcessing.getNextYearDate(),
+                grade
+        );
+        UserDatabaseCalls.addMandate(user.getEmail(),mandate, "be-bc");
+    }
 
 }

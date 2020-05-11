@@ -46,7 +46,6 @@ public class Dashboard extends Fragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_dashboard,container,false);
         assignViews();
-        setGoogleUp();
 
         Intent intent = getActivity().getIntent();
 
@@ -56,14 +55,23 @@ public class Dashboard extends Fragment  {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        setGoogleUp();
+
+    }
+
     private void assignViews() {
         signOutButton = (ImageButton) view.findViewById(R.id.signOutButton);
         profileButton = (ImageButton) view.findViewById(R.id.profileButton);
     }
 
     private void setGoogleUp() {
-        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.getContext(), gso);
+        if(MainActivity.getContext()!=null){
+            gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+            mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.getContext(), gso);
+        }
     }
 
     private void signOutButtonPressed(ImageButton signOutButton, View view) {
