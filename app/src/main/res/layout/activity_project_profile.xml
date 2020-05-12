@@ -58,16 +58,15 @@
 
     <Spinner
         android:id="@+id/spinnerEditions"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@color/vivid_cyan"
         android:padding="5dp"
         app:layout_constraintBottom_toTopOf="@+id/addNewEditionButton"
-        app:layout_constraintEnd_toEndOf="@+id/projectNameTextView"
-        app:layout_constraintStart_toStartOf="@+id/projectNameTextView"
+        app:layout_constraintEnd_toEndOf="@+id/scrollViewProjectDescription"
+        app:layout_constraintStart_toStartOf="@+id/scrollViewProjectDescription"
         app:layout_constraintTop_toBottomOf="@+id/projectNameTextView"
         app:layout_constraintVertical_bias="0.7" />
 

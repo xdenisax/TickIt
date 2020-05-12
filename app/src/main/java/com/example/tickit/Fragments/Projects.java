@@ -119,6 +119,7 @@ public class Projects extends Fragment {
     }
 
     private void setClicksOnAdapter(ProjectAdapter adapter) {
+
         adapter.setOnItemClickListener(new ProjectAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(final DocumentReference projectReference, int position) {

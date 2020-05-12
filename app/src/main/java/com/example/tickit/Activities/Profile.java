@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.tickit.Callbacks.CallbackArrayListMandates;
 import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.User;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
@@ -28,11 +29,14 @@ import com.example.tickit.PopUps.EditPopUp;
 import com.example.tickit.PopUps.HistoryPopUp;
 import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Map;
 
 public class Profile extends AppCompatActivity {
     int REQUEST_CODE_MEMBERS_LIST = 1;
@@ -52,7 +56,6 @@ public class Profile extends AppCompatActivity {
 
         user = MainActivity.getLoggedInUser();
         assignViews();
-        fillWithInfo( true);
         manageIntent(getIntent());
         historyButtonPressed();
         backButtonPressed(backButton);
@@ -87,21 +90,37 @@ public class Profile extends AppCompatActivity {
         profilePicture= (ImageView) findViewById(R.id.profilePicture);
         department= (TextView) findViewById(R.id.departmentTextView);
         upgradeAsBoard = (ImageButton) findViewById(R.id.upgradeAsBoard);
-        upgradeAsBoard.setVisibility(View.GONE);
     }
 
     private void manageIntent(Intent intent) {
+        boolean anyIntent = false;
         if(intent.getParcelableExtra("userFromMembersList")!= null) {
             user = (User) intent.getParcelableExtra("userFromMembersList");
-            fillWithInfo(false);
+            anyIntent=true;
         }
         if(intent.getParcelableExtra("memberFromEditionProfile")!= null) {
             user = (User) intent.getParcelableExtra("memberFromEditionProfile");
-            fillWithInfo(false);
+            anyIntent=true;
         }
         if(intent.getParcelableExtra("memberFromTaskProfile")!=null){
             user = (User) intent.getParcelableExtra("memberFromTaskProfile");
-            fillWithInfo(false);
+            anyIntent=true;
+        }
+        if(anyIntent){
+            UserDatabaseCalls.getMandates(user.getEmail(), new CallbackArrayListMandates() {
+                @Override
+                public void callback(ArrayList<Mandate> mandates) {
+                    if(mandates!=null) {
+                        user.setMandates(mandates);
+                    }
+                    fillWithInfo(false);
+                    setAllowanceOnBoardButton(false);
+                }
+            });
+        }
+        if(!anyIntent){
+            fillWithInfo(true);
+            setAllowanceOnBoardButton(true);
         }
     }
 
@@ -195,16 +214,41 @@ public class Profile extends AppCompatActivity {
         });
     }
 
+    private void setAllowanceOnBoardButton(boolean isPersonalProfile) {
+         if(isPersonalProfile ){
+            upgradeAsBoard.setVisibility(View.GONE);
+        }
+
+        if(MainActivity.getUserGrade()>1){
+            upgradeAsBoard.setVisibility(View.GONE);
+        }
+
+        if(isMemberBEBC()){
+            upgradeAsBoard.setVisibility(View.GONE);
+        }
+
+    }
+
+    private boolean isMemberBEBC() {
+        if(user.getMandates()!=null){
+            for (Mandate mandate: user.getMandates()){
+                if(mandate.getProject_name().equals(FirebaseFirestore.getInstance().collection("bebc").document("be-bc"))){
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
     private void upgradeAsBoardPressed() {
-        if(MainActivity.getUserGrade()<1){
-            upgradeAsBoard.setVisibility(View.VISIBLE);
             upgradeAsBoard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     launchBoardAlertDialog();
                 }
             });
-        }
+
     }
 
     private void launchBoardAlertDialog() {
@@ -225,7 +269,7 @@ public class Profile extends AppCompatActivity {
     }
 
     private void launchFunctionAlertDialog(int which) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         dialogBuilder.setTitle("Alegeti functia.");
         if (which == 0) {
             dialogBuilder.setSingleChoiceItems( getResources().getStringArray(R.array.BCFunctions), -1, new DialogInterface.OnClickListener() {
@@ -251,7 +295,7 @@ public class Profile extends AppCompatActivity {
 
     private void launchConfirmationAlertDialog(int whichFunction, final int whichBirou) {
         final String key = RandomStringUtils.randomAlphanumeric(5);
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         dialogBuilder.setTitle("Confirmare");
         String function = "functie";
         if(whichBirou==0){

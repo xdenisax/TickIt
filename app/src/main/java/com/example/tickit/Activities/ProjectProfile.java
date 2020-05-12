@@ -52,7 +52,6 @@ public class ProjectProfile extends AppCompatActivity {
 
         assignViews();
         manageIntent(getIntent());
-        Toast.makeText(getApplicationContext(), project.getId()+project.getName(), Toast.LENGTH_LONG).show();
         setAllowanceOnViews();
         addEditionButtonPressed();
         backButtonPressed();
@@ -70,6 +69,7 @@ public class ProjectProfile extends AppCompatActivity {
                     @Override
                     public void callback(Boolean bool) {
                         if (bool) {
+                            finish();
                             Toast.makeText(getApplicationContext(), "S-a adaugat cu succes noua editie in baza de date.", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "Nu s-a reusit adaugarea editiei in baza de date. Verificati si reincercati.", Toast.LENGTH_LONG).show();

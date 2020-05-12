@@ -4,10 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.DataBaseCalls.UserDatabaseCalls;
 import com.example.tickit.R;
 import com.example.tickit.Adapters.SpinnerStringAdapter;
@@ -27,6 +31,7 @@ import com.opencsv.CSVReader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -38,6 +43,7 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
     TextView hintTextView;
     Spinner spinnerDepartment;
     int REQUEST_CODE_FILE_PATH =10;
+    Uri fileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +100,12 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_FILE_PATH && resultCode == RESULT_OK) {
-            String src = data.getData().getPath();
-            String path = src.substring(src.indexOf(":")+1);
-                //DocumentFile doc = DocumentFile.fromSingleUri(this, data.getData());
-            Toast.makeText(getApplicationContext(), path +"", Toast.LENGTH_LONG).show();
-            readCSV(path);
-
+        if (requestCode == 1002 && resultCode == RESULT_OK && data!=null ) {
+            fileUri= data.getData();
+            readCSV(fileUri);
+            Toast.makeText(getApplicationContext(), fileUri.getPath(), Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getApplicationContext(), "Nu s-a selectat fisierul.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -109,6 +114,7 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         if(requestCode==1001){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(), "Permisiune acordata.", Toast.LENGTH_LONG).show();
+                selectFile();
             }else{
                 Toast.makeText(getApplicationContext(), "Permisiune respinsa.", Toast.LENGTH_LONG).show();
                 finish();
@@ -117,12 +123,13 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void readCSV(String path) {
+    private void readCSV(Uri path) {
         try{
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path);
-            Toast.makeText(getApplicationContext(), file.getAbsolutePath() +"", Toast.LENGTH_LONG).show();
-            Reader reader = Files.newBufferedReader(Paths.get(new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path).getAbsolutePath()));
-            CSVReader csvReader = new CSVReader(reader);
+//            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path);
+//            Toast.makeText(getApplicationContext(), file.getAbsolutePath() +"", Toast.LENGTH_LONG).show();
+//            Reader reader = Files.newBufferedReader(Paths.get(new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path).getAbsolutePath()));
+            CSVReader csvReader = new CSVReader(new FileReader(new File(path.getPath())));
+            Toast.makeText(getApplicationContext(), String.valueOf(csvReader.readNext()),Toast.LENGTH_LONG).show();
 
             String[] line;
             while((line = csvReader.readNext())!=null){
@@ -171,12 +178,18 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         addMembersFromExcel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAvailability(false);
-                startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), REQUEST_CODE_FILE_PATH);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                        && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE )!= PackageManager.PERMISSION_GRANTED){
-                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
+                //setAvailability(false);
+                //startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), REQUEST_CODE_FILE_PATH);
+                if(ContextCompat.checkSelfPermission(AddMemberChoicePopUp.this, Manifest.permission.READ_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
+                    selectFile();
+                }else{
+                    ActivityCompat.requestPermissions(AddMemberChoicePopUp.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},1001);
                 }
+
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+//                        && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE )!= PackageManager.PERMISSION_GRANTED){
+//                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
+//                }
 //                new MaterialFilePicker()
 //                        .withActivity(AddMemberChoicePopUp.this)
 //                        .withRequestCode(10)
@@ -186,6 +199,14 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
             }
         });
     }
+
+    private void selectFile() {
+        Intent intent= new Intent();
+        intent.setType("*/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, 1002);
+    }
+
 
     private boolean validation(String emails) {
         if (emails == null) {

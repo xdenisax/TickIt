@@ -11,17 +11,23 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.tickit.Adapters.ListViewMemberAdapter;
+import com.example.tickit.Adapters.SpinnerStringAdapter;
+import com.example.tickit.Adapters.SpinnerYearAdapter;
 import com.example.tickit.Callbacks.CallbackArrayListMandates;
 import com.example.tickit.Callbacks.CallbackArrayListUser;
 import com.example.tickit.Callbacks.CallbackMandate;
@@ -57,6 +63,7 @@ import java.util.List;
 public class Members extends Fragment {
     private User loggedInUser = MainActivity.getLoggedInUser();
     private ProgressBar progressBar;
+    private Spinner spinnerDepartments;
     private ImageButton addMemberButton;
     private View view;
     private RecyclerView recyclerView;
@@ -70,7 +77,9 @@ public class Members extends Fragment {
 
         assignViews();
         setAllowanceAddMembersButton();
-        setUpRecyclerView();
+        setUpRecyclerView(0);
+        setSpinnerUp();
+        listenOnSpinnerChanges();
 
         return view;
     }
@@ -91,6 +100,14 @@ public class Members extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.membersRecyclerView);
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
         addMemberButton = (view.findViewById(R.id.addMembersButton));
+        spinnerDepartments = (Spinner) view.findViewById(R.id.spinnerFilterByDepartments);
+        spinnerDepartments.setSelection(0);
+    }
+
+    private void setSpinnerUp() {
+        if(MainActivity.getContext()!=null){
+            spinnerDepartments.setAdapter(new SpinnerStringAdapter(MainActivity.getContext(), getResources().getStringArray(R.array.departments)));
+        }
     }
 
     private void setAllowanceAddMembersButton() {
@@ -106,11 +123,33 @@ public class Members extends Fragment {
         }
     }
 
-    private void setUpRecyclerView() {
-        Query query = FirebaseFirestore.getInstance().collection("users");
+    private void listenOnSpinnerChanges() {
+        spinnerDepartments.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != 0) {
+                    setUpRecyclerView(position);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void setUpRecyclerView(int position) {
+        Query query;
+        if(position==0){
+            query = FirebaseFirestore.getInstance().collection("users");
+        }else{
+            Toast.makeText(getContext(), position+"", Toast.LENGTH_LONG).show();
+            String department= getResources().getStringArray(R.array.departments)[position];
+            query = FirebaseFirestore.getInstance().collection("users").whereEqualTo("departament", department.replace(" ", ""));
+        }
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
+
         adapter=new MemberAdapter(options);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -118,6 +157,7 @@ public class Members extends Fragment {
 
         setClickListeners(adapter);
     }
+
 
     private void setClickListeners(MemberAdapter adapter) {
         adapter.setOnItemClickListener(new MemberAdapter.OnItemClickListener() {
@@ -156,7 +196,6 @@ public class Members extends Fragment {
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
-
 
 
 }

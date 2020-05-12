@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,11 @@ import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.R;
 import com.example.tickit.Activities.TaskProfile;
+import com.example.tickit.RecyclerViewAdapters.TasksAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 
@@ -38,7 +45,6 @@ public class MyTasks extends Fragment {
         assignViews(view);
 
         noAssumedTasks.setVisibility(View.GONE);
-
         return view;
     }
 
@@ -48,6 +54,7 @@ public class MyTasks extends Fragment {
         loadListView();
         setActionOnListView();
     }
+
 
     private void setActionOnListView() {
         myTasksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

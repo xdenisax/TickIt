@@ -26,6 +26,8 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
         super(options);
     }
 
+
+
     @Override
     protected void onBindViewHolder(@NonNull MemberHolder holder, int position, @NonNull User model) {
         if(model.getFirstName()==null){
@@ -39,6 +41,8 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
             Glide.with(holder.itemView.getContext()).load(model.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(holder.profilePicture);
         }
      }
+
+
 
     @NonNull
     @Override
