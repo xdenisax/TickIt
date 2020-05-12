@@ -43,9 +43,13 @@ public class UserDatabaseCalls {
     public static void addListOfMembersToDataBase(String[] emailsArray, String department) {
         for(String member:emailsArray){
             member = member.replace(" ", "");
-            User newUser = new User(null, null, null, member, null, department, new ArrayList<Mandate>());
-            instance.collection("users").document(member).set(newUser);
+            addUser(member, department);
         }
+    }
+
+    public static void addUser(String member, String department) {
+        User newUser = new User(null, null, null, member, null, department, new ArrayList<Mandate>());
+        instance.collection("users").document(member).set(newUser);
     }
 
     public static void getUsers(final CallbackArrayListUser callbackArrayListUser) {
@@ -282,4 +286,5 @@ public class UserDatabaseCalls {
     public static void deleteMember(DocumentReference documentReference) {
         documentReference.delete();
     }
+
 }

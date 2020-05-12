@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -29,13 +30,18 @@ import com.example.tickit.R;
 import com.example.tickit.Adapters.SpinnerStringAdapter;
 import com.opencsv.CSVReader;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddMemberChoicePopUp extends AppCompatActivity {
     Button addMembersInDataBaseButton, addMembersFromExcel, addMembersManually;
@@ -51,7 +57,7 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         setContentView(R.layout.activity_add_member_choice_pop_up);
 
         assignViews();
-        setMetrics();
+        setMetrics(0.8, 0.2);
         setAvailability(false);
         setSpinnerUp();
         setActionOnExcelButton();
@@ -101,9 +107,7 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1002 && resultCode == RESULT_OK && data!=null ) {
-            fileUri= data.getData();
-            readCSV(fileUri);
-            Toast.makeText(getApplicationContext(), fileUri.getPath(), Toast.LENGTH_LONG).show();
+            readCSV(data.getData());
         }else{
             Toast.makeText(getApplicationContext(), "Nu s-a selectat fisierul.", Toast.LENGTH_LONG).show();
         }
@@ -125,16 +129,26 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void readCSV(Uri path) {
         try{
-//            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path);
-//            Toast.makeText(getApplicationContext(), file.getAbsolutePath() +"", Toast.LENGTH_LONG).show();
-//            Reader reader = Files.newBufferedReader(Paths.get(new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+path).getAbsolutePath()));
-            CSVReader csvReader = new CSVReader(new FileReader(new File(path.getPath())));
-            Toast.makeText(getApplicationContext(), String.valueOf(csvReader.readNext()),Toast.LENGTH_LONG).show();
+            CSVReader csvReader = new CSVReader( new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(path))));
+            String[] line = csvReader.readNext();
+            ArrayList<String> emails =new ArrayList<>();
+            ArrayList<String> departments = new ArrayList<>();
 
-            String[] line;
             while((line = csvReader.readNext())!=null){
-                Toast.makeText(getApplicationContext(), line[0],Toast.LENGTH_LONG).show();
+                emails.add(line[0]);
+                departments.add(line[1]);
             }
+
+            String[] emailsArray  =  emails.toArray(new String[0]);
+            String[] departmentsArray  =  departments.toArray(new String[0]);
+
+            if(emails.size()>0){
+                addToDataBase(emailsArray, departmentsArray);
+            }
+            if(emails.size()<=0){
+                Toast.makeText(getApplicationContext(), "Nu s-a gasit niciun membru in CSV.", Toast.LENGTH_LONG).show();
+            }
+
         } catch (FileNotFoundException e) {
             Log.d("traceERR", e.toString());
             Toast.makeText(getApplicationContext(), "Nu s-a putut gasi fisierul CSV.",Toast.LENGTH_LONG).show();
@@ -143,6 +157,44 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
             Log.d("traceERR", e.toString());
             Toast.makeText(getApplicationContext(), "Probleme la citire. ",Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void addToDataBase(String[] emails, String[] departments) {
+        if(validationCSV(emails, departments)){
+            for(int i=0;i< emails.length;i++){
+                UserDatabaseCalls.addUser(emails[i], departments[i]);
+            }
+        }
+    }
+
+    private boolean validationCSV(String[] emails, String[] departments) {
+        if(emails.length != departments.length){
+            makeToast("Numarul membrilor nu corespunde cu numarul departamentelor.");
+            return false;
+        }
+
+        for(int i=0; i<emails.length;i++){
+            if(emails[i]==null || emails[i].equals("")){
+                makeToast("Nu s-a gasit emailul de la pozitia "+ i);
+                return false;
+            }
+            if (emails[i].length() <=12) {
+                makeToast(emails[i]+ " nu are o lungime corespunzatoare.");
+                return false;
+            }
+            if (!emails[i].substring(emails[i].length() - 10, emails[i].length()).equals("@gmail.com")) {
+                makeToast(emails[i]+ " nu contine @gmail.com");
+                return false;
+            }
+        }
+
+        for(int i=0; i<departments.length;i++){
+            if(departments[i]==null || departments[i].equals("")){
+                makeToast("Nu s-a gasit departametul de la pozitia "+ i);
+                return false;
+            }
+        }
+        return true;
     }
 
     private void setActionOnAddInDataBase() {
@@ -169,6 +221,7 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         addMembersManually.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setMetrics(0.8, 0.7);
                 setAvailability(true);
             }
         });
@@ -178,24 +231,13 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         addMembersFromExcel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //setAvailability(false);
-                //startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), REQUEST_CODE_FILE_PATH);
+                setMetrics(0.8, 0.2);
+                setAvailability(false);
                 if(ContextCompat.checkSelfPermission(AddMemberChoicePopUp.this, Manifest.permission.READ_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
                     selectFile();
                 }else{
                     ActivityCompat.requestPermissions(AddMemberChoicePopUp.this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},1001);
                 }
-
-//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-//                        && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE )!= PackageManager.PERMISSION_GRANTED){
-//                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
-//                }
-//                new MaterialFilePicker()
-//                        .withActivity(AddMemberChoicePopUp.this)
-//                        .withRequestCode(10)
-//                        .withHiddenFiles(true) // Show hidden files and folders
-//                        .withTitle("Alegeti fisierul CSV.")
-//                        .start();
             }
         });
     }
@@ -207,44 +249,42 @@ public class AddMemberChoicePopUp extends AppCompatActivity {
         startActivityForResult(intent, 1002);
     }
 
-
     private boolean validation(String emails) {
         if (emails == null) {
             makeToast("Nu s-au introdus emailuri.");
             return false;
-        } else {
-            if (emails.length() < 10) {
-                makeToast("Lungime email invalida.");
-                return false;
+        }
+        if (emails.length() < 10) {
+            makeToast("Lungime email invalida.");
+            return false;
+        }
+        String[] emailsArray = emails.split(", ");
+        boolean allEmailsOk = true;
+        for (int i = 0; i < emailsArray.length; i++) {
+            emailsArray[i]= emailsArray[i].replace(" ","");
+            if (emailsArray[i].length() < 10) {
+                makeToast(emailsArray[i]+ " nu are o lungime corespunzatoare.");
+                allEmailsOk = false;
             } else {
-                String[] emailsArray = emails.split(", ");
-                boolean allEmailsOk = true;
-                for (int i = 0; i < emailsArray.length; i++) {
-                    emailsArray[i]= emailsArray[i].replace(" ","");
-                    if (emailsArray[i].length() < 10) {
-                        makeToast(emailsArray[i]+ " nu are o lungime corespunzatoare.");
-                        allEmailsOk = false;
-                    } else {
-                        if (!emailsArray[i].substring(emailsArray[i].length() - 10, emailsArray[i].length()).equals("@gmail.com")) {
-                            makeToast(emailsArray[i]+ " nu contine @gmail.com");
-                            allEmailsOk = false;
-                        }
-                    }
+                if (!emailsArray[i].substring(emailsArray[i].length() - 10, emailsArray[i].length()).equals("@gmail.com")) {
+                    makeToast(emailsArray[i]+ " nu contine @gmail.com");
+                    allEmailsOk = false;
                 }
-                return allEmailsOk;
             }
         }
+        return allEmailsOk;
+
     }
 
     private void makeToast(String text){
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
     }
 
-    private void setMetrics() {
+    private void setMetrics(double widthPercent, double heightPercent) {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager(). getDefaultDisplay().getMetrics(dm);
         int windowWidth = dm.widthPixels;
         int windowHeigth = dm.heightPixels;
-        getWindow().setLayout((int) (windowWidth*0.8), (int) (windowHeigth*0.75));
+        getWindow().setLayout((int) (windowWidth*widthPercent), (int) (windowHeigth*heightPercent));
     }
 }

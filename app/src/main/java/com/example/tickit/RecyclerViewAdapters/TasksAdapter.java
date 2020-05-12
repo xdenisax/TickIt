@@ -1,5 +1,6 @@
 package com.example.tickit.RecyclerViewAdapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,15 +10,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Callbacks.CallbackString;
+import com.example.tickit.Classes.Mandate;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.Fragments.OpenTasks;
 import com.example.tickit.R;
 import com.example.tickit.Utils.DateProcessing;
+import com.firebase.ui.common.ChangeEventType;
+import com.firebase.ui.firestore.ChangeEventListener;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.Map;
 
 public class TasksAdapter extends FirestoreRecyclerAdapter<ProjectTask, TasksAdapter.TaskHolder> {
 
@@ -45,6 +53,45 @@ public class TasksAdapter extends FirestoreRecyclerAdapter<ProjectTask, TasksAda
     @Override
     public void onDataChanged() {
         super.onDataChanged();
+
+        getSnapshots().addChangeEventListener(new ChangeEventListener() {
+            @Override
+            public void onChildChanged(@NonNull ChangeEventType type, @NonNull DocumentSnapshot snapshot, int newIndex, int oldIndex) {
+                if(type.equals(ChangeEventType.CHANGED) && isTaskForLoggedInUser(snapshot)){
+                    OpenTasks.manageNotification(snapshot.toObject(ProjectTask.class));
+                }
+            }
+
+            @Override
+            public void onDataChanged() {
+
+            }
+
+            @Override
+            public void onError(@NonNull FirebaseFirestoreException e) {
+
+            }
+        });
+    }
+
+    private boolean isTaskForLoggedInUser(DocumentSnapshot snapshot) {
+        ProjectTask task = snapshot.toObject(ProjectTask.class);
+        if(task!=null){
+            if(!task.getDivision().equals(MainActivity.getLoggedInUser().getDepartament())){
+                Log.d("mandate", task.getDivision());
+                return false;
+            }
+            for (final Map.Entry<String, Mandate>  mandateEntry: MainActivity.getCurrentMandates().entrySet()){
+                if(mandateEntry.getKey().contains("BE-BC") || mandateEntry.getValue().getProject_name().equals(task.getProject())){
+                    Log.d("mandate", task.getProject().toString());
+                    return true;
+                }
+            }
+            return false;
+        }else{
+            Log.d("mandate", "null");
+            return false;
+        }
     }
 
     @NonNull

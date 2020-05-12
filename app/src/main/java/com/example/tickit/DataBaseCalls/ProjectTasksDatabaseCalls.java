@@ -113,4 +113,10 @@ public class ProjectTasksDatabaseCalls {
                 });
     }
 
+    public static void fakeUpdate(String collection, ProjectTask projectTask) {
+        (FirebaseFirestore.getInstance())
+                .collection(collection)
+                .document(projectTask.getId())
+                .update("description", projectTask.getTaskDescription());
+    }
 }

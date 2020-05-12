@@ -22,6 +22,7 @@ import com.example.tickit.Callbacks.CallbackPrjectTask;
 import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Classes.AssumedTasksSituation;
 import com.example.tickit.Classes.Mandate;
+import com.example.tickit.Classes.Project;
 import com.example.tickit.Classes.ProjectTask;
 import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
@@ -105,7 +106,6 @@ public class AddTask extends AppCompatActivity {
             public void onCallback(ArrayList<String> strings) {
                 String[] projects =  new String[strings.size()];
                 projects= strings.toArray(new String[0]);
-                Toast.makeText(getApplicationContext(),projects.toString(),Toast.LENGTH_LONG).show();
                 spinnerProject.setAdapter(new SpinnerStringAdapter(getApplicationContext(), projects));
                 divisionsSpinner.setAdapter(new SpinnerStringAdapter(getApplicationContext(), getResources().getStringArray(R.array.departments)));
             }
@@ -172,10 +172,9 @@ public class AddTask extends AppCompatActivity {
                                     @Override
                                     public void callback(Boolean bool) {
                                         Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
-                                        //send notification
-//                                        manageNotification();
                                     }
                                 });
+                                ProjectTasksDatabaseCalls.fakeUpdate("openTasks", projectTask);
                             }
                             finish();
                         }

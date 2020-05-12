@@ -92,7 +92,7 @@
             android:fontFamily="@font/colombia"
             android:foreground="@drawable/ripple_square_effect_button"
             android:padding="2dp"
-            android:text="@string/excel"
+            android:text="@string/csv"
             android:textAllCaps="false"
             android:textColor="@color/dirty_white"
             android:textSize="20sp"

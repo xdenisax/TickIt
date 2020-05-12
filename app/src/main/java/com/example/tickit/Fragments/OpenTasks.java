@@ -1,5 +1,6 @@
 package com.example.tickit.Fragments;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -64,6 +65,7 @@ public class OpenTasks extends Fragment {
     private ListView openTasks, assumedTasks;
     private ProgressBar spinkitOpenTasks, spinKitAssumedTasks;
    // private ListViewTasksAdapter adapter;
+   public static final String NOTIFICATION_CHANNEL_ID = "10001";
     private TextView textViewNoOpenTasks, textViewNoAssumedTasks;
     private RecyclerView openTasksRecyclerView, assumedTasksRecyclerView;
     private TasksAdapter adapterOpenTasks, adapterAssumedTasks;
@@ -183,16 +185,26 @@ public class OpenTasks extends Fragment {
         }
     }
 
-    private void manageNotification() {
+    public static void manageNotification( ProjectTask task) {
         NotificationCompat.Builder builder =new NotificationCompat.Builder(MainActivity.getContext())
                 .setSmallIcon(R.drawable.sisc_logo250)
-                .setContentTitle("S-a adaugat un task nou.")
+                .setContentTitle("Task-ul "+ task.getTaskName() + " a fost adaugat sau a fost modificat.")
                 .setAutoCancel(true);
         Intent intent = new Intent(MainActivity.getContext(), OpenTasks.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.getContext(), 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
+
         NotificationManager notificationManager = (NotificationManager) MainActivity.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+        {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+
+            builder.setChannelId(NOTIFICATION_CHANNEL_ID);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
         notificationManager.notify(0, builder.build());
     }
 
