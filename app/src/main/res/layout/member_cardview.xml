@@ -22,8 +22,8 @@
 
             <ImageView
                 android:id="@+id/userPicture"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginRight="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/account"
@@ -34,8 +34,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Lastname FirstName"
+                android:fontFamily="@font/colombia"
                 android:textColor="@color/dirty_white"
-                android:textSize="20sp"
+                android:textSize="30sp"
                 android:paddingStart="15dp"
                 android:layout_gravity="center_vertical"/>
         </LinearLayout>

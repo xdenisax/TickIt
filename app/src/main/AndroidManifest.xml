@@ -48,6 +48,10 @@
         <activity
             android:name=".PopUps.EditPopUp"
             android:theme="@style/AppTheme.PopUpTheme" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

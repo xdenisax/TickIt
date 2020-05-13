@@ -62,7 +62,7 @@ import java.util.List;
 
 public class Members extends Fragment {
     private User loggedInUser = MainActivity.getLoggedInUser();
-    private ProgressBar progressBar;
+    private static ProgressBar progressBar;
     private Spinner spinnerDepartments;
     private ImageButton addMemberButton;
     private View view;
@@ -124,11 +124,17 @@ public class Members extends Fragment {
     }
 
     private void listenOnSpinnerChanges() {
+        final boolean[] pressedOnce = {false};
         spinnerDepartments.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0) {
+                if (pressedOnce[0]) {
+                    adapter.stopListening();
                     setUpRecyclerView(position);
+                    adapter.startListening();
+                }
+                if(!pressedOnce[0]){
+                    pressedOnce[0] =true;
                 }
             }
             @Override
@@ -142,15 +148,16 @@ public class Members extends Fragment {
         if(position==0){
             query = FirebaseFirestore.getInstance().collection("users");
         }else{
-            Toast.makeText(getContext(), position+"", Toast.LENGTH_LONG).show();
             String department= getResources().getStringArray(R.array.departments)[position];
-            query = FirebaseFirestore.getInstance().collection("users").whereEqualTo("departament", department.replace(" ", ""));
+            Log.d("mandate", department);
+            query = FirebaseFirestore.getInstance().collection("users").whereEqualTo("departament", department);
         }
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
 
         adapter=new MemberAdapter(options);
+        adapter.notifyDataSetChanged();
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
@@ -197,6 +204,9 @@ public class Members extends Fragment {
         alertDialog.show();
     }
 
+    public static void stopProgressBar(){
+        progressBar.setVisibility(View.GONE);
+    }
 
 }
 

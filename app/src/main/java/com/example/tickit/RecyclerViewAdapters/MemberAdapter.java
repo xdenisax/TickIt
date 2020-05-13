@@ -12,11 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.tickit.Classes.User;
+import com.example.tickit.Fragments.Members;
 import com.example.tickit.R;
+import com.firebase.ui.common.ChangeEventType;
+import com.firebase.ui.firestore.ChangeEventListener;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.lang.reflect.Member;
 
 public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.MemberHolder> {
 
@@ -24,6 +30,12 @@ public class MemberAdapter extends FirestoreRecyclerAdapter<User, MemberAdapter.
     OnItemClickListener listener;
     public MemberAdapter(@NonNull FirestoreRecyclerOptions<User> options) {
         super(options);
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        Members.stopProgressBar();
     }
 
 
