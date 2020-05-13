@@ -47,9 +47,15 @@
                     android:textSize="20sp" />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="5dp"
+                android:gravity="center_vertical"
+                android:layout_weight="1" >
             <TextView
                 android:id="@+id/assumptionStatusTextView"
-                android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/colombia"
@@ -64,6 +70,7 @@
                 android:fontFamily="@font/colombia"
                 android:textColor="@color/red"
                 android:textSize="22sp"/>
+            </LinearLayout>
 
         </LinearLayout>
 

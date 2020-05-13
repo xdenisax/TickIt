@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Button;
@@ -155,14 +156,14 @@ public class AddTask extends AppCompatActivity {
                                     ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", projectTask, new CallbackBoolean() {
                                         @Override
                                         public void callback(Boolean bool) {
-                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
                                         }
                                     });
                                 }else{
                                     ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
                                         @Override
                                         public void callback(Boolean bool) {
-                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
                                         }
                                     });
                                 }
@@ -171,7 +172,7 @@ public class AddTask extends AppCompatActivity {
                                 ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
                                     @Override
                                     public void callback(Boolean bool) {
-                                        Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() + " in cadrul proiectului " + spinnerProject.getSelectedItem(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "S-a adaugat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
                                     }
                                 });
                                 ProjectTasksDatabaseCalls.fakeUpdate("openTasks", projectTask);
@@ -227,50 +228,55 @@ public class AddTask extends AppCompatActivity {
         if (spinnerProject.getSelectedItemPosition() == 0 && isEditMode ==0) {
             Toast.makeText(getApplicationContext(), "Alegeti proiectul pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
             return false;
-        } else {
-            if(!divisionsSpinner.getSelectedItem().equals(MainActivity.getLoggedInUser().getDepartament())&& isEditMode ==0){
-                Toast.makeText(getApplicationContext(), "Divizia aleasa nu corespunde cu divizia ta.", Toast.LENGTH_LONG).show();
-                return false;
-            }else{
-                if (taskNameEditText.getText().length() < 3) {
-                    Toast.makeText(getApplicationContext(), "Numele task-ului trebuie sa aiba mai mult de 3 caractere.", Toast.LENGTH_LONG).show();
-                    return false;
-                } else {
-                    if (taskDescriptionEditText.getText().length() < 10) {
-                        Toast.makeText(getApplicationContext(), "Descrierea task-ului trebuie sa aiba mai mult de 10 caractere.", Toast.LENGTH_LONG).show();
-                        return false;
-                    } else {
-                        if (!DateProcessing.dateValidation(startDateTaskEditText) || !DateProcessing.dateValidation(stopDateTaskEditText) || DateProcessing.getDate(stopDateTaskEditText) == null || DateProcessing.getDate(startDateTaskEditText)==null) {
-                            Toast.makeText(getApplicationContext(), "Data nu a fost introdusa in formatul corect: dd/mm/yyyy.", Toast.LENGTH_LONG).show();
-                            return false;
-                        } else {
-                            if (System.currentTimeMillis() > DateProcessing.getDate(stopDateTaskEditText).getTime() || DateProcessing.getDate(startDateTaskEditText).getTime() > DateProcessing.getDate(stopDateTaskEditText).getTime()) {
-                                Toast.makeText(getApplicationContext(), "Data de inceput sau cea de sfarsit nu sunt corect alese.", Toast.LENGTH_LONG).show();
-                                return false;
-                            } else {
-                                if (numberOfMemberEditText.getText().length() < 1) {
-                                    Toast.makeText(getApplicationContext(), "Introduceti numarul de voluntari necesari.", Toast.LENGTH_LONG).show();
-                                    return false;
-                                } else {
-                                    if (taskResourceEditText.getText().length() < 5 || URLUtil.isValidUrl(taskResourceEditText.getText().toString())) {
-                                        Toast.makeText(getApplicationContext(), "Introduceti un URL valid.", Toast.LENGTH_LONG).show();
-                                        return false;
-                                    }else{
-                                        if(divisionsSpinner.getSelectedItemPosition()==0&& isEditMode ==0){
-                                            Toast.makeText(getApplicationContext(), "Alegeti divizia pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
-                                            return false;
-                                        }else{
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
         }
+        if(!divisionsSpinner.getSelectedItem().equals(MainActivity.getLoggedInUser().getDepartament())&& isEditMode ==0){
+            Toast.makeText(getApplicationContext(), "Divizia aleasa nu corespunde cu divizia ta.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (taskNameEditText.getText().length() < 3) {
+            Toast.makeText(getApplicationContext(), "Numele task-ului trebuie sa aiba mai mult de 3 caractere.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (taskDescriptionEditText.getText().length() < 10) {
+            Toast.makeText(getApplicationContext(), "Descrierea task-ului trebuie sa aiba mai mult de 10 caractere.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (!DateProcessing.dateValidation(startDateTaskEditText) || !DateProcessing.dateValidation(stopDateTaskEditText) || DateProcessing.getDate(stopDateTaskEditText) == null || DateProcessing.getDate(startDateTaskEditText)==null) {
+            Toast.makeText(getApplicationContext(), "Data nu a fost introdusa in formatul corect: dd/mm/yyyy.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (System.currentTimeMillis() > DateProcessing.getDate(stopDateTaskEditText).getTime() || DateProcessing.getDate(startDateTaskEditText).getTime() > DateProcessing.getDate(stopDateTaskEditText).getTime()) {
+            Toast.makeText(getApplicationContext(), "Data de inceput sau cea de sfarsit nu sunt corect alese.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (numberOfMemberEditText.getText().length() < 1) {
+            Toast.makeText(getApplicationContext(), "Introduceti numarul de voluntari necesari.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (!validationLink(taskResourceEditText)) {
+            return false;
+        }
+        if(divisionsSpinner.getSelectedItemPosition()==0&& isEditMode ==0){
+            Toast.makeText(getApplicationContext(), "Alegeti divizia pentru care doriti adaugare task-ului.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validationLink(EditText taskResourceEditText) {
+        if(taskResourceEditText.getText().toString().length()<5){
+            Toast.makeText(getApplicationContext(), "Nu ati introdus link-ul.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if(!Patterns.WEB_URL.matcher(taskResourceEditText.getText().toString()).matches()){
+            Toast.makeText(getApplicationContext(), "URL invalid"+taskResourceEditText.getText().toString(), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if(!taskResourceEditText.getText().toString().contains("http")){
+            Toast.makeText(getApplicationContext(), "Nu s-a putut gasi protocolul. Link-ul contine http?", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
     private void backButtonPressed() {

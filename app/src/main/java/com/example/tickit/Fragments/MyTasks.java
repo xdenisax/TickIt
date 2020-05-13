@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.tickit.Adapters.ListViewTasksAdapter;
+import com.example.tickit.Callbacks.CallbackArrayListStrings;
+import com.example.tickit.Callbacks.CallbackString;
 import com.example.tickit.Classes.AssumedTasksSituation;
 import com.example.tickit.Callbacks.CallbackArrayListTasks;
+import com.example.tickit.DataBaseCalls.ProjectDatabaseCalls;
 import com.example.tickit.DataBaseCalls.ProjectTasksDatabaseCalls;
 import com.example.tickit.Activities.MainActivity;
 import com.example.tickit.Classes.ProjectTask;
@@ -76,10 +80,16 @@ public class MyTasks extends Fragment {
                         myTasks = new ArrayList<>();
                         myTasks.addAll(tasks);
                         myTasks.addAll(tasks2);
-                        if(myTasks.size()>0){
-                            ListViewTasksAdapter adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks);
-                            adapter.notifyDataSetChanged();
-                            myTasksListView.setAdapter(adapter);
+                        if(myTasks.size()>0 && MainActivity.getContext()!=null){
+                            getProjectsName(myTasks, new CallbackArrayListStrings() {
+                                @Override
+                                public void onCallback(ArrayList<String> strings) {
+                                    ListViewTasksAdapter adapter = new ListViewTasksAdapter(MainActivity.getContext(),R.layout.task_card, myTasks, strings);
+                                    adapter.notifyDataSetChanged();
+                                    myTasksListView.setAdapter(adapter);
+                                }
+                            });
+
                         }else{
                             noAssumedTasks.setVisibility(View.VISIBLE);
                         }
@@ -87,6 +97,22 @@ public class MyTasks extends Fragment {
                 });
             }
         });
+    }
+
+    private void  getProjectsName(final ArrayList<ProjectTask> tasks, final CallbackArrayListStrings callbackArrayListStrings){
+        final ArrayList<String> names =  new ArrayList<>();
+        for(final ProjectTask task: tasks){
+            ProjectDatabaseCalls.getProjectName(task.getProject(), new CallbackString() {
+                @Override
+                public void onCallBack(String value) {
+                    names.add(value);
+                    Log.d("mandate", value + names.size() + tasks.size());
+                    if(names.size()==tasks.size()){
+                        callbackArrayListStrings.onCallback(names);
+                    }
+                }
+            });
+        }
     }
 
     private void getMyTasksFromDataBase(String collection, final CallbackArrayListTasks callbackArrayListTasks) {

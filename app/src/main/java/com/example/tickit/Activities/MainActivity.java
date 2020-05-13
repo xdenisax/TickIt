@@ -177,12 +177,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<DocumentReference>getMandateProjects(){
         ArrayList<DocumentReference> projects = new ArrayList<>();
-        for(Mandate mandate : loggedInUser.getMandates()){
-            if(mandate.getProject_name().getPath().equals("bebc/be-bc")){
-                Log.d("projects", mandate.getProject_name().getPath());
-                return null;
+        if(loggedInUser.getMandates()!=null){
+            for(Mandate mandate : loggedInUser.getMandates()){
+                if(mandate.getProject_name().getPath().equals("bebc/be-bc")){
+                    Log.d("projects", mandate.getProject_name().getPath());
+                    return null;
+                }
+                projects.add(mandate.getProject_name());
             }
-            projects.add(mandate.getProject_name());
         }
         return projects;
     }
