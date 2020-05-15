@@ -108,7 +108,7 @@ public class ProjectTasksDatabaseCalls {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        callbackBoolean.callback(true);
+                        callbackBoolean.callback(false);
                        }
                 });
     }

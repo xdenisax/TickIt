@@ -29,21 +29,21 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private TextView taskName, projectName, deadline, assumptionStatusTextView;
     private ProjectTask task;
-    private String project;
+   // private String project;
     private ArrayList<String> projectNames = new ArrayList<>();
     View view;
 
     public ListViewTasksAdapter(@NonNull Context context, int resource, @NonNull ArrayList<ProjectTask> objects, ArrayList<String> projectName) {
         super(context, resource, objects);
         this.resourceID = resource;
-        this.projectNames.addAll(projectName);
+        //this.projectNames.addAll(projectName);
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         task = getItem(position);
-        project = projectNames.get(position);
+        //project = projectNames.get(position);
         view = LayoutInflater.from(getContext()).inflate(resourceID,null);
         assignViews();
 
@@ -52,7 +52,7 @@ public class ListViewTasksAdapter extends ArrayAdapter<ProjectTask> {
 
         String date = dateFormat.format(task.getStopDate());
         deadline.setText(date);
-        projectName.setText(project);
+       // projectName.setText(project);
 
 
         setColorsOfDeadlines(task);

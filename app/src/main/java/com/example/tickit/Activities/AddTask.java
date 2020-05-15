@@ -153,19 +153,9 @@ public class AddTask extends AppCompatActivity {
                         public void onCallBack(final ProjectTask projectTask) {
                             if(task!=null){
                                 if(task.getNumberOfVolunteers()==task.getMembersWhoAssumed().size()) {
-                                    ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", projectTask, new CallbackBoolean() {
-                                        @Override
-                                        public void callback(Boolean bool) {
-                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
-                                        }
-                                    });
+                                    transferTaskFromAssumedToOpen(projectTask);
                                 }else{
-                                    ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
-                                        @Override
-                                        public void callback(Boolean bool) {
-                                            Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
-                                        }
-                                    });
+                                    transferTaskFromOpenToAssumed(projectTask);
                                 }
                                 setResult(RESULT_OK);
                             }else {
@@ -180,6 +170,62 @@ public class AddTask extends AppCompatActivity {
                             finish();
                         }
                     });
+            }
+        });
+    }
+
+    private void transferTaskFromAssumedToOpen(final ProjectTask projectTask) {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                ProjectTasksDatabaseCalls.removeTask("assumedTasks", projectTask, new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getNumberOfVolunteers(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void transferTaskFromOpenToAssumed(ProjectTask projectTask) {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) { }
+        });
+        ProjectTasksDatabaseCalls.removeTask("openTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) { }
+        });
+    }
+
+
+    private void transferFromAssumedToOpen(final ProjectTask projectTask) {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("openTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
+            }
+        });
+        ProjectTasksDatabaseCalls.removeTask("assumedTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+
+            }
+        });
+    }
+
+    private void transferFromOpenToAssumed(final ProjectTask projectTask) {
+        ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                Toast.makeText(getApplicationContext(), "S-a editat un task pentru divizia " + projectTask.getDivision() , Toast.LENGTH_LONG).show();
+            }
+        });
+        ProjectTasksDatabaseCalls.removeTask("openTasks", projectTask, new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+
             }
         });
     }

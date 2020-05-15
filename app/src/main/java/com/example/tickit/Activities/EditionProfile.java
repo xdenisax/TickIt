@@ -329,19 +329,21 @@ public class EditionProfile extends AppCompatActivity {
     private boolean isAtLeast(int grade){
         if(MainActivity.getUserGrade() < 2){
             return true;
+        }
+        if(MainActivity.getUserGrade()>3){
+            return false;
+        }
+        if(MainActivity.getCurrentMandates()==null){
+            return false;
+        }
+        if(MainActivity.getCurrentMandates().size()==0){
+            return false;
+        }
+        if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
+            return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
+                    && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);
         }else{
-            if(MainActivity.getCurrentMandates()==null){
-                return false;
-            }
-            if(MainActivity.getCurrentMandates().size()==0){
-                return false;
-            }
-            if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
-                return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
-                        && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);
-            }else{
-                return false;
-            }
+            return false;
         }
     }
 }

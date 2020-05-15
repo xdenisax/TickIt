@@ -64,7 +64,6 @@ public class OpenTasks extends Fragment {
     private ImageButton addTaskButton;
     private ListView openTasks, assumedTasks;
     private ProgressBar spinkitOpenTasks, spinKitAssumedTasks;
-   // private ListViewTasksAdapter adapter;
    public static final String NOTIFICATION_CHANNEL_ID = "10001";
     private TextView textViewNoOpenTasks, textViewNoAssumedTasks;
     private RecyclerView openTasksRecyclerView, assumedTasksRecyclerView;
@@ -80,8 +79,6 @@ public class OpenTasks extends Fragment {
         assignViews();
         addTaskButtonPressed(view);
 
-//        loadOpenTasks();
-//        loadAssumedTasks();
         setAllowanceOnAddTaskButton(view);
         setUpOpenTasksRecyclerView();
         setUpAssumedTasksRecyclerView();
