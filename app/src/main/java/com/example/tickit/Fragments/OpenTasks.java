@@ -92,17 +92,29 @@ public class OpenTasks extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        adapterOpenTasks.startListening();
-        adapterAssumedTasks.startListening();
-        manageLoadingViews(spinKitAssumedTasks, adapterAssumedTasks.getItemCount(), textViewNoAssumedTasks);
-        manageLoadingViews(spinkitOpenTasks, adapterOpenTasks.getItemCount(), textViewNoOpenTasks);
+        if(adapterOpenTasks!=null){
+            adapterOpenTasks.startListening();
+            manageLoadingViews(spinkitOpenTasks, adapterOpenTasks.getItemCount(), textViewNoOpenTasks);
+        }else{
+            manageLoadingViews(spinkitOpenTasks, 0, textViewNoOpenTasks);
+        }
+        if(adapterAssumedTasks!=null){
+            adapterAssumedTasks.startListening();
+            manageLoadingViews(spinKitAssumedTasks, adapterAssumedTasks.getItemCount(), textViewNoAssumedTasks);
+        }else{
+            manageLoadingViews(spinKitAssumedTasks, 0, textViewNoAssumedTasks);
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        adapterAssumedTasks.stopListening();
-        adapterOpenTasks.stopListening();
+        if(adapterAssumedTasks!=null) {
+            adapterAssumedTasks.stopListening();
+        }
+        if(adapterOpenTasks!=null) {
+            adapterOpenTasks.stopListening();
+        }
     }
 
     private void assignViews() {
@@ -134,37 +146,56 @@ public class OpenTasks extends Fragment {
         Query query;
         if(MainActivity.getMandateProjects()==null){
             query= FirebaseFirestore.getInstance().collection("openTasks");
+            FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                    .setQuery(query, ProjectTask.class)
+                    .build();
+            adapterOpenTasks=new TasksAdapter(options);
+            openTasksRecyclerView.setHasFixedSize(true);
+            openTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            openTasksRecyclerView.setAdapter(adapterOpenTasks);
+            setClickListeners(adapterOpenTasks);
+
         }else{
-            query = FirebaseFirestore.getInstance().collection("openTasks").whereIn("project", MainActivity.getMandateProjects());
+            if(MainActivity.getMandateProjects().size()>0){
+                query = FirebaseFirestore.getInstance().collection("openTasks").whereIn("project", MainActivity.getMandateProjects());
+                FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                        .setQuery(query, ProjectTask.class)
+                        .build();
+                adapterOpenTasks=new TasksAdapter(options);
+                openTasksRecyclerView.setHasFixedSize(true);
+                openTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                openTasksRecyclerView.setAdapter(adapterOpenTasks);
+                setClickListeners(adapterOpenTasks);
+
+            }
         }
-
-        FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
-                .setQuery(query, ProjectTask.class)
-                .build();
-        adapterOpenTasks=new TasksAdapter(options);
-        openTasksRecyclerView.setHasFixedSize(true);
-        openTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        openTasksRecyclerView.setAdapter(adapterOpenTasks);
-
-        setClickListeners(adapterOpenTasks);
     }
 
     private void setUpAssumedTasksRecyclerView(){
         Query query;
         if(MainActivity.getMandateProjects()==null){
              query= FirebaseFirestore.getInstance().collection("assumedTasks");
+            FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                    .setQuery(query, ProjectTask.class)
+                    .build();
+            adapterAssumedTasks=new TasksAdapter(options);
+            assumedTasksRecyclerView.setHasFixedSize(true);
+            assumedTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            assumedTasksRecyclerView.setAdapter(adapterAssumedTasks);
+            setClickListeners(adapterAssumedTasks);
         }else{
-            query = FirebaseFirestore.getInstance().collection("assumedTasks").whereIn("project", MainActivity.getMandateProjects());
+            if(MainActivity.getMandateProjects().size()>0){
+                query = FirebaseFirestore.getInstance().collection("assumedTasks").whereIn("project", MainActivity.getMandateProjects());
+                FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
+                        .setQuery(query, ProjectTask.class)
+                        .build();
+                adapterAssumedTasks=new TasksAdapter(options);
+                assumedTasksRecyclerView.setHasFixedSize(true);
+                assumedTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                assumedTasksRecyclerView.setAdapter(adapterAssumedTasks);
+                setClickListeners(adapterAssumedTasks);
+            }
         }
-        final FirestoreRecyclerOptions<ProjectTask> options = new FirestoreRecyclerOptions.Builder<ProjectTask>()
-                .setQuery(query, ProjectTask.class)
-                .build();
-        adapterAssumedTasks=new TasksAdapter(options);
-        assumedTasksRecyclerView.setHasFixedSize(true);
-        assumedTasksRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        assumedTasksRecyclerView.setAdapter(adapterAssumedTasks);
-
-        setClickListeners(adapterAssumedTasks);
     }
 
     private void setClickListeners(TasksAdapter adapter) {

@@ -32,7 +32,7 @@ public class Dashboard extends Fragment  {
     private int REQUEST_CODE_DASHBOARD = 3;
     private DatabaseReference myRef;
     private GoogleSignInClient mGoogleSignInClient;
-    private TextView nameTextView, emailTextView, idTextView;
+    private TextView nameTextView;
     private ImageButton signOutButton, profileButton;
     private ImageView userPictureImageView;
     private GoogleSignInOptions gso;
@@ -59,12 +59,12 @@ public class Dashboard extends Fragment  {
     public void onStart() {
         super.onStart();
         setGoogleUp();
-
     }
 
     private void assignViews() {
         signOutButton = (ImageButton) view.findViewById(R.id.signOutButton);
         profileButton = (ImageButton) view.findViewById(R.id.profileButton);
+        nameTextView = (TextView) view.findViewById(R.id.userName);
     }
 
     private void setGoogleUp() {
@@ -72,6 +72,8 @@ public class Dashboard extends Fragment  {
             gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
             mGoogleSignInClient = GoogleSignIn.getClient(MainActivity.getContext(), gso);
         }
+        String text= MainActivity.getLoggedInUser().getFirstName() + "!";
+        nameTextView.setText(text);
     }
 
     private void signOutButtonPressed(ImageButton signOutButton, View view) {

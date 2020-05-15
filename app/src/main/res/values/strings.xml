@@ -57,6 +57,7 @@
     <string name="descriere_proiect">Descriere proiect</string>
     <string name="adauga_imagine">Adauga imagine</string>
     <string name="csv">CSV</string>
+    <string name="bine_ai_revenit">Bine ai revenit,</string>
 
     <string-array name="departments">
         <item>Departament</item>
