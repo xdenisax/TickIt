@@ -16,7 +16,9 @@
         android:roundIcon="@drawable/sisc_logo250"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.AddProject"
+        <activity android:name=".Activities.Statistics"></activity>
+        <activity
+            android:name=".Activities.AddProject"
             android:theme="@style/AppTheme.PopUpTheme" />
         <activity android:name=".Activities.AddMemberProject" />
         <activity

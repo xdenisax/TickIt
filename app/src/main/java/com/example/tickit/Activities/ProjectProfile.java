@@ -61,8 +61,7 @@ public class ProjectProfile extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(REQUEST_CODE_ADD_EDITION==requestCode && resultCode==RESULT_OK){
-            if(data!=null){
+        if(REQUEST_CODE_ADD_EDITION==requestCode && resultCode==RESULT_OK  && data!=null && data.getParcelableExtra("newAddedEdition")!=null){
                 Edition newEdition = (Edition) data.getParcelableExtra("newAddedEdition");
                 addNewEditionToLocalProject(newEdition);
                 ProjectDatabaseCalls.saveEdition(project, newEdition,  new CallbackBoolean() {
@@ -77,9 +76,8 @@ public class ProjectProfile extends AppCompatActivity {
                     }
                 });
                 addMandates(newEdition);
-            }else{
-                Toast.makeText(getApplicationContext(), "Nu s-a adaugat o editie noua.",Toast.LENGTH_LONG).show();
-            }
+        }else{
+            Toast.makeText(getApplicationContext(), "Nu s-a adaugat o editie noua.",Toast.LENGTH_LONG).show();
         }
     }
 

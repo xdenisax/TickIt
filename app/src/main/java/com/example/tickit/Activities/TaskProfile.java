@@ -234,7 +234,7 @@ public class TaskProfile extends AppCompatActivity {
                     ProjectTasksDatabaseCalls.updateProgressInDataBase("openTasks", task, getPersonalProgressIndex(), new CallbackBoolean() {
                         @Override
                         public void callback(Boolean bool) {
-                            Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getMembersWhoAssumed().get(getPersonalProgressIndex()).isNeedingHelp(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Pregres ingregistrat.", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -256,7 +256,7 @@ public class TaskProfile extends AppCompatActivity {
                 ProjectTasksDatabaseCalls.removeTask("assumedTasks", task, new CallbackBoolean() {
                     @Override
                     public void callback(Boolean bool) {
-                        Toast.makeText(getApplicationContext(), "Cererea a fost ingregistrata."+task.getNumberOfVolunteers(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Modificare inregistrate.", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -266,12 +266,16 @@ public class TaskProfile extends AppCompatActivity {
     private void transferTaskFromOpenToAssumed() {
         ProjectTasksDatabaseCalls.addProjectTaskInDataBase("assumedTasks", task, new CallbackBoolean() {
             @Override
-            public void callback(Boolean bool) { }
+            public void callback(Boolean bool) {
+                ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
+                    @Override
+                    public void callback(Boolean bool) {
+                        Toast.makeText(getApplicationContext(), "Modificare inregistrate.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         });
-        ProjectTasksDatabaseCalls.removeTask("openTasks", task, new CallbackBoolean() {
-            @Override
-            public void callback(Boolean bool) { }
-        });
+
     }
 
     private void assumptionButtonPressed() {

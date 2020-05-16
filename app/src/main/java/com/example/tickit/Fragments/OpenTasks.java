@@ -204,7 +204,7 @@ public class OpenTasks extends Fragment {
         });
     }
 
-    public static void manageLoadingViews(ProgressBar spinKit,int size , TextView textViewNoTasks) {
+    private static void manageLoadingViews(ProgressBar spinKit, int size, TextView textViewNoTasks) {
         spinKit.setVisibility(View.GONE);
         if(size>0){
             textViewNoTasks.setVisibility(View.GONE);
@@ -223,17 +223,17 @@ public class OpenTasks extends Fragment {
         PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.getContext(), 0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager = (NotificationManager) MainActivity.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
-        {
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+        if(MainActivity.getContext() != null) {
+            NotificationManager notificationManager = (NotificationManager) MainActivity.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && notificationManager!=null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
 
-            builder.setChannelId(NOTIFICATION_CHANNEL_ID);
-            notificationManager.createNotificationChannel(notificationChannel);
+                builder.setChannelId(NOTIFICATION_CHANNEL_ID);
+                notificationManager.createNotificationChannel(notificationChannel);
+                notificationManager.notify(0, builder.build());
+            }
         }
-
-        notificationManager.notify(0, builder.build());
     }
 
     private void addTaskButtonPressed(View view) {

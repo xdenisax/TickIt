@@ -339,6 +339,7 @@ public class EditionProfile extends AppCompatActivity {
         if(MainActivity.getCurrentMandates().size()==0){
             return false;
         }
+        Log.d("mandate", projectName+edition.getStopDate() );
         if(MainActivity.getCurrentMandates().containsKey(projectName+edition.getStopDate())){
             return MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getStop_date().equals(edition.getStopDate())
                     && (MainActivity.getCurrentMandates().get(projectName+edition.getStopDate()).getGrade() <= grade);

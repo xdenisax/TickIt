@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inspector.StaticInspectionCompanionProvider;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.tickit.Activities.AddProject;
 import com.example.tickit.Activities.MainActivity;
+import com.example.tickit.Activities.Statistics;
 import com.example.tickit.Adapters.ListViewProjectsAdapter;
 import com.example.tickit.Callbacks.CallbackArrayListEditions;
 import com.example.tickit.Callbacks.CallbackArrayListMandates;
@@ -65,7 +67,7 @@ public class Projects extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private View view;
-    private ImageButton addProjectButton;
+    private ImageButton addProjectButton, stats;
 
     public Projects() { }
 
@@ -76,6 +78,7 @@ public class Projects extends Fragment {
         setUpRecyclerView();
         setAllowanceOnViews();
         addProjectButtonPressed();
+        statsButtonPressed();
 
         return view;
     }
@@ -95,12 +98,14 @@ public class Projects extends Fragment {
     private void assignViews() {
         progressBar = (ProgressBar) view.findViewById(R.id.spin_kit);
         addProjectButton= (ImageButton) view.findViewById(R.id.addProjectsButton);
+        stats= (ImageButton) view.findViewById(R.id.statistics);
         recyclerView = (RecyclerView) view.findViewById(R.id.projectsRecyclerView);
     }
 
     private void setAllowanceOnViews() {
         if(MainActivity.getUserGrade()>=2){
             addProjectButton.setVisibility(View.GONE);
+            stats.setVisibility(View.GONE);
         }
     }
 
@@ -132,15 +137,6 @@ public class Projects extends Fragment {
                 });
             }
         });
-
-        if(MainActivity.getUserGrade()<2){
-            adapter.setOnItemLongClickListener(new ProjectAdapter.OnItemLongClickListener() {
-                @Override
-                public void onItemLongClick(DocumentReference projectReference, int position) {
-                    launchAlertDialog(projectReference, getContext());
-                }
-            });
-        }
     }
 
     private void addProjectButtonPressed() {
@@ -152,25 +148,15 @@ public class Projects extends Fragment {
         });
     }
 
-    private void launchAlertDialog(final DocumentReference documentReference, Context context) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Doriti stergerea proiectului?");
-        dialog
-                .setPositiveButton("Da", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ProjectDatabaseCalls.deleteProject(documentReference);
-                    }
-                })
-                .setNegativeButton("Nu", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alertDialog = dialog.create();
-        alertDialog.show();
+    private void statsButtonPressed() {
+        stats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(MainActivity.getContext()!=null){
+                    startActivity(new Intent(MainActivity.getContext(), Statistics.class));
+                }
+            }
+        });
     }
-
 
 }

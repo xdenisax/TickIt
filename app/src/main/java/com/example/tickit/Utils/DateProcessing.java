@@ -26,7 +26,7 @@ public class DateProcessing implements Serializable {
                 if (!(month >= 1 && month <= 12)) {
                     return false;
                 } else {
-                    if (!(year >= 2010 && year <= 2100)) {
+                    if (!(year >= 1997 && year <= 2100)) {
                         return false;
                     } else {
                         return true;

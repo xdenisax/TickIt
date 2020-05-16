@@ -58,6 +58,17 @@
     <string name="adauga_imagine">Adauga imagine</string>
     <string name="csv">CSV</string>
     <string name="bine_ai_revenit">Bine ai revenit,</string>
+    <string name="data_inceput_dupa_data_sfarsit">Data de sfarsit este dupa data de inceput. Format incorect!</string>
+    <string name="data_inceput_format_incorect">Data de sfarsit nu a fost introdusa in formatul corect: dd-mm-yyyy.</string>
+    <string name="data_inceput_format_incorectt">Data de inceput nu a fost introdusa in formatul corect: dd-mm-yyyy.</string>
+    <string name="numar_voluntari_neintrodus">Introduceti numarul de voluntari necesari.</string>
+    <string name="descrirerea_task_ului_insuficient_de_lunga">Descrierea task-ului trebuie sa aiba mai mult de 10 caractere.</string>
+    <string name="task_uri_minim_3_caractere">Numele task-ului trebuie sa aiba mai mult de 3 caractere.</string>
+    <string name="divizie_incorecta">Divizia aleasa nu corespunde cu divizia ta.</string>
+    <string name="divizie_neselectata">Alegeti divizia pentru care doriti adaugare task-ului.</string>
+    <string name="proiect_neselectatt">Alegeti proiectul pentru care doriti adaugare task-ului.</string>
+    <string name="editare_task">\"Editare task \"</string>
+    <string name="pe_proiectul">\" pe proiectul \"</string>
 
     <string-array name="departments">
         <item>Departament</item>

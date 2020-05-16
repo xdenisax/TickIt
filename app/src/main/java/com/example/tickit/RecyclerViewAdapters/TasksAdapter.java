@@ -110,7 +110,7 @@ public class TasksAdapter extends FirestoreRecyclerAdapter<ProjectTask, TasksAda
     class TaskHolder extends RecyclerView.ViewHolder{
         private TextView taskName, projectName, deadline, assumptionStatusTextView;
 
-        public TaskHolder(@NonNull View itemView) {
+        TaskHolder(@NonNull View itemView) {
             super(itemView);
             taskName = (TextView) itemView.findViewById(R.id.textViewTaskNameCard);
             projectName = (TextView) itemView.findViewById(R.id.textViewProjectNameCard);
@@ -142,10 +142,6 @@ public class TasksAdapter extends FirestoreRecyclerAdapter<ProjectTask, TasksAda
         void onItemLongClick(DocumentSnapshot taskSnapshot, int position);
     }
 
-    public void setOnItemLongClickListener(TasksAdapter.OnItemLongClickListener listener){
-        this.longClickListener=listener;
-    }
-
     public interface OnItemClickListener{
         void onItemClick(DocumentSnapshot taskSnapshot, int position);
     }
@@ -156,29 +152,31 @@ public class TasksAdapter extends FirestoreRecyclerAdapter<ProjectTask, TasksAda
 
     private void setColorsOfDeadlines(ProjectTask task, TaskHolder holder){
         if(task.getMembersWhoAssumed()!=null && task.getMembersWhoAssumed().size() == task.getNumberOfVolunteers()
-                && hasEveryoneFinished(task.getMembersWhoAssumed())
+                && hasEveryoneFinished(task)
                 && MainActivity.getContext()!=null){
             holder.deadline.setTextColor(ContextCompat.getColor(MainActivity.getContext(),R.color.green));
         }
 
-        if( havePassedThreeQuartersOfTime(task) && !hasEveryoneFinished(task.getMembersWhoAssumed()) && MainActivity.getContext()!=null){
+        if( havePassedThreeQuartersOfTime(task) && !hasEveryoneFinished(task) && MainActivity.getContext()!=null){
             holder.deadline.setTextColor(ContextCompat.getColor(MainActivity.getContext(),R.color.brownish_yellow));
         }
 
-        if( Calendar.getInstance().getTime().after(task.getStopDate()) && !hasEveryoneFinished(task.getMembersWhoAssumed()) && MainActivity.getContext()!=null){
+        if( Calendar.getInstance().getTime().after(task.getStopDate()) && !hasEveryoneFinished(task) && MainActivity.getContext()!=null){
             holder.deadline.setTextColor(ContextCompat.getColor(MainActivity.getContext(),R.color.red));
         }
     }
     private boolean havePassedThreeQuartersOfTime(ProjectTask task){
-        Log.d("mandate", task.getTaskName()+ " " +(task.getStopDate().getTime()-task.getStartDate().getTime()/4)+" "+ (task.getStopDate().getTime() - Calendar.getInstance().getTime().getTime()) + " "+ (task.getStopDate().before(Calendar.getInstance().getTime())) );
-        return (task.getStopDate().getTime()-task.getStartDate().getTime())/4 > (task.getStopDate().getTime() - Calendar.getInstance().getTime().getTime()) && (task.getStopDate().getTime() - Calendar.getInstance().getTime().getTime()>0);
+          return (task.getStopDate().getTime()-task.getStartDate().getTime())/4 > (task.getStopDate().getTime() - Calendar.getInstance().getTime().getTime()) && (task.getStopDate().getTime() - Calendar.getInstance().getTime().getTime()>0);
     }
 
-    private boolean hasEveryoneFinished(ArrayList<AssumedTasksSituation> membersWhoAssumed) {
-        if(membersWhoAssumed ==null|| membersWhoAssumed.size()<1){
+    private boolean hasEveryoneFinished(ProjectTask task) {
+        if(task.getMembersWhoAssumed()  ==null|| task.getMembersWhoAssumed().size()<1){
             return false;
         }
-        for (AssumedTasksSituation situation : membersWhoAssumed){
+        if(task.getMembersWhoAssumed().size()<task.getNumberOfVolunteers()){
+            return false;
+        }
+        for (AssumedTasksSituation situation : task.getMembersWhoAssumed()){
             if(situation.getProgress()<2){
                 return false;
             }

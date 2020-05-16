@@ -17,6 +17,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -49,6 +50,29 @@ public class ProjectTasksDatabaseCalls {
                      });
 
      }
+
+    public static void getTasksForDivision(String division, final String collection, final CallbackArrayListTasks callbackArrayListTasks){
+        instance
+                .collection(collection)
+                .whereEqualTo("division", division)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if(queryDocumentSnapshots!=null){
+                            ArrayList<ProjectTask> tasksForDivision = new ArrayList<>();
+                            for(QueryDocumentSnapshot queryDocumentSnapshot:queryDocumentSnapshots){
+                                tasksForDivision.add(queryDocumentSnapshot.toObject(ProjectTask.class));
+                                if(tasksForDivision.size()==queryDocumentSnapshots.size()){
+                                    callbackArrayListTasks.onCallBack(tasksForDivision);
+                                }
+                            }
+                            if(queryDocumentSnapshots.size()==0){
+                                callbackArrayListTasks.onCallBack(new ArrayList<ProjectTask>());
+                            }
+                        }
+                    }
+                });
+    }
 
     public static void updateProgressInDataBase(final String collection, final ProjectTask projectTask, final int memberIndex, final CallbackBoolean callbackBoolean){
          instance
