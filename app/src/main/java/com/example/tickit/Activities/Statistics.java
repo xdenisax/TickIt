@@ -36,16 +36,12 @@ public class Statistics extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
 
-        AnyChartView anyChartView = findViewById(R.id.chart);
+        final AnyChartView anyChartView = findViewById(R.id.chart);
 
-        HeatMap projectSituation = AnyChart.heatMap();
-        getData(new CallbackBoolean() {
-            @Override
-            public void callback(Boolean bool) {
+        final HeatMap projectSituation = AnyChart.heatMap();
 
-            }
-        });
         projectSituation.stroke("1 #fff");
+        projectSituation.background().fill(new SolidFill("#00171f", 1d));
         projectSituation.hovered()
                 .stroke("2 #2fe6de")
                 .fill(new SolidFill("#00171f", 1d))
@@ -62,15 +58,22 @@ public class Statistics extends AppCompatActivity {
         projectSituation.labels()
                 .minFontSize(14d)
                 .format("function() {\n" +
-                        "      var namesList = [\"0\", \"1\", \"2\", \"3\"];\n" +
+                        "      var namesList = [\"0\", \"1-2\", \"3-4\", \">=5\"];\n" +
                         "      return namesList[this.heat];\n" +
                         "    }");
 
         projectSituation.yAxis(0).stroke(null);
         projectSituation.yAxis(0).labels().padding(0d, 15d, 0d, 0d);
+        projectSituation.yAxis(0).labels().rotation(-90);
+        projectSituation.yAxis(0).staggerMode(true);
+        projectSituation.yAxis(0).staggerLines(2);
         projectSituation.yAxis(0).ticks(false);
+
+
         projectSituation.xAxis(0).stroke(null);
         projectSituation.xAxis(0).ticks(false);
+        projectSituation.xAxis(0).staggerMode(true);
+        projectSituation.xAxis(0).staggerLines(2);
 
         projectSituation.tooltip().title().useHtml(true);
         projectSituation.tooltip()
@@ -84,38 +87,75 @@ public class Statistics extends AppCompatActivity {
                         "           '<span style=\"color: #CECECE\">Proiect: </span>' + this.y;\n" +
                         "   }");
 
-        List<DataEntry> data = new ArrayList<>();
+        final List<DataEntry> dataList = new ArrayList<>();
 
-        data.add(new CustomHeatDataEntry("Rare", "Insigni", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Rare", "Minor", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Rare", "Moderate", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Rare", "Major", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Rare", "Extreme", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Unlikely", "Insigni", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Unlikely", "Minor", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Unlikely", "Moderate", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Unlikely", "Major", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Unlikely", "Extreme", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Possible", "Insigni", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Possible", "Minor", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Possible", "Moderate", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Possible", "Major", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Possible", "Extreme", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Likely", "Insigni", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Likely", "Minor", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Likely", "Moderate", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Likely", "Major", 2, "#ef6c00"));
-        data.add(new CustomHeatDataEntry("Likely", "Extreme", 2, "#ef6c00"));
-        data.add(new CustomHeatDataEntry("Almost\\nCertain", "Insigni", 0, "#90caf9"));
-        data.add(new CustomHeatDataEntry("Almost\\nCertain", "Minor", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Almost\\nCertain", "Moderate", 1, "#ffb74d"));
-        data.add(new CustomHeatDataEntry("Almost\\nCertain", "Major", 2, "#ef6c00"));
-        data.add(new CustomHeatDataEntry("Almost\\nCertain", "Extreme", 0, "#d84315"));
+        getData(new CallbackBoolean() {
+            @Override
+            public void callback(Boolean bool) {
+                for(String division:data.keySet()){
+                    Map<String, Integer> projectValue = data.get(division);
+                    for(String project:projectValue.keySet()){
+                        dataList.add(new CustomHeatDataEntry(division, project, getHeat(projectValue.get(project)),getColorForHeat(projectValue.get(project))));
+                    }
+                }
 
-        projectSituation.data(data);
+                projectSituation.data(dataList);
+                anyChartView.setChart(projectSituation);
+            }
+        });
 
+//        dataList.add(new CustomHeatDataEntry("Rare", "Insigni", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Rare", "Minor", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Rare", "Moderate", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Rare", "Major", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Rare", "Extreme", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Unlikely", "Insigni", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Unlikely", "Minor", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Unlikely", "Moderate", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Unlikely", "Major", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Unlikely", "Extreme", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Possible", "Insigni", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Possible", "Minor", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Possible", "Moderate", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Possible", "Major", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Possible", "Extreme", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Likely", "Insigni", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Likely", "Minor", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Likely", "Moderate", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Likely", "Major", 2, "#ef6c00"));
+//        dataList.add(new CustomHeatDataEntry("Likely", "Extreme", 2, "#ef6c00"));
+//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Insigni", 0, "#90caf9"));
+//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Minor", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Moderate", 1, "#ffb74d"));
+//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Major", 2, "#ef6c00"));
+//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Extreme", 0, "#d84315"));
 
-        anyChartView.setChart(projectSituation);
+    }
+
+    private String getColorForHeat(Integer integer) {
+        if(integer==0){
+            return "#139A43";
+        }
+        if(integer ==1 || integer ==2){
+            return "#efcb68";
+        }
+        if(integer ==3 || integer ==4){
+            return  "#ef6c00";
+        }
+        return "#941C2F";
+    }
+
+    private Integer getHeat(Integer integer) {
+        if(integer==0){
+            return 0;
+        }
+        if(integer ==1 || integer ==2){
+            return 1;
+        }
+        if(integer ==3 || integer ==4){
+            return 2;
+        }
+        return 3;
     }
 
     private void buildMaps(final CallbackBoolean callbackBoolean){
@@ -135,7 +175,7 @@ public class Statistics extends AppCompatActivity {
         });
     }
 
-    private void getData(CallbackBoolean callbackBoolean){
+    private void getData(final CallbackBoolean callbackBoolean){
         buildMaps(new CallbackBoolean() {
             @Override
             public void callback(Boolean bool) {
@@ -157,14 +197,15 @@ public class Statistics extends AppCompatActivity {
                                                 projectValue.put(task.getProject().getPath().substring(9), newValue);
                                                 data.put(division, projectValue);
                                             }
-                                            Log.d("mandate", data.keySet().toArray()[data.size()-1].toString());
                                             if(tasks.indexOf(task)==tasks.size()-1 && data.keySet().toArray()[data.size()-1].toString().equals(division)){
-                                                Log.d("mandate", data.keySet().toArray()[data.size()-1].toString());
+                                                callbackBoolean.callback(true);
                                             }
 
                                         }
                                     }
-
+                                    if(tasks.size()<=0 && data.keySet().toArray()[data.size()-1].toString().equals(division)){
+                                        callbackBoolean.callback(true);
+                                    }
                                 }
                             });
                         }

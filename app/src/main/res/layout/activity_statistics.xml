@@ -4,11 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.Statistics">
+    tools:context=".Activities.Statistics"
+    android:background="@color/darkblue">
 
     <com.anychart.AnyChartView
         android:id="@+id/chart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@color/darkblue"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
