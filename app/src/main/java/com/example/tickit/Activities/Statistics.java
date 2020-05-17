@@ -5,6 +5,8 @@ import androidx.core.content.ContextCompat;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
@@ -30,6 +32,7 @@ import java.util.Map;
 
 public class Statistics extends AppCompatActivity {
     Map<String, Map<String,Integer>> data;
+    ProgressBar spinkit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,20 +40,23 @@ public class Statistics extends AppCompatActivity {
         setContentView(R.layout.activity_statistics);
 
         final AnyChartView anyChartView = findViewById(R.id.chart);
+        anyChartView.setProgressBar( findViewById(R.id.spin_kitStatistics));
+
 
         final HeatMap projectSituation = AnyChart.heatMap();
 
         projectSituation.stroke("1 #fff");
         projectSituation.background().fill(new SolidFill("#00171f", 1d));
         projectSituation.hovered()
-                .stroke("2 #2fe6de")
-                .fill(new SolidFill("#00171f", 1d))
-                .labels("{ fontColor: '#2fe6de' }");
+                .stroke("2 #00171f")
+                .fill(new SolidFill("#EBF2FA", 1d))
+                .labels("{ fontColor: '#00171f' }");
 
         projectSituation.interactivity().selectionMode(SelectionMode.NONE);
 
         projectSituation.title().enabled(true);
         projectSituation.title()
+                .fontColor("#e1efe6")
                 .text("Situatia sarcinilor de lucru in cadrul proiectelor")
                 .padding(0d, 0d, 20d, 0d);
 
@@ -58,7 +64,7 @@ public class Statistics extends AppCompatActivity {
         projectSituation.labels()
                 .minFontSize(14d)
                 .format("function() {\n" +
-                        "      var namesList = [\"0\", \"1-2\", \"3-4\", \">=5\"];\n" +
+                        "      var namesList = [\"0\", \"1\", \"2\", \"3\", \"4\", \"5\"];\n" +
                         "      return namesList[this.heat];\n" +
                         "    }");
 
@@ -79,7 +85,7 @@ public class Statistics extends AppCompatActivity {
         projectSituation.tooltip()
                 .useHtml(true)
                 .titleFormat("function() {\n" +
-                        "      var namesList = [\"0\", \"1\", \"2\", \"3\"];\n" +
+                        "      var namesList = [\"0\", \"1\", \"2\", \"3\", \"4\", \"5\"];\n" +
                         "      return '<b>' + namesList[this.heat] + '</b> Deadline-uri depasite';\n" +
                         "    }")
                 .format("function () {\n" +
@@ -103,59 +109,27 @@ public class Statistics extends AppCompatActivity {
                 anyChartView.setChart(projectSituation);
             }
         });
-
-//        dataList.add(new CustomHeatDataEntry("Rare", "Insigni", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Rare", "Minor", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Rare", "Moderate", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Rare", "Major", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Rare", "Extreme", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Unlikely", "Insigni", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Unlikely", "Minor", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Unlikely", "Moderate", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Unlikely", "Major", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Unlikely", "Extreme", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Possible", "Insigni", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Possible", "Minor", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Possible", "Moderate", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Possible", "Major", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Possible", "Extreme", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Likely", "Insigni", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Likely", "Minor", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Likely", "Moderate", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Likely", "Major", 2, "#ef6c00"));
-//        dataList.add(new CustomHeatDataEntry("Likely", "Extreme", 2, "#ef6c00"));
-//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Insigni", 0, "#90caf9"));
-//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Minor", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Moderate", 1, "#ffb74d"));
-//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Major", 2, "#ef6c00"));
-//        dataList.add(new CustomHeatDataEntry("Almost\\nCertain", "Extreme", 0, "#d84315"));
-
     }
 
     private String getColorForHeat(Integer integer) {
         if(integer==0){
-            return "#139A43";
+            //return "#B3EFB2";
+            return "#BBCDE5";
         }
         if(integer ==1 || integer ==2){
-            return "#efcb68";
+            //return "#efcb68";
+            return "#3DA5D9";
         }
         if(integer ==3 || integer ==4){
-            return  "#ef6c00";
+            //return  "#BA5624";
+            return "#1C5D99";
         }
-        return "#941C2F";
+        return "#0A369D";
+       // return "#F71735";
     }
 
     private Integer getHeat(Integer integer) {
-        if(integer==0){
-            return 0;
-        }
-        if(integer ==1 || integer ==2){
-            return 1;
-        }
-        if(integer ==3 || integer ==4){
-            return 2;
-        }
-        return 3;
+        return integer<5?integer:5;
     }
 
     private void buildMaps(final CallbackBoolean callbackBoolean){
